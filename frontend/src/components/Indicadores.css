@@ -1,0 +1,151 @@
+/* ===== INDICADORES SECTION - ESPECÍFICOS ===== */
+
+/* Section específica de indicadores */
+.indicadores-section {
+  background: linear-gradient(120deg, #f8fafc 0%, #e0f2fe 100%);
+  padding: 4rem 0 3rem;
+  text-align: center;
+}
+
+/* Grid específico de indicadores */
+.indicadores-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 2rem;
+}
+
+/* Card específica de indicador */
+.indicador-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 8%);
+  padding: 1.5rem 1.2rem 1.2rem;
+  flex: 1 1 220px;
+  min-width: 220px;
+  max-width: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  text-align: center;
+  position: relative;
+}
+
+.indicador-card:hover {
+  box-shadow: 0 8px 32px rgb(99 102 241 / 13%);
+  transform: translateY(-6px) scale(1.03);
+}
+
+/* Líneas de color superiores para cada card */
+.indicador-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  border-radius: 1.2rem 1.2rem 0 0;
+}
+
+.indicador-card:nth-child(1)::before { background: var(--color-blue); }
+.indicador-card:nth-child(2)::before { background: var(--color-green); }
+.indicador-card:nth-child(3)::before { background: var(--color-orange); }
+.indicador-card:nth-child(4)::before { background: var(--color-yellow); }
+
+.indicador-chart {
+  margin-bottom: 1rem;
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.circular-chart {
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 3.8;
+}
+
+.circular-chart.blue .circle { stroke: #4a6bff; }
+.circular-chart.green .circle { stroke: #22c55e; }
+.circular-chart.orange .circle { stroke: #f59e42; }
+.circular-chart.yellow .circle { stroke: #facc15; }
+
+.circle {
+  fill: none;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  stroke-dasharray: 0, 100;
+  transition: stroke-dasharray 1.2s cubic-bezier(.77,0,.18,1);
+}
+
+.percentage {
+  font-size: 1.1rem;
+  fill: #222;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.indicador-icon {
+  font-size: 2rem;
+  color: var(--color-azul-claro);
+  margin-bottom: 0.7rem;
+}
+
+.indicador-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: 0.5rem;
+}
+
+.indicador-description {
+  font-size: 0.97rem;
+  color: var(--color-texto);
+  opacity: 0.8;
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .indicadores-section { padding: 2rem 0 1.5rem; }
+  .section-title { font-size: 1.3rem; }
+  .indicadores-grid { gap: 1.2rem; }
+  .indicador-card { padding: 1.2rem 0.7rem 1rem; }
+  .indicador-chart { width: 70px; height: 70px; }
+}
+
+@media (max-width: 900px) {
+  .indicadores-grid {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .indicador-card {
+    max-width: 100%;
+  }
+}
+
+/* Siempre en bloque horizontal en escritorio */
+@media (min-width: 901px) {
+  .indicadores-grid {
+    flex-wrap: nowrap;
+    gap: 2rem;
+  }
+
+  .indicador-card {
+    min-width: 220px;
+    max-width: 270px;
+    flex: 1 1 0;
+  }
+}

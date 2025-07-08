@@ -1,0 +1,59 @@
+/* ===== BOTONES COMPARTIDOS ===== */
+
+/* Estilos base ya definidos en utilities.css */
+
+/* === BOTONES ESPECÍFICOS DE PREDIVERSA === */
+.btn-inicio {
+  min-width: 50px !important;
+  padding: var(--spacing-sm) !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1;
+}
+
+.btn-regresar {
+  background: transparent;
+  color: var(--color-texto);
+  border: 1px solid transparent;
+}
+
+.btn-regresar:hover {
+  background: var(--color-gris-claro);
+  color: var(--color-azul-claro);
+}
+
+.btn-login {
+  background: var(--color-azul-claro);
+  color: var(--color-blanco);
+  border: 1px solid var(--color-azul-claro);
+}
+
+.btn-login:hover {
+  background: var(--color-hover-azul);
+  border-color: var(--color-hover-azul);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* === GRUPOS DE BOTONES === */
+.btn-group {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-group .btn {
+  flex: 1;
+  min-width: max-content;
+}
+
+@media (max-width: 576px) {
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+  }
+}

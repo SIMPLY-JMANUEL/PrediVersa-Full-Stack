@@ -1,0 +1,197 @@
+/* ===== LAYOUT DE PÁGINAS ===== */
+
+/* === PÁGINA PRINCIPAL === */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  background: var(--color-blanco);
+  border-bottom: 1px solid var(--color-borde-suave);
+  padding: calc(72px + var(--spacing-lg)) 0 var(--spacing-lg) 0;
+}
+
+.page-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.page-subtitle {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--color-texto);
+  opacity: 0.8;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.page-content {
+  flex: 1;
+  padding: var(--spacing-xl) 0;
+}
+
+/* === HERO SECTIONS === */
+.hero {
+  background: linear-gradient(135deg, var(--color-azul-oscuro), var(--color-azul-claro));
+  color: var(--color-blanco);
+  padding: calc(72px + var(--spacing-xxl)) 0 var(--spacing-xxl) 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, var(--primary-color) 25%, transparent 25%),
+             linear-gradient(-45deg, var(--primary-color) 25%, transparent 25%),
+             linear-gradient(45deg, transparent 75%, var(--primary-color) 75%),
+             linear-gradient(-45deg, transparent 75%, var(--primary-color) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: var(--spacing-lg);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.9;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* === SECCIONES DE CONTENIDO === */
+.content-section {
+  padding: var(--spacing-xxl) 0;
+}
+
+.content-section:nth-child(even) {
+  background: var(--color-gris-claro);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: var(--spacing-md);
+}
+
+.section-description {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--color-texto);
+  opacity: 0.8;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* === GRIDS DE CONTENIDO === */
+.content-grid {
+  display: grid;
+  gap: var(--spacing-xl);
+  margin-top: var(--spacing-xxl);
+}
+
+.content-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.content-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.content-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .content-grid-2,
+  .content-grid-3,
+  .content-grid-4 {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* === ESTADOS ESPECÍFICOS === */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  font-size: 1.2rem;
+  color: var(--color-texto);
+  opacity: 0.7;
+}
+
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.page-error-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin-bottom: var(--spacing-md);
+}
+
+.page-error-message {
+  font-size: 1.1rem;
+  color: var(--color-texto);
+  opacity: 0.8;
+  margin-bottom: var(--spacing-lg);
+  max-width: 500px;
+}

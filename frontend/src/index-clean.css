@@ -1,0 +1,13 @@
+/* ===== CONFIGURACIÓN ESPECÍFICA DE REACT ===== */
+
+/* Solo estilos específicos que no están en el sistema modular */
+body {
+  /* Configuración específica de React para suavizado de fuentes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Configuración para React Code Font */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}

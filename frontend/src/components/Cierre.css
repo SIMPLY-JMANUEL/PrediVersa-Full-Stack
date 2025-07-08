@@ -1,0 +1,147 @@
+/* ===== CIERRE SECTION - ESTILOS ESPECÍFICOS ===== */
+
+.cierre-section {
+  color: white;
+  padding: 6rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Contenido principal */
+.cierre-content {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Título principal específico */
+.cierre-title {
+  font-size: var(--text-hero-main);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+}
+
+.title-line-1,
+.title-line-2 {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.title-line-1 {
+  color: var(--color-blanco);
+  opacity: 0.9;
+  font-weight: 400;
+  font-size: 0.8em;
+}
+
+.title-highlight {
+  background: linear-gradient(135deg, var(--color-azul-claro) 0%, var(--color-azul-oscuro) 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+}
+
+/* Subtítulo */
+.cierre-subtitle {
+  font-size: var(--text-hero-sub);
+  color: rgb(255 255 255 / 85%);
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cierre-subtitle strong {
+  color: var(--color-azul-claro);
+  font-weight: 600;
+}
+
+/* Estilos específicos del compromiso */
+.commitment-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-blanco);
+  margin-bottom: 1.5rem;
+}
+
+.commitment-items {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.commitment-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255 255 255 / 80%);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: rgb(255 255 255 / 5%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.commitment-item:hover {
+  background: rgb(255 255 255 / 10%);
+  color: white;
+}
+
+/* Información de contacto */
+.cierre-contact-info {
+  margin-top: 2rem;
+}
+
+.contact-text {
+  font-size: 1rem;
+  color: rgb(255 255 255 / 70%);
+  margin-bottom: 1rem;
+}
+
+/* RESPONSIVE DESIGN */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .cierre-section {
+    padding: 4rem 0 3rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cierre-section {
+    padding: 3rem 0 2rem;
+  }
+  
+  .commitment-items {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .commitment-title {
+    font-size: 1.3rem;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .cierre-content {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.cierre-section:focus-within {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}

@@ -1,0 +1,48 @@
+/* MEJORAS RECOMENDADAS - CSS MODERNO */
+
+/* 1. CONTAINER QUERIES (para componentes más inteligentes) */
+@container (min-width: 768px) {
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+/* 2. LOGICAL PROPERTIES (mejor soporte internacional) */
+.section-padding {
+  padding-block: var(--spacing-xl);
+  padding-inline: var(--spacing-md);
+}
+
+/* 3. CUSTOM PROPERTIES MÁS INTELIGENTES */
+:root {
+  /* Espaciado fluido */
+  --space-xs: clamp(0.5rem, 2vw, 1rem);
+  --space-sm: clamp(1rem, 4vw, 2rem);
+  --space-md: clamp(2rem, 6vw, 3rem);
+  --space-lg: clamp(3rem, 8vw, 5rem);
+  
+  /* Tipografía fluida */
+  --text-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --text-base: clamp(1rem, 3vw, 1.125rem);
+  --text-lg: clamp(1.25rem, 4vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 5vw, 2rem);
+  --text-2xl: clamp(2rem, 6vw, 3rem);
+}
+
+/* 4. FOCUS STATES MODERNOS */
+*:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 5. SCROLL BEHAVIOR MEJORADO */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Fin del archivo - tema oscuro se maneja en themes/dark-mode.css */

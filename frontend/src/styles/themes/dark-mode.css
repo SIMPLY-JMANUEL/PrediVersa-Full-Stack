@@ -1,0 +1,163 @@
+/* ===== TEMA OSCURO PREDIVERSA ===== */
+
+/* Variables para tema oscuro */
+:root {
+  /* Toggle para activar tema oscuro */
+  --dark-mode: 0; /* 0 = claro, 1 = oscuro */
+}
+
+/* Tema oscuro automático basado en preferencia del sistema */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fondo: #0f172a;
+    --color-texto: #f1f5f9;
+    --color-azul-claro: #38bdf8;
+    --color-azul-oscuro: #1e293b;
+    --color-borde-suave: #334155;
+    --color-gris-claro: #1e293b;
+    --color-blanco: #0f172a;
+    --color-hover-azul: #0ea5e9;
+    --shadow-light: 0 4px 20px rgb(0 0 0 / 30%);
+    --shadow-medium: 0 8px 30px rgb(0 0 0 / 40%);
+    --shadow-heavy: 0 15px 50px rgb(0 0 0 / 50%);
+  }
+  
+  /* Ajustes específicos para formularios en modo oscuro */
+  .contacto-form input,
+  .contacto-form textarea,
+  .form-input,
+  .form-textarea {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+  }
+  
+  .contacto-form input::placeholder,
+  .contacto-form textarea::placeholder {
+    color: #94a3b8;
+  }
+  
+  .contacto-form input:focus,
+  .contacto-form textarea:focus {
+    background-color: #334155;
+    border-color: #38bdf8;
+  }
+  
+  /* Ajustes para cards y contenedores */
+  .contacto-info,
+  .card,
+  .feature-card,
+  .testimonial-card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+  
+  /* Ajustes para navegación */
+  .header {
+    background-color: rgb(15 23 42 / 95%);
+    border-bottom-color: #334155;
+  }
+  
+  .header-menu a {
+    color: #f1f5f9;
+  }
+  
+  .header-menu a:hover {
+    color: #38bdf8;
+  }
+  
+  /* Ajustes para footer */
+  .footer {
+    background-color: #0f172a;
+    border-top-color: #334155;
+  }
+  
+  /* Ajustes para botones */
+  .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #475569;
+    border-color: #64748b;
+  }
+}
+
+/* Clase manual para forzar tema oscuro */
+.dark-theme {
+  --color-fondo: #0f172a;
+  --color-texto: #f1f5f9;
+  --color-azul-claro: #38bdf8;
+  --color-azul-oscuro: #1e293b;
+  --color-borde-suave: #334155;
+  --color-gris-claro: #1e293b;
+  --color-blanco: #0f172a;
+  --color-hover-azul: #0ea5e9;
+}
+
+/* Transiciones suaves para cambio de tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Reducir transiciones si el usuario prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none;
+  }
+}
+
+/* Toggle de tema oscuro (preparado para implementar) */
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--color-borde-suave);
+  border-radius: 50px;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-texto);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-azul-claro);
+  background-color: var(--color-azul-claro);
+  color: var(--color-blanco);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-azul-claro);
+  outline-offset: 2px;
+}
+
+/* Iconos para el toggle */
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-toggle .icon-sun {
+    transform: scale(0);
+  }
+  
+  .theme-toggle .icon-moon {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .theme-toggle .icon-sun {
+    transform: scale(1);
+  }
+  
+  .theme-toggle .icon-moon {
+    transform: scale(0);
+  }
+}

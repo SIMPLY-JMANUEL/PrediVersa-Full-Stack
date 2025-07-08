@@ -1,0 +1,24 @@
+/* =====================
+   VARIABLES Y TONALIDAD CONSISTENTE CON ADMIN/STUDENT DASHBOARD
+   ===================== */
+:root {
+  --color-primary: #1976d2;
+  --color-primary-dark: #1565c0;
+  --color-secondary: #22223b;
+  --color-bg-light: #fafdff;
+  --color-bg-panel: #e3f2fd;
+  --color-bg-white: #fff;
+  --color-success: #388e3c;
+  --color-warning: #fbc02d;
+  --color-danger: #d32f2f;
+  --color-shadow: #1976d210;
+  --color-border: #b3c6d6;
+  --font-main: 'Inter', Arial, sans-serif;
+}
+
+/* Aquí puedes agregar utilidades y bloques base para el dashboard, igual que en Admin/StudentDashboard.css */
+
+/* Para que el contenido no quede debajo del header fijo */
+.dashboard-content-html, .teacher-dashboard-html, .admin-dashboard-html, .parent-dashboard-html, .moderator-dashboard-html {
+  padding-top: 80px;
+}

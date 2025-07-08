@@ -1,0 +1,68 @@
+/* ===== ESTILOS ESPECÍFICOS PARA PÁGINAS PREDIVERSA ===== */
+
+/* Asegurar que todas las páginas tengan el fondo correcto */
+.page-container,
+.main-content,
+.section,
+.content-wrapper {
+  background-color: var(--color-fondo) !important;
+  color: var(--color-texto) !important;
+}
+
+/* Títulos principales específicos de páginas */
+.page-title,
+.section-title,
+.main-title {
+  color: var(--color-azul-oscuro) !important;
+  font-family: var(--font-primary) !important;
+  font-weight: 700 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Subtítulos específicos de páginas */
+.page-subtitle,
+.section-subtitle {
+  color: var(--color-texto) !important;
+  font-family: var(--font-primary) !important;
+  font-weight: 400 !important;
+  margin-bottom: 2rem !important;
+  line-height: 1.6 !important;
+}
+
+/* Listas específicas de páginas */
+.content-list,
+.feature-list,
+.info-list {
+  list-style: none !important;
+  padding: 0 !important;
+}
+
+.content-list li,
+.feature-list li,
+.info-list li {
+  color: var(--color-texto) !important;
+  padding: 0.5rem 0 !important;
+  border-bottom: 1px solid var(--color-borde-suave) !important;
+}
+
+.content-list li:last-child,
+.feature-list li:last-child,
+.info-list li:last-child {
+  border-bottom: none !important;
+}
+
+/* === RESPONSIVE PARA PÁGINAS === */
+@media (max-width: 768px) {
+  .page-title { font-size: 1.75rem !important; }
+  .section-title { font-size: 1.5rem !important; }
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 1.5rem !important; }
+  .section-title { font-size: 1.25rem !important; }
+}
+
+/* 
+  NOTA: Las utilidades globales (cards, badges, alertas, tablas, etc.) 
+  ahora están consolidadas en src/styles/globals/utilities.css 
+*/

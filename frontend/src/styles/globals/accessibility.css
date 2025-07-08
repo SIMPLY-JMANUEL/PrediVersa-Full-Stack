@@ -1,0 +1,131 @@
+/* ===== UTILIDADES DE ACCESIBILIDAD GLOBALES ===== */
+
+/* === PREFERENCIAS DE MOVIMIENTO === */
+@media (prefers-reduced-motion: reduce) {
+  /* Desactivar transiciones y animaciones para elementos genéricos */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Elementos específicos que no deben tener movimiento */
+  .card,
+  .btn,
+  .card:hover,
+  .btn:hover,
+  .icon,
+  .avatar,
+  .logo {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* === FOCUS STATES GLOBALES === */
+*:focus-visible {
+  outline: 3px solid var(--color-azul-claro);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* === UTILIDADES DE PRINT === */
+@media print {
+  /* Ocultar elementos no necesarios para impresión */
+  .navigation,
+  .header-menu,
+  .footer-social,
+  .btn,
+  .back-btn,
+  .scroll-indicator {
+    display: none !important;
+  }
+  
+  /* Optimizar elementos para impresión */
+  .card,
+  .info-card,
+  .content-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+  
+  /* Texto optimizado para impresión */
+  * {
+    color: black !important;
+    background: white !important;
+  }
+  
+  .title-1,
+  .title-2,
+  .title-3,
+  h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+    background: none !important;
+    -webkit-text-fill-color: black !important;
+  }
+}
+
+/* === ESTADOS DE HOVER INTELIGENTES === */
+@media (hover: hover) and (pointer: fine) {
+  /* Solo aplicar hover states en dispositivos que soportan hover real */
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgb(74 178 227 / 30%);
+  }
+}
+
+/* === UTILIDADES DE SCREEN READERS === */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* === SKIP LINKS === */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-azul-oscuro);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 9999;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
