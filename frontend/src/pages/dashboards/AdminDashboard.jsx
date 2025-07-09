@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SystemStatus from './components/SystemStatus';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/img/logo-prediversa.png';
 import './HeaderDashboard.css';
@@ -607,27 +608,7 @@ function AdminDashboard() {
               </div>
             </section>
             <section className="system-status-container">
-              <h3>
-                <i className="fas fa-tachometer-alt" /> Estado del Sistema
-              </h3>
-              <div className="status-row">
-                <i className="fas fa-bolt" />
-                <span>
-                  <strong>Rendimiento:</strong> 98.5%
-                </span>
-              </div>
-              <div className="status-row">
-                <i className="fas fa-shield-alt" />
-                <span>
-                  <strong>Seguridad:</strong> Óptima
-                </span>
-              </div>
-              <div className="status-row">
-                <i className="fas fa-microchip" />
-                <span>
-                  <strong>Uso de Recursos:</strong> 67%
-                </span>
-              </div>
+              <SystemStatus />
             </section>
             <section className="stats-container">
               <h3>

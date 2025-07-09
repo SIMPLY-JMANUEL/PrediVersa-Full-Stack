@@ -111,6 +111,33 @@ router.delete(
   }
 );
 
+const os = require('os');
+
+// GET /admin/system-status
+router.get('/system-status', jwtRequired, roleRequired('admin'), (req, res) => {
+  // Simulación de métricas (puedes usar datos reales si lo deseas)
+  const rendimiento = 98.5; // Puedes calcularlo dinámicamente si lo prefieres
+  const seguridad = 'Óptima'; // O lógica real si tienes análisis de seguridad
+  const usoRecursos =
+    Math.round(((os.totalmem() - os.freemem()) / os.totalmem()) * 1000) / 10;
+  const uptime = Math.floor(process.uptime() / 60); // minutos
+  const usuariosActivos = Math.floor(Math.random() * 100) + 10; // Simulado
+  const peticionesUltimaHora = Math.floor(Math.random() * 500) + 100; // Simulado
+  const version = process.version;
+  const plataforma = process.platform;
+
+  res.json({
+    rendimiento,
+    seguridad,
+    usoRecursos,
+    uptime,
+    usuariosActivos,
+    peticionesUltimaHora,
+    version,
+    plataforma,
+  });
+});
+
 module.exports = router;
 
 /*
