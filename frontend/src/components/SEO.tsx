@@ -27,17 +27,23 @@ const SEO: React.FC<SEOProps> = ({
   ogUrl,
   twitterCard = 'summary_large_image',
   twitterSite = '@prediversa',
-  jsonLd
+  jsonLd,
 }) => {
   useEffect(() => {
     // Actualizar título
     document.title = title;
 
     // Función helper para crear/actualizar meta tags
-    const updateMetaTag = (name: string, content: string, property?: boolean) => {
-      const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+    const updateMetaTag = (
+      name: string,
+      content: string,
+      property?: boolean
+    ) => {
+      const selector = property
+        ? `meta[property="${name}"]`
+        : `meta[name="${name}"]`;
       let element = document.querySelector(selector);
-      
+
       if (!element) {
         element = document.createElement('meta');
         if (property) {
@@ -47,7 +53,7 @@ const SEO: React.FC<SEOProps> = ({
         }
         document.head.appendChild(element);
       }
-      
+
       element.setAttribute('content', content);
     };
 
@@ -57,7 +63,7 @@ const SEO: React.FC<SEOProps> = ({
     updateMetaTag('author', author);
     updateMetaTag('robots', 'index, follow');
     updateMetaTag('viewport', 'width=device-width, initial-scale=1');
-    
+
     // Meta tags para SEO
     updateMetaTag('language', 'es');
     updateMetaTag('revisit-after', '7 days');
@@ -71,7 +77,7 @@ const SEO: React.FC<SEOProps> = ({
     updateMetaTag('og:image', ogImage, true);
     updateMetaTag('og:site_name', 'PrediVersa', true);
     updateMetaTag('og:locale', 'es_ES', true);
-    
+
     if (ogUrl) {
       updateMetaTag('og:url', ogUrl, true);
     }
@@ -96,7 +102,9 @@ const SEO: React.FC<SEOProps> = ({
 
     // JSON-LD structured data
     if (jsonLd) {
-      let scriptElement = document.querySelector('script[type="application/ld+json"]');
+      let scriptElement = document.querySelector(
+        'script[type="application/ld+json"]'
+      );
       if (!scriptElement) {
         scriptElement = document.createElement('script');
         scriptElement.setAttribute('type', 'application/ld+json');
@@ -112,7 +120,20 @@ const SEO: React.FC<SEOProps> = ({
         document.title = 'PrediVersa - Plataforma Educativa';
       }
     };
-  }, [title, description, keywords, author, canonical, ogTitle, ogDescription, ogImage, ogUrl, twitterCard, twitterSite, jsonLd]);
+  }, [
+    title,
+    description,
+    keywords,
+    author,
+    canonical,
+    ogTitle,
+    ogDescription,
+    ogImage,
+    ogUrl,
+    twitterCard,
+    twitterSite,
+    jsonLd,
+  ]);
 
   return null; // Este componente no renderiza nada visible
 };
@@ -120,7 +141,7 @@ const SEO: React.FC<SEOProps> = ({
 // Hook personalizado para SEO
 export const useSEO = (seoProps: SEOProps) => {
   useEffect(() => {
-    const seoComponent = SEO(seoProps);
+    SEO(seoProps);
     return () => {
       // Cleanup si es necesario
     };
@@ -129,69 +150,71 @@ export const useSEO = (seoProps: SEOProps) => {
 
 // Datos estructurados predefinidos
 export const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "PrediVersa",
-  "description": "Plataforma educativa integral para diversidad e inclusión",
-  "url": "https://prediversa.com",
-  "logo": "https://prediversa.com/logo512.png",
-  "foundingDate": "2023",
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "telephone": "+1-555-0123",
-    "contactType": "customer service",
-    "email": "contacto@prediversa.com",
-    "availableLanguage": ["Spanish", "English"]
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'PrediVersa',
+  description: 'Plataforma educativa integral para diversidad e inclusión',
+  url: 'https://prediversa.com',
+  logo: 'https://prediversa.com/logo512.png',
+  foundingDate: '2023',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+1-555-0123',
+    contactType: 'customer service',
+    email: 'contacto@prediversa.com',
+    availableLanguage: ['Spanish', 'English'],
   },
-  "sameAs": [
-    "https://facebook.com/prediversa",
-    "https://twitter.com/prediversa",
-    "https://linkedin.com/company/prediversa"
-  ]
+  sameAs: [
+    'https://facebook.com/prediversa',
+    'https://twitter.com/prediversa',
+    'https://linkedin.com/company/prediversa',
+  ],
 };
 
 export const educationalOrganizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "EducationalOrganization",
-  "name": "PrediVersa",
-  "description": "Plataforma educativa integral para diversidad e inclusión",
-  "url": "https://prediversa.com",
-  "address": {
-    "@type": "PostalAddress",
-    "addressCountry": "España"
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: 'PrediVersa',
+  description: 'Plataforma educativa integral para diversidad e inclusión',
+  url: 'https://prediversa.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'España',
   },
-  "hasCredential": {
-    "@type": "EducationalOccupationalCredential",
-    "credentialCategory": "certificate",
-    "educationalLevel": "all levels"
-  }
+  hasCredential: {
+    '@type': 'EducationalOccupationalCredential',
+    credentialCategory: 'certificate',
+    educationalLevel: 'all levels',
+  },
 };
 
 export const webSiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "PrediVersa",
-  "description": "Plataforma educativa integral para diversidad e inclusión",
-  "url": "https://prediversa.com",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": "https://prediversa.com/search?q={search_term_string}"
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'PrediVersa',
+  description: 'Plataforma educativa integral para diversidad e inclusión',
+  url: 'https://prediversa.com',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://prediversa.com/search?q={search_term_string}',
     },
-    "query-input": "required name=search_term_string"
-  }
+    'query-input': 'required name=search_term_string',
+  },
 };
 
-export const breadcrumbSchema = (items: Array<{name: string, url: string}>) => ({
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": items.map((item, index) => ({
-    "@type": "ListItem",
-    "position": index + 1,
-    "name": item.name,
-    "item": item.url
-  }))
+export const breadcrumbSchema = (
+  items: Array<{ name: string; url: string }>
+) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: item.url,
+  })),
 });
 
 export const courseSchema = (course: {
@@ -202,22 +225,22 @@ export const courseSchema = (course: {
   duration?: string;
   instructor?: string;
 }) => ({
-  "@context": "https://schema.org",
-  "@type": "Course",
-  "name": course.name,
-  "description": course.description,
-  "provider": {
-    "@type": "Organization",
-    "name": course.provider
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: course.name,
+  description: course.description,
+  provider: {
+    '@type': 'Organization',
+    name: course.provider,
   },
-  "url": course.url,
-  ...(course.duration && { "timeRequired": course.duration }),
+  url: course.url,
+  ...(course.duration && { timeRequired: course.duration }),
   ...(course.instructor && {
-    "instructor": {
-      "@type": "Person",
-      "name": course.instructor
-    }
-  })
+    instructor: {
+      '@type': 'Person',
+      name: course.instructor,
+    },
+  }),
 });
 
 export default SEO;

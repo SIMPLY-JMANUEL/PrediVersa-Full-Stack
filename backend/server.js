@@ -12,18 +12,17 @@ console.log('Iniciando backend PrediVersa...');
 
 // Middlewares de seguridad
 app.use(helmet());
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://192.168.0.102:3000'
-  ],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ['http://localhost:3000', 'http://192.168.0.102:3000'],
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // máximo 100 requests por ventana de tiempo
+  max: 100, // máximo 100 requests por ventana de tiempo
 });
 app.use(limiter);
 
@@ -34,12 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/student', require('./routes/student'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/moderator', require('./routes/moderator'));
+app.use('/api/teacher', require('./routes/teacher'));
+app.use('/api/parent', require('./routes/parent'));
+app.use('/api/shared', require('./routes/shared'));
+app.use('/api/pqr', require('./routes/pqr'));
+app.use('/api/stats', require('./routes/stats'));
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
   res.json({
     message: 'Servidor PrediVersa funcionando correctamente',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -48,7 +55,7 @@ app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
   res.status(500).json({
     msg: 'Error interno del servidor',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 

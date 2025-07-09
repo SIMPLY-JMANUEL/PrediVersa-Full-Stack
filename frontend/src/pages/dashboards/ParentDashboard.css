@@ -16,9 +16,29 @@
   --font-main: 'Inter', Arial, sans-serif;
 }
 
+/* Estilos mínimos para componente en construcción */
+.construction-message {
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.construction-message h2 {
+  color: #1976d2;
+  margin-bottom: 1rem;
+}
+
+.construction-message p {
+  color: #666;
+}
+
 /* Aquí puedes agregar utilidades y bloques base para el dashboard, igual que en Admin/StudentDashboard.css */
 
 /* Para que el contenido no quede debajo del header fijo */
-.dashboard-content-html, .teacher-dashboard-html, .admin-dashboard-html, .parent-dashboard-html, .moderator-dashboard-html {
+.dashboard-content-html,
+.teacher-dashboard-html,
+.admin-dashboard-html,
+.parent-dashboard-html,
+.moderator-dashboard-html {
   padding-top: 80px;
 }

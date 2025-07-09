@@ -14,7 +14,7 @@ export default function useProfile() {
     }
     fetch('http://localhost:5001/api/profile', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       credentials: 'include',
@@ -35,7 +35,7 @@ export default function useProfile() {
       });
   }, []);
 
-  const updateProfile = (newProfile) => {
+  const updateProfile = _newProfile => {
     // Implementa aquí la lógica para actualizar el perfil si lo necesitas
   };
 

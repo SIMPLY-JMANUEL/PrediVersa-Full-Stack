@@ -239,4 +239,87 @@ router.post('/reset-password', async (req, res) => {
   res.json({ msg: 'Contraseña restablecida correctamente' });
 });
 
+// Configuración de rutas por rol
+const routesByRole = {
+  admin: [
+    { path: '/dashboard', component: 'Dashboard', label: 'Dashboard General' },
+    { path: '/admin', component: 'AdminDashboard', label: 'Administración' },
+    { path: '/profile', component: 'Profile', label: 'Perfil' },
+    { path: '/courses', component: 'Courses', label: 'Cursos' },
+    { path: '/moderator', component: 'ModeratorDashboard', label: 'Moderación' },
+    { path: '/teacher', component: 'TeacherDashboard', label: 'Profesores' },
+    { path: '/parent', component: 'ParentDashboard', label: 'Padres' },
+    { path: '/student', component: 'StudentDashboard', label: 'Estudiantes' }
+  ],
+  teacher: [
+    { path: '/dashboard', component: 'Dashboard', label: 'Dashboard' },
+    { path: '/teacher', component: 'TeacherDashboard', label: 'Panel Profesor' },
+    { path: '/profile', component: 'Profile', label: 'Perfil' },
+    { path: '/courses', component: 'Courses', label: 'Cursos' }
+  ],
+  student: [
+    { path: '/dashboard', component: 'Dashboard', label: 'Dashboard' },
+    { path: '/student', component: 'StudentDashboard', label: 'Panel Estudiante' },
+    { path: '/profile', component: 'Profile', label: 'Perfil' },
+    { path: '/courses', component: 'Courses', label: 'Cursos' }
+  ],
+  parent: [
+    { path: '/dashboard', component: 'Dashboard', label: 'Dashboard' },
+    { path: '/parent', component: 'ParentDashboard', label: 'Panel Padre' },
+    { path: '/profile', component: 'Profile', label: 'Perfil' }
+  ],
+  moderator: [
+    { path: '/dashboard', component: 'Dashboard', label: 'Dashboard' },
+    { path: '/moderator', component: 'ModeratorDashboard', label: 'Panel Moderador' },
+    { path: '/profile', component: 'Profile', label: 'Perfil' }
+  ]
+};
+
+// Endpoint para obtener rutas disponibles para el usuario autenticado
+router.get('/routes', auth, (req, res) => {
+  try {
+    const userRole = req.user.rol;
+    const availableRoutes = routesByRole[userRole] || [];
+    
+    res.json({
+      success: true,
+      routes: availableRoutes,
+      userRole: userRole,
+      defaultRoute: availableRoutes.length > 0 ? availableRoutes[0].path : '/dashboard'
+    });
+  } catch (error) {
+    console.error('Error al obtener rutas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// Middleware para verificar acceso a rutas específicas
+router.get('/verify-route/:route', auth, (req, res) => {
+  try {
+    const userRole = req.user.rol;
+    const requestedRoute = req.params.route;
+    const availableRoutes = routesByRole[userRole] || [];
+    
+    const hasAccess = availableRoutes.some(route => 
+      route.path === `/${requestedRoute}` || route.path === requestedRoute
+    );
+    
+    res.json({
+      success: true,
+      hasAccess: hasAccess,
+      userRole: userRole,
+      requestedRoute: requestedRoute
+    });
+  } catch (error) {
+    console.error('Error al verificar ruta:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
 module.exports = router;

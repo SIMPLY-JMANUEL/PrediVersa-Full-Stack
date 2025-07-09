@@ -1,26 +1,46 @@
-// Controlador de perfil
+// Controlador de perfil con validación avanzada
 
-// Simulación de base de datos en memoria
 const profiles = {};
+const { isValidPhone, isValidEmail } = require('../utils/validators');
 
-exports.getProfile = (req, res) => {
+/**
+ * Obtiene el perfil del usuario autenticado.
+ */
+function getProfile(req, res) {
   const userId = req.user.id;
   res.json(profiles[userId] || {});
-};
+}
 
-exports.updateProfile = (req, res) => {
+/**
+ * Actualiza el perfil del usuario autenticado con validación.
+ */
+function updateProfile(req, res) {
   const userId = req.user.id;
-  const { theme, language, phone, address } = req.body;
+  const { theme, language, phone, address, email } = req.body;
   let photo = profiles[userId]?.photo || '';
   if (req.file) {
-    photo = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    photo = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+      'base64'
+    )}`;
+  }
+  if (phone && !isValidPhone(phone)) {
+    return res.status(400).json({ msg: 'Formato de teléfono inválido' });
+  }
+  if (email && !isValidEmail(email)) {
+    return res.status(400).json({ msg: 'Formato de email inválido' });
   }
   profiles[userId] = {
     theme: theme || 'light',
     language: language || 'es',
     phone: phone || '',
     address: address || '',
+    email: email || '',
     photo,
   };
   res.json(profiles[userId]);
+}
+
+module.exports = {
+  getProfile,
+  updateProfile,
 };

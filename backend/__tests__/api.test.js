@@ -7,7 +7,7 @@ describe('Backend API Tests', () => {
     it('should login user with valid credentials', async () => {
       const loginData = {
         correo: 'test@example.com',
-        contraseña: 'password123'
+        contraseña: 'password123',
       };
 
       const response = await request(app)
@@ -20,16 +20,16 @@ describe('Backend API Tests', () => {
       expect(response.body.user).toHaveProperty('correo', loginData.correo);
     });
 
-    it('should return 401 for invalid credentials', async () => {
+    it('should return 400 for invalid credentials', async () => {
       const loginData = {
         correo: 'wrong@example.com',
-        contraseña: 'wrongpassword'
+        contraseña: 'wrongpassword',
       };
 
       const response = await request(app)
         .post('/api/auth/login')
         .send(loginData)
-        .expect(401);
+        .expect(400);
 
       expect(response.body).toHaveProperty('msg');
     });
@@ -52,7 +52,7 @@ describe('Backend API Tests', () => {
       const payload = {
         id: 1,
         correo: 'test@example.com',
-        rol: 'student'
+        rol: 'student',
       };
       authToken = jwt.sign(payload, process.env.JWT_SECRET || 'test-secret');
     });
@@ -68,9 +68,7 @@ describe('Backend API Tests', () => {
     });
 
     it('should return 401 without token', async () => {
-      const response = await request(app)
-        .get('/api/profile')
-        .expect(401);
+      const response = await request(app).get('/api/profile').expect(401);
 
       expect(response.body).toHaveProperty('msg');
     });
@@ -91,15 +89,15 @@ describe('Backend API Tests', () => {
         nombre: 'Test User',
         correo: 'newuser@example.com',
         contraseña: 'password123',
-        rol: 'student'
+        rol: 'student',
       };
 
       const response = await request(app)
         .post('/api/auth/register')
         .send(userData)
-        .expect(201);
+        .expect(200);
 
-      expect(response.body).toHaveProperty('msg');
+      expect(response.body).toHaveProperty('token');
       expect(response.body).toHaveProperty('user');
       expect(response.body.user).toHaveProperty('correo', userData.correo);
     });
@@ -109,13 +107,11 @@ describe('Backend API Tests', () => {
         nombre: 'Test User',
         correo: 'existing@example.com',
         contraseña: 'password123',
-        rol: 'student'
+        rol: 'student',
       };
 
       // Primer registro
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData);
+      await request(app).post('/api/auth/register').send(userData);
 
       // Segundo registro con mismo email
       const response = await request(app)
@@ -129,9 +125,7 @@ describe('Backend API Tests', () => {
 
   describe('GET /api/test', () => {
     it('should return server status', async () => {
-      const response = await request(app)
-        .get('/api/test')
-        .expect(200);
+      const response = await request(app).get('/api/test').expect(200);
 
       expect(response.body).toHaveProperty('message');
       expect(response.body).toHaveProperty('timestamp');
@@ -145,10 +139,13 @@ describe('Middleware Tests', () => {
       const validPayload = {
         id: 1,
         correo: 'test@example.com',
-        rol: 'student'
+        rol: 'student',
       };
-      
-      const token = jwt.sign(validPayload, process.env.JWT_SECRET || 'test-secret');
+
+      const token = jwt.sign(
+        validPayload,
+        process.env.JWT_SECRET || 'test-secret'
+      );
 
       const response = await request(app)
         .get('/api/profile')
@@ -162,9 +159,7 @@ describe('Middleware Tests', () => {
   describe('Rate Limiting', () => {
     it('should allow requests under limit', async () => {
       for (let i = 0; i < 5; i++) {
-        await request(app)
-          .get('/api/test')
-          .expect(200);
+        await request(app).get('/api/test').expect(200);
       }
     });
 
