@@ -19,14 +19,14 @@ import Noticias from "./pages/Noticias";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
-// Dashboards
+// Dashboards por Perfil de Base de Datos
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import TeacherDashboard from "./pages/dashboards/TeacherDashboard";
 import StudentDashboard from "./pages/dashboards/StudentDashboard";
 import ParentDashboard from "./pages/dashboards/ParentDashboard";
 import ModeratorDashboard from "./pages/dashboards/ModeratorDashboard";
 
-// Componente de protección de rutas
+// Importar componente de rutas protegidas
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Importa tus componentes globales
@@ -41,21 +41,23 @@ import "./components/Animations.css";
 
 function AppContent() {
   const location = useLocation();
-  // Oculta el Header en cualquier dashboard y rutas de perfiles
-  const hideHeader = location.pathname.startsWith("/dashboard") || 
-                    location.pathname.startsWith("/Admin") ||
-                    location.pathname.startsWith("/Moderador") ||
-                    location.pathname.startsWith("/Estudiante") ||
-                    location.pathname.startsWith("/Acudiente") ||
-                    location.pathname.startsWith("/Docente");
+  // Ocultar Header y Footer en dashboards por perfil específico y login
+  const hideHeaderFooter = location.pathname.startsWith("/Admin") || 
+                          location.pathname.startsWith("/Moderador") || 
+                          location.pathname.startsWith("/Estudiante") || 
+                          location.pathname.startsWith("/Acudiente") || 
+                          location.pathname.startsWith("/Docente") || 
+                          location.pathname.startsWith("/dashboard") ||
+                          location.pathname === "/login";
 
   return (
     <>
       <BackgroundShapes />
       <Preloader />
-      {!hideHeader && <Header />}
+      {!hideHeaderFooter && <Header />}
       <main role="main">
         <Routes>
+          {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/capacitaciones" element={<Capacitaciones />} />
           <Route path="/enfoque-educativo" element={<EnfoqueEducativo />} />
@@ -67,14 +69,49 @@ function AppContent() {
           <Route path="/noticias" element={<Noticias />} />
           <Route path="/login" element={<Login />} />
           
-          {/* Dashboards por Perfil */}
-          <Route path="/Admin" element={<ProtectedRoute requiredRole="Administrador"><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/Moderador" element={<ProtectedRoute requiredRole="Moderador"><ModeratorDashboard /></ProtectedRoute>} />
-          <Route path="/Estudiante" element={<ProtectedRoute requiredRole="Estudiante"><StudentDashboard /></ProtectedRoute>} />
-          <Route path="/Acudiente" element={<ProtectedRoute requiredRole="Acudiente"><ParentDashboard /></ProtectedRoute>} />
-          <Route path="/Docente" element={<ProtectedRoute requiredRole="Docente"><TeacherDashboard /></ProtectedRoute>} />
+          {/* Dashboards por Perfil de Base de Datos */}
+          <Route
+            path="/Admin"
+            element={
+              <ProtectedRoute requiredRole="Administrador">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Moderador"
+            element={
+              <ProtectedRoute requiredRole="Moderador">
+                <ModeratorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Estudiante"
+            element={
+              <ProtectedRoute requiredRole="Estudiante">
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Acudiente"
+            element={
+              <ProtectedRoute requiredRole="Acudiente">
+                <ParentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Docente"
+            element={
+              <ProtectedRoute requiredRole="Docente">
+                <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
           
-          {/* Dashboards Legacy */}
+          {/* Dashboards legacy (compatibilidad hacia atrás) */}
           <Route path="/dashboard/admin" element={<AdminDashboard />} />
           <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
           <Route path="/dashboard/student" element={<StudentDashboard />} />
@@ -84,7 +121,7 @@ function AppContent() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <Footer />
+      {!hideHeaderFooter && <Footer />}
       <BackToTop />
       <div className="particles" id="particles"></div>
     </>

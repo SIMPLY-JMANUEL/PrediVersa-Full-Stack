@@ -1,22 +1,43 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 
+// Interfaces TypeScript
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRoute?: string;
+  requiredRole?: string;
+}
+
+interface CacheEntry {
+  hasAccess: boolean;
+  timestamp: number;
+  userRole?: string;
+}
+
 // Cache simple para rutas verificadas
-const routeCache = new Map();
+const routeCache = new Map<string, CacheEntry>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
-  const [hasAccess, setHasAccess] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRoute, 
+  requiredRole 
+}) => {
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Función para limpiar cache expirado
   const cleanExpiredCache = useCallback(() => {
     const now = Date.now();
-    for (const [key, value] of routeCache.entries()) {
+    const keysToDelete: string[] = [];
+    
+    routeCache.forEach((value, key) => {
       if (now - value.timestamp > CACHE_DURATION) {
-        routeCache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    
+    keysToDelete.forEach(key => routeCache.delete(key));
   }, []);
 
   // Función para verificar acceso con cache
@@ -31,19 +52,19 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
         return;
       }
 
-      // Si se requiere un rol específico, verificar inmediatamente
+      // Verificar si el usuario tiene el rol requerido
       if (requiredRole) {
         try {
           const user = JSON.parse(userStr);
-          if (user.rol === requiredRole) {
-            setHasAccess(true);
-            setLoading(false);
-            return;
-          } else {
+          if (user.rol !== requiredRole || user.activo !== 'SI') {
             setHasAccess(false);
             setLoading(false);
             return;
           }
+          // Si tiene el rol correcto, dar acceso inmediatamente
+          setHasAccess(true);
+          setLoading(false);
+          return;
         } catch (error) {
           console.error('Error parsing user data:', error);
           setHasAccess(false);
@@ -55,7 +76,7 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
       // Limpiar cache expirado
       cleanExpiredCache();
 
-      // Verificar cache primero
+      // Verificar cache primero para rutas específicas
       const cacheKey = `${token}-${requiredRoute}`;
       const cached = routeCache.get(cacheKey);
       const now = Date.now();
@@ -66,34 +87,41 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
         return;
       }
 
-      // Si no está en cache o expiró, consultar backend
-      const response = await fetch(`http://localhost:5001/api/auth/verify-route/${requiredRoute}`, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const accessGranted = data.hasAccess;
-        
-        // Guardar en cache
-        routeCache.set(cacheKey, {
-          hasAccess: accessGranted,
-          timestamp: now,
-          userRole: data.userRole
-        });
-        
-        setHasAccess(accessGranted);
-      } else {
-        setHasAccess(false);
-        // Si la respuesta no es ok, limpiar cache para este token
-        for (const [key] of routeCache.entries()) {
-          if (key.startsWith(`${token}-`)) {
-            routeCache.delete(key);
+      // Si no está en cache o expiró, consultar backend para rutas específicas
+      if (requiredRoute) {
+        const response = await fetch(`http://localhost:5001/api/auth/verify-route/${requiredRoute}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const accessGranted = data.hasAccess;
+          
+          // Guardar en cache
+          routeCache.set(cacheKey, {
+            hasAccess: accessGranted,
+            timestamp: now,
+            userRole: data.userRole
+          });
+          
+          setHasAccess(accessGranted);
+        } else {
+          setHasAccess(false);
+          // Si la respuesta no es ok, limpiar cache para este token
+          const keysToDelete: string[] = [];
+          routeCache.forEach((_, key) => {
+            if (key.startsWith(`${token}-`)) {
+              keysToDelete.push(key);
+            }
+          });
+          keysToDelete.forEach(key => routeCache.delete(key));
         }
+      } else {
+        // Si no hay ruta específica ni rol, permitir acceso por defecto
+        setHasAccess(true);
       }
     } catch (error) {
       console.error('Error verifying route access:', error);
@@ -108,11 +136,13 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
     const token = localStorage.getItem('token');
     if (token) {
       // Limpiar cache para este usuario
-      for (const [key] of routeCache.entries()) {
+      const keysToDelete: string[] = [];
+      routeCache.forEach((_, key) => {
         if (key.startsWith(`${token}-`)) {
-          routeCache.delete(key);
+          keysToDelete.push(key);
         }
-      }
+      });
+      keysToDelete.forEach(key => routeCache.delete(key));
       // Reverificar acceso
       setLoading(true);
       verifyAccess();

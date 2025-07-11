@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./Login.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -14,7 +14,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Función para mapear roles a rutas de dashboard
+  // Mapeo de perfiles a rutas de dashboard
   const getDashboardRoute = (rol) => {
     const profileRoutes = {
       'Administrador': '/Admin',
@@ -23,16 +23,13 @@ function Login() {
       'Acudiente': '/Acudiente',
       'Docente': '/Docente'
     };
-    return profileRoutes[rol] || `/dashboard/${rol}`;
+    return profileRoutes[rol] || '/dashboard';
   };
 
   const validateForm = () => {
     const errs = [];
     if (!username || username.trim().length < 3) {
       errs.push('El nombre de usuario debe tener al menos 3 caracteres');
-    }
-    if (!/^[a-zA-Z0-9._-]+$/.test(username.trim())) {
-      errs.push('El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos');
     }
     if (password.length < 6) {
       errs.push('La contraseña debe tener al menos 6 caracteres');
@@ -56,45 +53,87 @@ function Login() {
     setSuccessMessage('');
 
     try {
+      console.log('Intentando login con:', { usuario: username.trim() });
+      
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario: username.trim(), contraseña: password })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          usuario: username.trim(), 
+          password: password // Usando 'password' para evitar problemas de encoding
+        })
       });
 
-      const result = await response.json();
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
 
-      if (response.ok) {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('nombre', result.user.nombre);
-        localStorage.setItem('rol', result.user.rol);
-        if (rememberMe) {
-          localStorage.setItem('rememberedUsername', username.trim());
-        } else {
-          localStorage.removeItem('rememberedUsername');
-        }
-        setSuccessMessage(`¡Bienvenido/a, ${result.user.nombre}!`);
-        setTimeout(() => {
-          const dashboardRoute = getDashboardRoute(result.user.rol);
-          navigate(dashboardRoute);
-        }, 1000);
-      } else {
-        setErrors([result.msg || 'Error en el inicio de sesión']);
+      if (!response.ok) {
+        throw new Error(data.msg || 'Error en el servidor');
       }
-    } catch (err) {
-      setErrors(['No se pudo conectar con el servidor']);
+
+      if (data.success) {
+        // Verificar que el usuario esté activo
+        if (data.user.activo !== 'SI') {
+          setErrors(['Usuario inactivo. Contacta al administrador.']);
+          setLoading(false);
+          return;
+        }
+
+        // Guardar información del usuario
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        if (rememberMe) {
+          localStorage.setItem('rememberUser', username.trim());
+        } else {
+          localStorage.removeItem('rememberUser');
+        }
+
+        setSuccessMessage(data.message || `Bienvenido ${data.user.nombre}`);
+
+        // Redirigir según el perfil del usuario
+        setTimeout(() => {
+          const dashboardRoute = getDashboardRoute(data.user.rol);
+          console.log(`Redirigiendo a: ${dashboardRoute} para el rol: ${data.user.rol}`);
+          navigate(dashboardRoute);
+        }, 1500);
+
+      } else {
+        setErrors([data.msg || 'Error de autenticación']);
+      }
+    } catch (error) {
+      console.error('Error en login:', error);
+      setErrors([error.message || 'Error de conexión. Verifica que el servidor esté funcionando.']);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const rememberedUsername = localStorage.getItem('rememberedUsername');
-    if (rememberedUsername) {
-      setUsername(rememberedUsername);
+    const rememberedUser = localStorage.getItem('rememberUser');
+    if (rememberedUser) {
+      setUsername(rememberedUser);
       setRememberMe(true);
     }
+    
+    // Verificar si ya hay una sesión activa
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        const dashboardRoute = getDashboardRoute(userData.rol);
+        navigate(dashboardRoute);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    }
+
     // Animación de entrada
     const elements = document.querySelectorAll(
       '.login-title, .login-subtitle, .login-form'
@@ -110,7 +149,7 @@ function Login() {
         }, i * 120);
       }
     });
-  }, []);
+  }, [navigate]);
 
   return (
     <main className="main-content">
@@ -118,7 +157,7 @@ function Login() {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="login-header">
             <h1 className="login-title">Iniciar Sesión</h1>
-            <p className="login-subtitle">Accede a tu cuenta</p>
+            <p className="login-subtitle">Accede a PrediVersa</p>
             <hr className="login-divider" />
           </div>
 
@@ -142,7 +181,7 @@ function Login() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Usuario"
+                placeholder="Ingresa tu usuario"
                 required
                 disabled={loading}
                 autoComplete="username"
@@ -161,7 +200,7 @@ function Login() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Ingresa tu contraseña"
                 required
                 disabled={loading}
                 autoComplete="current-password"
@@ -171,32 +210,34 @@ function Login() {
                 className="password-toggle"
                 onClick={togglePasswordVisibility}
                 disabled={loading}
-                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
-              <span className="input-icon">
-                <i className="fas fa-lock"></i>
-              </span>
             </div>
           </div>
 
-          <div className="form-group">
-            <div className="login-checkbox-row">
+          <div className="form-options">
+            <label className="checkbox-label">
               <input
                 type="checkbox"
-                id="remember"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={loading}
               />
-              <label htmlFor="remember">Recordarme</label>
-            </div>
+              <span className="checkmark"></span>
+              Recordar usuario
+            </label>
           </div>
 
-          <button className="login-btn" type="submit" disabled={loading}>
+          <button
+            type="submit"
+            className={`login-button ${loading ? 'loading' : ''}`}
+            disabled={loading}
+          >
             {loading ? (
               <>
-                <span className="loading-spinner"></span>
+                <span className="spinner"></span>
                 Iniciando sesión...
               </>
             ) : (
@@ -204,8 +245,8 @@ function Login() {
             )}
           </button>
 
-          <div className="login-links">
-            <a href="/forgot" className="link">¿Olvidaste tu contraseña?</a>
+          <div className="login-footer">
+            <p>¿Problemas para acceder? <a href="/help">Contacta soporte</a></p>
           </div>
         </form>
       </div>

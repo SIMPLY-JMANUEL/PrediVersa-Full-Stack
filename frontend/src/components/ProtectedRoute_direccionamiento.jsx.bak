@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 const routeCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
+const ProtectedRoute = ({ children, requiredRoute = null, requiredRole = null }) => {
   const [hasAccess, setHasAccess] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,19 +31,19 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
         return;
       }
 
-      // Si se requiere un rol específico, verificar inmediatamente
+      // Verificar si el usuario tiene el rol requerido
       if (requiredRole) {
         try {
           const user = JSON.parse(userStr);
-          if (user.rol === requiredRole) {
-            setHasAccess(true);
-            setLoading(false);
-            return;
-          } else {
+          if (user.rol !== requiredRole || user.activo !== 'SI') {
             setHasAccess(false);
             setLoading(false);
             return;
           }
+          // Si tiene el rol correcto, dar acceso inmediatamente
+          setHasAccess(true);
+          setLoading(false);
+          return;
         } catch (error) {
           console.error('Error parsing user data:', error);
           setHasAccess(false);
