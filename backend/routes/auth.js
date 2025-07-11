@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const router = express.Router();
 const auth = require('../middlewares/auth');
+const User = require('../models/User');
 
 // Base de datos simulada de usuarios (en producción usar MongoDB)
 const users = [
@@ -55,35 +56,44 @@ const users = [
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    const { usuario, correo, contraseña } = req.body;
+    // Debug - imprimir lo que se recibe
+    console.log('=== DEBUG LOGIN ===');
+    console.log('req.body:', req.body);
+    console.log('tipo req.body:', typeof req.body);
+    console.log('Object.keys(req.body):', Object.keys(req.body));
+    
+    const { usuario, correo, contraseña, password } = req.body;
 
-    // Validar entrada - puede ser usuario o correo
-    if ((!usuario && !correo) || !contraseña) {
-      return res.status(400).json({ 
-        msg: 'Por favor, proporciona usuario/correo y contraseña' 
+    // Debug de destructuring
+    console.log('usuario:', usuario, '- tipo:', typeof usuario);
+    console.log('correo:', correo, '- tipo:', typeof correo);
+    console.log('contraseña:', contraseña, '- tipo:', typeof contraseña);
+    console.log('password:', password, '- tipo:', typeof password);
+    console.log('==================');
+
+    // Validar entrada - puede ser usuario o correo, y contraseña o password
+    const finalPassword = contraseña || password;
+    if ((!usuario && !correo) || !finalPassword) {
+      console.log('❌ Validación falló - usuario/correo o contraseña faltantes');
+      return res.status(400).json({
+        msg: 'Por favor, proporciona usuario/correo y contraseña'
       });
     }
 
-    // Buscar usuario por nombre de usuario o correo
-    const user = users.find(u => {
-      if (usuario) {
-        return u.usuario === usuario;
-      } else {
-        return u.correo === correo;
-      }
-    });
-    
+    // Buscar usuario por nombre de usuario o correo en la base de datos
+    const identifier = usuario || correo;
+    const user = await User.findByUsernameOrEmail(identifier);
     if (!user) {
-      return res.status(400).json({ 
-        msg: 'Credenciales inválidas' 
+      return res.status(400).json({
+        msg: 'Credenciales inválidas'
       });
     }
 
     // Verificar contraseña
-    const isMatch = await bcrypt.compare(contraseña, user.contraseña);
+    const isMatch = await User.verifyPassword(finalPassword, user.contraseña);
     if (!isMatch) {
-      return res.status(400).json({ 
-        msg: 'Credenciales inválidas' 
+      return res.status(400).json({
+        msg: 'Credenciales inválidas'
       });
     }
 
@@ -134,16 +144,16 @@ router.post('/register', async (req, res) => {
 
     // Validar entrada
     if (!nombre || !correo || !contraseña || !rol) {
-      return res.status(400).json({ 
-        msg: 'Por favor, proporciona todos los campos requeridos' 
+      return res.status(400).json({
+        msg: 'Por favor, proporciona todos los campos requeridos'
       });
     }
 
     // Verificar si el usuario ya existe
     const existingUser = users.find(u => u.correo === correo);
     if (existingUser) {
-      return res.status(400).json({ 
-        msg: 'El usuario ya existe' 
+      return res.status(400).json({
+        msg: 'El usuario ya existe'
       });
     }
 
@@ -294,7 +304,7 @@ router.get('/routes', auth, (req, res) => {
   try {
     const userRole = req.user.rol;
     const availableRoutes = routesByRole[userRole] || [];
-    
+
     res.json({
       success: true,
       routes: availableRoutes,
@@ -316,11 +326,11 @@ router.get('/verify-route/:route', auth, (req, res) => {
     const userRole = req.user.rol;
     const requestedRoute = req.params.route;
     const availableRoutes = routesByRole[userRole] || [];
-    
-    const hasAccess = availableRoutes.some(route => 
+
+    const hasAccess = availableRoutes.some(route =>
       route.path === `/${requestedRoute}` || route.path === requestedRoute
     );
-    
+
     res.json({
       success: true,
       hasAccess: hasAccess,
