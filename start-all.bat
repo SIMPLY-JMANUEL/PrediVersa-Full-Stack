@@ -18,7 +18,7 @@ start "PrediVersa API Gateway" cmd /k "cd /d api-gateway && echo === API GATEWAY
 timeout /t 3
 
 echo 🖥️ Iniciando Frontend (Puerto 3000)...
-start "PrediVersa Frontend" cmd /k "cd /d frontend && echo === FRONTEND INICIADO === && npm start"
+start "PrediVersa Frontend" cmd /k "cd /d frontend && echo === FRONTEND INICIADO === && set NODE_OPTIONS=--openssl-legacy-provider && npm start"
 
 echo.
 echo ===============================================
@@ -29,5 +29,16 @@ echo 📡 Backend:     http://localhost:5001/api
 echo 🌐 API Gateway: http://localhost:3001
 echo 🖥️ Frontend:    http://localhost:3000
 echo.
+echo 🔍 Verificando que los servicios estén activos...
+timeout /t 5 > nul
+
+REM Verificar puertos
+echo Verificando puertos...
+netstat -ano | findstr ":5001" > nul && echo ✅ Backend corriendo en puerto 5001 || echo ❌ Backend NO está corriendo
+netstat -ano | findstr ":3001" > nul && echo ✅ API Gateway corriendo en puerto 3001 || echo ❌ API Gateway NO está corriendo  
+netstat -ano | findstr ":3000" > nul && echo ✅ Frontend corriendo en puerto 3000 || echo ❌ Frontend NO está corriendo
+
+echo.
+echo 🌟 Sistema PrediVersa iniciado correctamente
 echo Presiona cualquier tecla para cerrar este script...
 pause > nul
