@@ -5,8 +5,9 @@ import "./Login.css";
 const API_URL = process.env.REACT_APP_API_URL;
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
@@ -15,14 +16,21 @@ function Login() {
 
   const validateForm = () => {
     const errs = [];
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      errs.push('Correo electrónico inválido');
+    if (!username || username.trim().length < 3) {
+      errs.push('El nombre de usuario debe tener al menos 3 caracteres');
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(username.trim())) {
+      errs.push('El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos');
     }
     if (password.length < 6) {
       errs.push('La contraseña debe tener al menos 6 caracteres');
     }
     setErrors(errs);
     return errs.length === 0;
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
@@ -39,7 +47,7 @@ function Login() {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email, contraseña: password })
+        body: JSON.stringify({ usuario: username.trim(), contraseña: password })
       });
 
       const result = await response.json();
@@ -49,9 +57,9 @@ function Login() {
         localStorage.setItem('nombre', result.user.nombre);
         localStorage.setItem('rol', result.user.rol);
         if (rememberMe) {
-          localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberedUsername', username.trim());
         } else {
-          localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedUsername');
         }
         setSuccessMessage(`¡Bienvenido/a, ${result.user.nombre}!`);
         setTimeout(() => {
@@ -68,9 +76,9 @@ function Login() {
   };
 
   useEffect(() => {
-    const rememberedEmail = localStorage.getItem('rememberedEmail');
-    if (rememberedEmail) {
-      setEmail(rememberedEmail);
+    const rememberedUsername = localStorage.getItem('rememberedUsername');
+    if (rememberedUsername) {
+      setUsername(rememberedUsername);
       setRememberMe(true);
     }
     // Animación de entrada
@@ -113,19 +121,20 @@ function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Correo electrónico</label>
+            <label htmlFor="username">Nombre de usuario</label>
             <div className="input-wrapper">
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="correo@prediversa.com"
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Usuario"
                 required
                 disabled={loading}
+                autoComplete="username"
               />
               <span className="input-icon">
-                <i className="fas fa-envelope"></i>
+                <i className="fas fa-user"></i>
               </span>
             </div>
           </div>
@@ -134,14 +143,24 @@ function Login() {
             <label htmlFor="password">Contraseña</label>
             <div className="input-wrapper">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
                 disabled={loading}
+                autoComplete="current-password"
               />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+                disabled={loading}
+                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+              </button>
               <span className="input-icon">
                 <i className="fas fa-lock"></i>
               </span>
@@ -173,8 +192,6 @@ function Login() {
 
           <div className="login-links">
             <a href="/forgot" className="link">¿Olvidaste tu contraseña?</a>
-            <span className="divider">|</span>
-            <a href="/register" className="link">Crear cuenta nueva</a>
           </div>
         </form>
       </div>

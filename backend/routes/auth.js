@@ -10,6 +10,7 @@ const users = [
   {
     id: 1,
     nombre: 'Juliana Fajardo',
+    usuario: 'admin',
     correo: 'admin@prediversa.com',
     contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
     rol: 'admin'
@@ -17,6 +18,7 @@ const users = [
   {
     id: 2,
     nombre: 'Andrey Luna',
+    usuario: 'profesor',
     correo: 'profesor@prediversa.com',
     contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
     rol: 'teacher'
@@ -24,6 +26,7 @@ const users = [
   {
     id: 3,
     nombre: 'Carlos Rodríguez',
+    usuario: 'estudiante',
     correo: 'estudiante@prediversa.com',
     contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
     rol: 'student'
@@ -31,6 +34,7 @@ const users = [
   {
     id: 4,
     nombre: 'Harold Salcedo',
+    usuario: 'padre',
     correo: 'padre@prediversa.com',
     contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
     rol: 'parent'
@@ -38,6 +42,7 @@ const users = [
   {
     id: 5,
     nombre: 'Moderador',
+    usuario: 'moderador',
     correo: 'moderador@prediversa.com',
     contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
     rol: 'moderator'
@@ -50,17 +55,24 @@ const users = [
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    const { correo, contraseña } = req.body;
+    const { usuario, correo, contraseña } = req.body;
 
-    // Validar entrada
-    if (!correo || !contraseña) {
+    // Validar entrada - puede ser usuario o correo
+    if ((!usuario && !correo) || !contraseña) {
       return res.status(400).json({ 
-        msg: 'Por favor, proporciona correo y contraseña' 
+        msg: 'Por favor, proporciona usuario/correo y contraseña' 
       });
     }
 
-    // Buscar usuario
-    const user = users.find(u => u.correo === correo);
+    // Buscar usuario por nombre de usuario o correo
+    const user = users.find(u => {
+      if (usuario) {
+        return u.usuario === usuario;
+      } else {
+        return u.correo === correo;
+      }
+    });
+    
     if (!user) {
       return res.status(400).json({ 
         msg: 'Credenciales inválidas' 
@@ -80,6 +92,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         nombre: user.nombre,
+        usuario: user.usuario,
         correo: user.correo,
         rol: user.rol
       }
@@ -98,6 +111,7 @@ router.post('/login', async (req, res) => {
           user: {
             id: user.id,
             nombre: user.nombre,
+            usuario: user.usuario,
             correo: user.correo,
             rol: user.rol
           }
