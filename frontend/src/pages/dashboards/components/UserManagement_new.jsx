@@ -22,15 +22,14 @@ const UserManagement = ({
     correoElectronico: '',
     telefono: '',
     direccion: '',
-    epsSeguroMedico: '',
+    eps: '',
     condicionEspecial: '',
     descripcionCondicion: '',
     contactoEmergencia: '',
     telefonoFamiliar: '',
-    usuarioActivo: 'SI',
+    estadoActivo: 'SI',
     perfil: '',
     contrasena: '',
-    usuario: '',
   });
 
   const handleCreateChange = (e) => {
@@ -67,7 +66,6 @@ const UserManagement = ({
       estadoActivo: 'SI',
       perfil: '',
       contrasena: '',
-      usuario: '',
     });
   };
 

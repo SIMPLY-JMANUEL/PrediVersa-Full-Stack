@@ -53,7 +53,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Manejo de errores global
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
   res.status(500).json({
     msg: 'Error interno del servidor',

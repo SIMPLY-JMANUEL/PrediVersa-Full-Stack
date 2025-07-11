@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SystemStatus from './components/SystemStatus';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/img/logo-prediversa.png';
@@ -27,6 +27,71 @@ const mainTabs = [
   { label: 'Comunicación y Soporte', key: 'soporte' },
 ];
 
+// Opciones para los campos desplegables
+const TIPO_DOCUMENTO_OPTIONS = [
+  'Cédula de Ciudadanía',
+  'Tarjeta de Identidad',
+  'Registro Civil',
+  'Cédula de Extranjería',
+  'Permiso Especial de Permanencia',
+  'Permiso por Protección Temporal'
+];
+
+const SEXO_OPTIONS = [
+  'Masculino',
+  'Femenino'
+];
+
+const EPS_OPTIONS = [
+  'Coosalud',
+  'Nueva EPS',
+  'Mutual Ser',
+  'Salud Mía',
+  'Aliansalud',
+  'Salud Total',
+  'Sanitas',
+  'Sura',
+  'Famisanar',
+  'SOS (Servicio Occidental de Salud)',
+  'Comfenalco Valle',
+  'Compensar',
+  'EPM (Empresas Públicas de Medellín)',
+  'Fondo de Pasivo Social de Ferrocarriles Nacionales de Colombia',
+  'Cajacopi Atlántico',
+  'Capresoca',
+  'Comfachocó',
+  'Comfaoriente',
+  'EPS Familiar de Colombia',
+  'Asmet Salud',
+  'Emssanar',
+  'Capital Salud',
+  'Savia Salud',
+  'Dusakawi EPSI',
+  'Asociación Indígena del Cauca EPSI',
+  'Anas Wayuu EPSI',
+  'Mallamas EPSI',
+  'Pijaos Salud EPSI'
+];
+
+const CONDICION_ESPECIAL_OPTIONS = [
+  'No Aplica',
+  'Condición Médica',
+  'Condición Sicológica'
+];
+
+const PERFIL_OPTIONS = [
+  'Administrador',
+  'Moderador',
+  'Docente',
+  'Acudiente',
+  'Estudiante'
+];
+
+const ACTIVO_OPTIONS = [
+  'SI',
+  'NO'
+];
+
 function AdminDashboard() {
   const { error } = useProfile();
   const navigate = useNavigate();
@@ -43,48 +108,111 @@ function AdminDashboard() {
     confirmed: false,
   });
   const [userForm, setUserForm] = useState({
-    // Datos básicos del usuario
-    nombreCompleto: '',
-    tipoDocumento: '',
-    numeroDocumento: '',
-    fechaNacimiento: '',
-    edad: '',
-    sexoGenero: '',
-    estadoCivil: '',
-    correoElectronico: '',
-    telefonoUsuario: '',
-    direccionResidencia: '',
-    epsSeguroMedico: '',
-    antecedentesMedicos: '',
-    condicionEspecial: '',
-    gradoCargo: '',
-    institucionEmpresa: '',
-    usuarioActivo: 'activo',
-    rol: '',
-    nombreFamiliarContacto: '',
-    telefonoFamiliarContacto: '',
-    password: '',
-    foto: '',
+    // Datos básicos del usuario conectados a la base de datos
+    nombreCompleto: '', // Nombre_Completo - solo alfabético
+    tipoDocumento: '', // Tipo_Documento - desplegable
+    numeroDocumento: '', // Identificacion - numérico 5-15 caracteres
+    fechaNacimiento: '', // Fecha_Nacimiento - tipo fecha
+    edad: '', // Edad - calculado automáticamente
+    sexo: '', // Sexo - desplegable Masculino/Femenino
+    correoElectronico: '', // Correo - validación email
+    telefono: '', // Telefono - numérico 10 caracteres exactos
+    direccion: '', // Direccion - alfanumérico
+    epsSeguroMedico: '', // EPS - desplegable con opciones
+    condicionEspecial: '', // Condición Especial - desplegable
+    descripcionCondicion: '', // Descripcion_Condicion - alfanumérico habilitado condicionalmente
+    contactoEmergencia: '', // Contacto_Emergencia - solo alfabético
+    telefonoFamiliar: '', // Telefono_Familiar - numérico 10 caracteres
+    usuarioActivo: 'SI', // Activo - desplegable SI/NO
+    perfil: '', // Perfil - desplegable con roles
+    contrasena: '', // Contrasena - campo con sugerencia
+    usuario: '', // Usuario - campo alfanumérico único
     encontrado: false,
   });
 
-  // Datos del usuario dinámicos desde localStorage
-  const userData = {
+  // Estado para datos del usuario desde la base de datos
+  const [userData, setUserData] = useState({
     name: localStorage.getItem('nombre') || 'Administrador',
     lastName: '',
     role: 'Administrador',
-    documentType: 'DNI',
-    documentNumber: '12345678',
-    email: 'admin@prediversa.com',
-    phone: '321654987',
-    address: 'Calle 123, Ciudad',
+    documentType: 'Cédula de Ciudadanía',
+    documentNumber: '',
+    email: '',
+    phone: '',
+    address: '',
     photo: '',
+    contactoEmergencia: '',
+    activo: true
+  });
+
+  // Estado de carga para los datos del usuario
+  const [loadingUserData, setLoadingUserData] = useState(true);
+
+  // Función para cargar datos del usuario desde la base de datos
+  const loadUserDataFromDB = async () => {
+    try {
+      setLoadingUserData(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5001/api/profile/admin/current-user', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const dbUser = result.data;
+          setUserData({
+            name: dbUser.nombreCompleto || 'Administrador',
+            lastName: '',
+            role: dbUser.perfil || 'Administrador',
+            documentType: dbUser.tipoDocumento || 'Cédula de Ciudadanía',
+            documentNumber: dbUser.identificacion || '',
+            email: dbUser.correo || '',
+            phone: dbUser.telefono || '',
+            address: dbUser.direccion || '',
+            photo: dbUser.foto || '',
+            contactoEmergencia: dbUser.contactoEmergencia || '',
+            activo: dbUser.activo
+          });
+        }
+      } else if (response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        console.error('Error cargando datos del usuario:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error conectando con la base de datos:', error);
+    } finally {
+      setLoadingUserData(false);
+    }
   };
 
   // Estado centralizado del perfil admin
   const [adminProfileState, setAdminProfileState] = useState(userData);
   // Estado para la foto de perfil del admin
   const [profilePhoto, setProfilePhoto] = useState(userData.photo);
+
+  // Cargar datos del usuario al montar el componente
+  React.useEffect(() => {
+    loadUserDataFromDB();
+  }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Actualizar adminProfileState cuando userData cambie
+  React.useEffect(() => {
+    setAdminProfileState(userData);
+    setProfilePhoto(userData.photo);
+  }, [userData]);
 
   // Redirección automática si no hay token
   React.useEffect(() => {
@@ -120,59 +248,97 @@ function AdminDashboard() {
     }
   };
 
-  const handleUserSearch = e => {
+  const handleUserSearch = async e => {
     e.preventDefault();
-    setUserForm({
-      // Datos básicos del usuario - datos de ejemplo
-      nombreCompleto: 'María Elena Rodríguez García',
-      tipoDocumento: 'Cédula de Ciudadanía',
-      numeroDocumento: userSearch,
-      fechaNacimiento: '2010-05-15',
-      edad: '14',
-      sexoGenero: 'Femenino',
-      estadoCivil: 'Soltero(a)',
-      correoElectronico: 'maria.rodriguez@correo.com',
-      telefonoUsuario: '3001234567',
-      direccionResidencia: 'Calle 45 #23-67, Barrio Centro, Bogotá',
-      epsSeguroMedico: 'Compensar EPS',
-      antecedentesMedicos: 'Asma leve controlada',
-      condicionEspecial: 'Ninguna',
-      gradoCargo: '9° Grado',
-      institucionEmpresa: 'Colegio San José',
-      usuarioActivo: 'activo',
-      rol: 'estudiante',
-      nombreFamiliarContacto: 'Carlos Rodríguez (Padre)',
-      telefonoFamiliarContacto: '3009876543',
-      password: '',
-      foto: 'https://randomuser.me/api/portraits/women/25.jpg',
-      encontrado: true,
-    });
+    
+    if (!userSearch.trim()) {
+      alert('Por favor ingrese un número de identificación');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5001/api/profile/admin/search-user/${userSearch}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const dbUser = result.data;
+          setUserForm({
+            nombreCompleto: dbUser.nombreCompleto || '',
+            tipoDocumento: dbUser.tipoDocumento || '',
+            numeroDocumento: dbUser.identificacion || '',
+            fechaNacimiento: dbUser.fechaNacimiento || '',
+            edad: dbUser.edad || calculateAge(dbUser.fechaNacimiento),
+            sexo: dbUser.sexo || '',
+            correoElectronico: dbUser.correo || '',
+            telefonoUsuario: dbUser.telefono || '',
+            direccionResidencia: dbUser.direccion || '',
+            epsSeguroMedico: dbUser.eps || '',
+            condicionEspecial: dbUser.condicionEspecial || '',
+            descripcionCondicion: dbUser.descripcionCondicion || '',
+            nombreFamiliarContacto: dbUser.contactoEmergencia || '',
+            telefonoFamiliarContacto: dbUser.numeroContactoEmergencia || '',
+            usuarioActivo: dbUser.activo ? 'SI' : 'NO',
+            perfil: dbUser.perfil || '',
+            contrasena: '', // No mostrar contraseña existente por seguridad
+            encontrado: true,
+          });
+        }
+      } else if (response.status === 404) {
+        // Usuario no encontrado
+        setUserForm({
+          ...userForm,
+          numeroDocumento: userSearch,
+          encontrado: false,
+        });
+        alert('Usuario no encontrado con esa identificación');
+      } else if (response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        console.error('Error buscando usuario:', response.statusText);
+        alert('Error al buscar el usuario. Inténtelo de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error conectando con la base de datos:', error);
+      alert('Error de conexión. Verifique su conexión a internet.');
+    }
   };
 
   const handleClearUser = () => {
     setUserForm({
-      // Datos básicos del usuario - limpiar todos los campos
+      // Limpiar todos los campos del formulario
       nombreCompleto: '',
       tipoDocumento: '',
       numeroDocumento: '',
       fechaNacimiento: '',
       edad: '',
-      sexoGenero: '',
-      estadoCivil: '',
+      sexo: '',
       correoElectronico: '',
-      telefonoUsuario: '',
-      direccionResidencia: '',
+      telefono: '',
+      direccion: '',
       epsSeguroMedico: '',
-      antecedentesMedicos: '',
       condicionEspecial: '',
-      gradoCargo: '',
-      institucionEmpresa: '',
-      usuarioActivo: 'activo',
-      rol: '',
-      nombreFamiliarContacto: '',
-      telefonoFamiliarContacto: '',
-      password: '',
-      foto: '',
+      descripcionCondicion: '',
+      contactoEmergencia: '',
+      telefonoFamiliar: '',
+      usuarioActivo: 'SI',
+      perfil: '',
+      contrasena: '',
+      usuario: '',
       encontrado: false,
     });
     setUserSearch('');
@@ -187,13 +353,190 @@ function AdminDashboard() {
     });
   };
 
-  const handleUserFormChange = e => {
-    setUserForm({ ...userForm, [e.target.name]: e.target.value });
+  // Función para calcular edad basada en fecha de nacimiento
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return '';
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age.toString();
   };
 
-  const handleUserFormSubmit = e => {
+  // Función para generar contraseña segura
+  const generateSecurePassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
+  // Función para validar solo letras (sin números ni caracteres especiales)
+  const validateAlphabetic = (value) => {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
+  };
+
+  // Función para validar números
+  const validateNumeric = (value) => {
+    return /^\d+$/.test(value);
+  };
+
+  // Función para validar email
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleUserFormChange = e => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    // Validaciones específicas por campo
+    switch (name) {
+      case 'nombreCompleto':
+      case 'nombreFamiliarContacto':
+        // Solo permitir letras y espacios
+        if (value && !validateAlphabetic(value)) {
+          return; // No actualizar si contiene números o caracteres especiales
+        }
+        break;
+      
+      case 'numeroDocumento':
+        // Solo números, entre 5 y 15 caracteres
+        if (value && (!validateNumeric(value) || value.length > 15)) {
+          return;
+        }
+        break;
+      
+      case 'telefonoUsuario':
+      case 'telefonoFamiliarContacto':
+        // Solo números, exactamente 10 caracteres
+        if (value && (!validateNumeric(value) || value.length > 10)) {
+          return;
+        }
+        break;
+      
+      case 'fechaNacimiento':
+        // Calcular edad automáticamente
+        const edad = calculateAge(value);
+        setUserForm(prev => ({ ...prev, [name]: value, edad }));
+        return;
+      
+      case 'condicionEspecial':
+        // Si es "No Aplica", limpiar descripción
+        if (value === 'No Aplica') {
+          setUserForm(prev => ({ ...prev, [name]: value, descripcionCondicion: '' }));
+          return;
+        }
+        break;
+      
+      default:
+        // Para otros campos no hay validación especial
+        break;
+    }
+
+    setUserForm({ ...userForm, [name]: newValue });
+  };
+
+  const handleUserFormSubmit = async (e) => {
     e.preventDefault();
-    alert('Usuario guardado/actualizado');
+    
+    try {
+      // Validaciones básicas antes de enviar
+      if (!userForm.nombreCompleto || !userForm.numeroDocumento || !userForm.correoElectronico || !userForm.telefono || !userForm.usuario || !userForm.perfil) {
+        alert('Por favor, complete todos los campos obligatorios marcados con *');
+        return;
+      }
+
+      // Validar que el correo tenga formato válido
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userForm.correoElectronico)) {
+        alert('Por favor, ingrese un correo electrónico válido');
+        return;
+      }
+
+      // Validar que el teléfono tenga exactamente 10 dígitos
+      if (userForm.telefono.length !== 10 || !/^\d+$/.test(userForm.telefono)) {
+        alert('El teléfono debe tener exactamente 10 dígitos');
+        return;
+      }
+
+      // Validar que el número de documento tenga entre 5 y 15 dígitos
+      if (userForm.numeroDocumento.length < 5 || userForm.numeroDocumento.length > 15 || !/^\d+$/.test(userForm.numeroDocumento)) {
+        alert('El número de documento debe tener entre 5 y 15 dígitos');
+        return;
+      }
+
+      // Validar que el usuario tenga formato alfanumérico válido
+      if (!/^[a-zA-Z0-9._-]+$/.test(userForm.usuario)) {
+        alert('El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos');
+        return;
+      }
+
+      // Validar descripción de condición si es requerida
+      if (userForm.condicionEspecial && userForm.condicionEspecial !== 'No Aplica' && (!userForm.descripcionCondicion || userForm.descripcionCondicion.trim() === '')) {
+        alert('La descripción de la condición es obligatoria cuando se selecciona una condición especial diferente a "No Aplica"');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('No se encontró token de autenticación. Por favor, inicie sesión nuevamente.');
+        return;
+      }
+
+      // Enviar datos al backend
+      const response = await fetch('http://localhost:5001/api/profile/admin/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nombreCompleto: userForm.nombreCompleto,
+          tipoDocumento: userForm.tipoDocumento,
+          numeroDocumento: userForm.numeroDocumento,
+          fechaNacimiento: userForm.fechaNacimiento,
+          edad: userForm.edad,
+          sexo: userForm.sexo,
+          correoElectronico: userForm.correoElectronico,
+          telefono: userForm.telefono,
+          direccion: userForm.direccion,
+          eps: userForm.epsSeguroMedico,
+          condicionEspecial: userForm.condicionEspecial,
+          descripcionCondicion: userForm.descripcionCondicion,
+          contactoEmergencia: userForm.contactoEmergencia,
+          telefonoFamiliar: userForm.telefonoFamiliar,
+          estadoActivo: userForm.usuarioActivo,
+          perfil: userForm.perfil,
+          contrasena: userForm.contrasena,
+          usuario: userForm.usuario
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert(`✅ Usuario creado exitosamente!\n\nNombre: ${data.data.nombreCompleto}\nUsuario: ${data.data.usuario}\nCorreo: ${data.data.correoElectronico}\nPerfil: ${data.data.perfil}`);
+        
+        // Limpiar el formulario después del éxito
+        handleClearUser();
+      } else {
+        // Manejar errores específicos de duplicados
+        if (data.duplicateFields && data.duplicateFields.length > 0) {
+          alert(`❌ Error: Ya existe un usuario con los siguientes datos:\n\n${data.duplicateFields.join('\n')}\n\nPor favor, verifique la información e intente nuevamente.`);
+        } else {
+          alert(`❌ Error al crear usuario: ${data.msg || 'Error desconocido'}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error enviando datos al servidor:', error);
+      alert('❌ Error de conexión al servidor. Por favor, verifique que el backend esté funcionando e intente nuevamente.');
+    }
   };
 
   // Handler para cambiar la foto de perfil
@@ -568,44 +911,77 @@ function AdminDashboard() {
               </div>
             </section>
             <section className="user-info-container">
-              <div className="info-row">
-                <span>
-                  <strong>Nombre:</strong> {adminProfileState.name}{' '}
-                  {adminProfileState.lastName}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Cargo:</strong> {adminProfileState.role}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Tipo documento:</strong>{' '}
-                  {adminProfileState.documentType}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Número documento:</strong>{' '}
-                  {adminProfileState.documentNumber}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Correo:</strong> {adminProfileState.email}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Teléfono:</strong> {adminProfileState.phone}
-                </span>
-              </div>
-              <div className="info-row">
-                <span>
-                  <strong>Dirección:</strong> {adminProfileState.address}
-                </span>
-              </div>
+              {loadingUserData ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '20px', 
+                  color: '#666',
+                  fontSize: '14px' 
+                }}>
+                  <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                  Cargando datos desde la base de datos...
+                </div>
+              ) : (
+                <>
+                  <div className="info-row">
+                    <span>
+                      <strong>Nombre:</strong> {adminProfileState.name}{' '}
+                      {adminProfileState.lastName}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Cargo:</strong> {adminProfileState.role}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Tipo documento:</strong>{' '}
+                      {adminProfileState.documentType}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Número documento:</strong>{' '}
+                      {adminProfileState.documentNumber || 'No disponible'}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Correo:</strong> {adminProfileState.email || 'No disponible'}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Teléfono:</strong> {adminProfileState.phone || 'No disponible'}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Dirección:</strong> {adminProfileState.address || 'No disponible'}
+                    </span>
+                  </div>
+                  {adminProfileState.contactoEmergencia && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Contacto de emergencia:</strong> {adminProfileState.contactoEmergencia}
+                      </span>
+                    </div>
+                  )}
+                  <div className="info-row">
+                    <span>
+                      <strong>Estado:</strong> 
+                      <span style={{ 
+                        color: adminProfileState.activo ? '#4caf50' : '#f44336',
+                        fontWeight: 'bold',
+                        marginLeft: '5px'
+                      }}>
+                        {adminProfileState.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </span>
+                  </div>
+                </>
+              )}
             </section>
             <section className="system-status-container">
               <SystemStatus />

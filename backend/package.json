@@ -19,7 +19,8 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^9.30.1",
