@@ -15,9 +15,10 @@ import SoporteForm from './components/SoporteForm';
 import UserManagement from './components/UserManagement';
 import useProfile from '../../hooks/useProfile';
 
-// NUEVO ORDEN DE TABS: Crear usuario, Alerta, Reportes, Remisión de Atención, Seguimiento, Administrador de PQR, Seguimiento PQR, Comunicación y Soporte
+// NUEVO ORDEN DE TABS: Crear usuario, Consultar/Modificar Usuario, Alerta, Reportes, Remisión de Atención, Seguimiento, Administrador de PQR, Seguimiento PQR, Comunicación y Soporte
 const mainTabs = [
   { label: 'Crear usuario', key: 'crearusuario' },
+  { label: 'Consultar/Modificar Usuario', key: 'consultarmodificar' },
   { label: 'Alerta', key: 'alertar' },
   { label: 'Reportes', key: 'reportes' },
   { label: 'Remisión de Atención', key: 'remision' },
@@ -203,6 +204,21 @@ function AdminDashboard() {
   // Estado para la foto de perfil del admin
   const [profilePhoto, setProfilePhoto] = useState(userData.photo);
 
+  // Estado para las estadísticas del dashboard
+  const [stats, setStats] = useState({
+    totalUsuarios: 0,
+    usuariosActivos: 0,
+    usuariosInactivos: 0,
+    estudiantes: 0,
+    padres: 0,
+    profesores: 0,
+    moderadores: 0,
+    administradores: 0,
+    evaluaciones: 0,
+    alertas: 0
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
   // Cargar datos del usuario al montar el componente
   React.useEffect(() => {
     loadUserDataFromDB();
@@ -317,6 +333,57 @@ function AdminDashboard() {
       alert('Error de conexión. Verifique su conexión a internet.');
     }
   };
+
+  // Función para obtener estadísticas del dashboard
+  const fetchDashboardStats = async () => {
+    try {
+      setLoadingStats(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No se encontró token de autenticación');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5001/api/admin/stats', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats({
+          totalUsuarios: data.totalUsuarios || 0,
+          usuariosActivos: data.usuariosActivos || 0,
+          usuariosInactivos: data.usuariosInactivos || 0,
+          estudiantes: data.estudiantes || 0,
+          padres: data.padres || 0,
+          profesores: data.profesores || 0,
+          moderadores: data.moderadores || 0,
+          administradores: data.administradores || 0,
+          evaluaciones: data.evaluaciones || 0,
+          alertas: data.alertas || 0
+        });
+      } else if (response.status === 401) {
+        console.error('Token expirado o inválido');
+        navigate('/login');
+      } else {
+        console.error('Error al obtener estadísticas:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error conectando con el backend:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  // Cargar estadísticas al montar el componente
+  useEffect(() => {
+    fetchDashboardStats();
+  }, [navigate]);
 
   const handleClearUser = () => {
     setUserForm({
@@ -988,49 +1055,97 @@ function AdminDashboard() {
             </section>
             <section className="stats-container">
               <h3>
-                <i className="fas fa-chart-bar" /> Estadísticas
+                <i className="fas fa-chart-bar" /> Estadísticas del Sistema
               </h3>
-              <div className="stat-row">
-                <i className="fas fa-users" />
-                <span>
-                  <strong>Total Usuarios:</strong> 1,247
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-user-graduate" />
-                <span>
-                  <strong>Estudiantes:</strong> 856
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-user-friends" />
-                <span>
-                  <strong>Padres:</strong> 324
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-chalkboard-teacher" />
-                <span>
-                  <strong>Profesores:</strong> 42
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-user-shield" />
-                <span>
-                  <strong>Moderadores:</strong> 8
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-clipboard-list" />
-                <span>
-                  <strong>Evaluaciones:</strong> 2,341
-                </span>
-              </div>
-              <div className="stat-row">
-                <i className="fas fa-exclamation-triangle" />
-                <span>
-                  <strong>Alertas:</strong> 12
-                </span>
+              {loadingStats ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }} />
+                  Cargando estadísticas...
+                </div>
+              ) : (
+                <>
+                  <div className="stat-row">
+                    <i className="fas fa-users" />
+                    <span>
+                      <strong>Total Usuarios:</strong> {stats.totalUsuarios.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-user-check" style={{ color: '#4caf50' }} />
+                    <span>
+                      <strong>Activos:</strong> {stats.usuariosActivos.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-user-times" style={{ color: '#f44336' }} />
+                    <span>
+                      <strong>Inactivos:</strong> {stats.usuariosInactivos.toLocaleString()}
+                    </span>
+                  </div>
+                  <div style={{ height: '1px', background: '#e0e0e0', margin: '10px 0' }} />
+                  <div className="stat-row">
+                    <i className="fas fa-user-graduate" />
+                    <span>
+                      <strong>Estudiantes:</strong> {stats.estudiantes.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-user-friends" />
+                    <span>
+                      <strong>Padres/Acudientes:</strong> {stats.padres.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-chalkboard-teacher" />
+                    <span>
+                      <strong>Profesores:</strong> {stats.profesores.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-user-shield" />
+                    <span>
+                      <strong>Moderadores:</strong> {stats.moderadores.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-user-cog" />
+                    <span>
+                      <strong>Administradores:</strong> {stats.administradores.toLocaleString()}
+                    </span>
+                  </div>
+                  <div style={{ height: '1px', background: '#e0e0e0', margin: '10px 0' }} />
+                  <div className="stat-row">
+                    <i className="fas fa-clipboard-list" />
+                    <span>
+                      <strong>Evaluaciones:</strong> {stats.evaluaciones.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-row">
+                    <i className="fas fa-exclamation-triangle" />
+                    <span>
+                      <strong>Alertas:</strong> {stats.alertas.toLocaleString()}
+                    </span>
+                  </div>
+                </>
+              )}
+              <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                <button
+                  onClick={fetchDashboardStats}
+                  style={{
+                    background: '#2196f3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    fontSize: '0.9em',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={e => e.target.style.background = '#1976d2'}
+                  onMouseLeave={e => e.target.style.background = '#2196f3'}
+                >
+                  <i className="fas fa-sync-alt" /> Actualizar
+                </button>
               </div>
             </section>
           </aside>
@@ -1050,923 +1165,6 @@ function AdminDashboard() {
             }}
             aria-label="Panel principal"
           >
-            {/* Sección de Búsqueda de Usuario */}
-            <section
-              className="user-search-section"
-              style={{
-                background:
-                  'linear-gradient(135deg, #fafdff 80%, #e8f5e8 100%)',
-                border: '1.5px solid #d0d7e6',
-                borderRadius: 18,
-                padding: '24px 28px 20px 28px',
-                marginBottom: 24,
-                boxShadow: '0 4px 24px 0 rgba(76, 175, 80, 0.08)',
-                width: '100%',
-                position: 'relative',
-                transition: 'box-shadow 0.2s',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                <div
-                  style={{
-                    background: '#4caf50',
-                    color: '#fff',
-                    borderRadius: '50%',
-                    width: 40,
-                    height: 40,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: 14,
-                    boxShadow: '0 2px 8px 0 rgba(76, 175, 80, 0.15)',
-                  }}
-                >
-                  <i className="fas fa-search" style={{ fontSize: 20 }} />
-                </div>
-                <div>
-                  <h2
-                    style={{
-                      color: '#4caf50',
-                      fontWeight: 800,
-                      fontSize: '1.25em',
-                      margin: 0,
-                      letterSpacing: 0.3,
-                    }}
-                  >
-                    Búsqueda de Usuario
-                  </h2>
-                  <div
-                    style={{
-                      color: '#4a4a4a',
-                      fontSize: '1em',
-                      marginTop: 2,
-                      fontWeight: 400,
-                    }}
-                  >
-                    Busca cualquier usuario del sistema por número de documento
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  height: 1,
-                  background: '#c8e6c9',
-                  margin: '14px 0 20px 0',
-                  borderRadius: 2,
-                }}
-              />
-
-              {/* Formulario de búsqueda */}
-              <form
-                onSubmit={handleUserSearch}
-                style={{ display: 'flex', gap: 12, marginBottom: 20 }}
-              >
-                <input
-                  type="text"
-                  value={userSearch}
-                  onChange={e => setUserSearch(e.target.value)}
-                  placeholder="Número de documento del usuario"
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    border: '1.5px solid #c8e6c9',
-                    borderRadius: 12,
-                    fontSize: '1em',
-                    outline: 'none',
-                    transition: 'border 0.2s, box-shadow 0.2s',
-                    fontFamily: 'inherit',
-                  }}
-                  onFocus={e => {
-                    e.target.style.borderColor = '#4caf50';
-                    e.target.style.boxShadow =
-                      '0 0 0 3px rgba(76, 175, 80, 0.1)';
-                  }}
-                  onBlur={e => {
-                    e.target.style.borderColor = '#c8e6c9';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-                <button
-                  type="submit"
-                  style={{
-                    background:
-                      'linear-gradient(90deg, #4caf50 60%, #66bb6a 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 12,
-                    padding: '12px 24px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'transform 0.1s, box-shadow 0.2s',
-                    fontSize: '1em',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                  onMouseEnter={e => {
-                    e.target.style.transform = 'translateY(-1px)';
-                    e.target.style.boxShadow =
-                      '0 4px 16px 0 rgba(76, 175, 80, 0.25)';
-                  }}
-                  onMouseLeave={e => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                >
-                  <i className="fas fa-search" />
-                  Buscar
-                </button>
-                {userForm.encontrado && (
-                  <button
-                    type="button"
-                    onClick={handleClearUser}
-                    style={{
-                      background: '#f5f5f5',
-                      color: '#666',
-                      border: '1.5px solid #ddd',
-                      borderRadius: 12,
-                      padding: '12px 20px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      fontSize: '1em',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                    }}
-                    onMouseEnter={e => {
-                      e.target.style.background = '#eeeeee';
-                      e.target.style.borderColor = '#ccc';
-                    }}
-                    onMouseLeave={e => {
-                      e.target.style.background = '#f5f5f5';
-                      e.target.style.borderColor = '#ddd';
-                    }}
-                  >
-                    <i className="fas fa-times" />
-                    Limpiar
-                  </button>
-                )}
-              </form>
-
-              {/* Información del usuario encontrado */}
-              {userForm.encontrado && (
-                <div
-                  style={{
-                    background: '#fff',
-                    borderRadius: 14,
-                    padding: '20px 24px',
-                    border: '1px solid #c8e6c9',
-                    boxShadow: '0 2px 12px 0 rgba(76, 175, 80, 0.08)',
-                    animation: 'fadeIn 0.3s ease-in-out',
-                  }}
-                >
-                  <div
-                    className="user-info-header"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginBottom: 16,
-                    }}
-                  >
-                    <div style={{ marginRight: 20 }}>
-                      {userForm.foto ? (
-                        <img
-                          src={userForm.foto}
-                          alt="Foto del usuario"
-                          style={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            border: '3px solid #4caf50',
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: '50%',
-                            background: '#e8f5e8',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '3px solid #4caf50',
-                          }}
-                        >
-                          <i
-                            className="fas fa-user"
-                            style={{ fontSize: 36, color: '#4caf50' }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <h3
-                        style={{
-                          color: '#4caf50',
-                          fontWeight: 700,
-                          fontSize: '1.4em',
-                          margin: '0 0 8px 0',
-                        }}
-                      >
-                        {userForm.nombreCompleto}
-                      </h3>
-                      <div
-                        style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}
-                      >
-                        <div style={{ color: '#666', fontSize: '1em' }}>
-                          <strong style={{ color: '#4caf50' }}>
-                            Documento:
-                          </strong>{' '}
-                          {userForm.numeroDocumento}
-                        </div>
-                        <div style={{ color: '#666', fontSize: '1em' }}>
-                          <strong style={{ color: '#4caf50' }}>Tipo:</strong>{' '}
-                          {userForm.tipoDocumento}
-                        </div>
-                        <div style={{ color: '#666', fontSize: '1em' }}>
-                          <strong style={{ color: '#4caf50' }}>
-                            Fecha Nacimiento:
-                          </strong>{' '}
-                          {userForm.fechaNacimiento}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Información detallada en grid */}
-                  <div
-                    className="grid-info"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns:
-                        'repeat(auto-fit, minmax(280px, 1fr))',
-                      gap: 16,
-                      marginTop: 16,
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: '#f8f9fa',
-                        padding: '14px 16px',
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: '#4caf50',
-                          fontWeight: 600,
-                          fontSize: '0.95em',
-                          marginBottom: 8,
-                        }}
-                      >
-                        <i
-                          className="fas fa-id-card"
-                          style={{ marginRight: 8 }}
-                        />
-                        Información Personal
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.9em',
-                          color: '#666',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        <div>
-                          <strong>Edad:</strong> {userForm.edad} años
-                        </div>
-                        <div>
-                          <strong>Género:</strong> {userForm.sexoGenero}
-                        </div>
-                        <div>
-                          <strong>Estado Civil:</strong> {userForm.estadoCivil}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8f9fa',
-                        padding: '14px 16px',
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: '#4caf50',
-                          fontWeight: 600,
-                          fontSize: '0.95em',
-                          marginBottom: 8,
-                        }}
-                      >
-                        <i
-                          className="fas fa-envelope"
-                          style={{ marginRight: 8 }}
-                        />
-                        Contacto
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.9em',
-                          color: '#666',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        <div>
-                          <strong>Email:</strong> {userForm.correoElectronico}
-                        </div>
-                        <div>
-                          <strong>Teléfono:</strong> {userForm.telefonoUsuario}
-                        </div>
-                        <div>
-                          <strong>Dirección:</strong>{' '}
-                          {userForm.direccionResidencia}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8f9fa',
-                        padding: '14px 16px',
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: '#4caf50',
-                          fontWeight: 600,
-                          fontSize: '0.95em',
-                          marginBottom: 8,
-                        }}
-                      >
-                        <i
-                          className="fas fa-graduation-cap"
-                          style={{ marginRight: 8 }}
-                        />
-                        Información Académica/Profesional
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.9em',
-                          color: '#666',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        <div>
-                          <strong>Grado/Cargo:</strong> {userForm.gradoCargo}
-                        </div>
-                        <div>
-                          <strong>Institución:</strong>{' '}
-                          {userForm.institucionEmpresa}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8f9fa',
-                        padding: '14px 16px',
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: '#4caf50',
-                          fontWeight: 600,
-                          fontSize: '0.95em',
-                          marginBottom: 8,
-                        }}
-                      >
-                        <i
-                          className="fas fa-heart"
-                          style={{ marginRight: 8 }}
-                        />
-                        Información Médica
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.9em',
-                          color: '#666',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        <div>
-                          <strong>EPS:</strong> {userForm.epsSeguroMedico}
-                        </div>
-                        <div>
-                          <strong>Antecedentes:</strong>{' '}
-                          {userForm.antecedentesMedicos}
-                        </div>
-                        <div>
-                          <strong>Condición Especial:</strong>{' '}
-                          {userForm.condicionEspecial}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Botón para confirmar datos y proceder con la creación */}
-                  {!showUserCreationFlow && (
-                    <div style={{ marginTop: 20, textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={handleConfirmUserData}
-                        style={{
-                          background:
-                            'linear-gradient(90deg, #1976d2 60%, #2196f3 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 12,
-                          padding: '14px 32px',
-                          fontWeight: 700,
-                          fontSize: '1.1em',
-                          cursor: 'pointer',
-                          transition: 'transform 0.1s, box-shadow 0.2s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 10,
-                          margin: '0 auto',
-                          boxShadow: '0 4px 16px 0 rgba(25, 118, 210, 0.2)',
-                        }}
-                        onMouseEnter={e => {
-                          e.target.style.transform = 'translateY(-2px)';
-                          e.target.style.boxShadow =
-                            '0 6px 24px 0 rgba(25, 118, 210, 0.3)';
-                        }}
-                        onMouseLeave={e => {
-                          e.target.style.transform = 'translateY(0)';
-                          e.target.style.boxShadow =
-                            '0 4px 16px 0 rgba(25, 118, 210, 0.2)';
-                        }}
-                      >
-                        <i className="fas fa-check-circle" />
-                        Confirmar Datos y Crear Usuario
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Contenedor de Configuración de Usuario */}
-              {userForm.encontrado && showUserCreationFlow && (
-                <div
-                  style={{
-                    background: '#fff',
-                    borderRadius: 14,
-                    padding: '24px 28px',
-                    border: '1px solid #bbdefb',
-                    boxShadow: '0 4px 20px 0 rgba(25, 118, 210, 0.12)',
-                    marginTop: 20,
-                    animation: 'fadeIn 0.3s ease-in-out',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginBottom: 20,
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: '#1976d2',
-                        color: '#fff',
-                        borderRadius: '50%',
-                        width: 44,
-                        height: 44,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginRight: 16,
-                        boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.15)',
-                      }}
-                    >
-                      <i className="fas fa-user-cog" style={{ fontSize: 20 }} />
-                    </div>
-                    <div>
-                      <h3
-                        style={{
-                          color: '#1976d2',
-                          fontWeight: 700,
-                          fontSize: '1.3em',
-                          margin: 0,
-                        }}
-                      >
-                        Configuración de Usuario
-                      </h3>
-                      <div
-                        style={{ color: '#666', fontSize: '1em', marginTop: 4 }}
-                      >
-                        Configura los parámetros finales para la creación del
-                        usuario
-                      </div>
-                    </div>
-                  </div>
-
-                  {!userCreationData.confirmed ? (
-                    <>
-                      {/* Estado y Rol del Usuario */}
-                      <div
-                        style={{
-                          background: '#f8f9fa',
-                          padding: '20px 24px',
-                          borderRadius: 12,
-                          marginBottom: 24,
-                        }}
-                      >
-                        <h4
-                          style={{
-                            color: '#333',
-                            margin: '0 0 16px 0',
-                            fontSize: '1.15em',
-                            fontWeight: 600,
-                          }}
-                        >
-                          <i
-                            className="fas fa-user-shield"
-                            style={{ marginRight: 8 }}
-                          />
-                          Estado y Rol del Usuario
-                        </h4>
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns:
-                              'repeat(auto-fit, minmax(250px, 1fr))',
-                            gap: 16,
-                          }}
-                        >
-                          <div>
-                            <label
-                              style={{
-                                display: 'block',
-                                marginBottom: 8,
-                                color: '#333',
-                                fontWeight: 500,
-                              }}
-                            >
-                              Estado del Usuario:
-                            </label>
-                            <select
-                              style={{
-                                width: '100%',
-                                padding: '10px 12px',
-                                border: '1px solid #ddd',
-                                borderRadius: 6,
-                                fontSize: '1em',
-                                background: '#fff',
-                                color: userCreationData.status
-                                  ? '#333'
-                                  : '#999',
-                              }}
-                              value={userCreationData.status || ''}
-                              onChange={e =>
-                                setUserCreationData(prev => ({
-                                  ...prev,
-                                  status: e.target.value,
-                                }))
-                              }
-                            >
-                              <option
-                                value=""
-                                disabled
-                                style={{ color: '#999' }}
-                              >
-                                Seleccionar
-                              </option>
-                              <option value="activo">Activo</option>
-                              <option value="inactivo">Inactivo</option>
-                              <option value="pendiente">
-                                Pendiente de Activación
-                              </option>
-                              <option value="suspendido">Suspendido</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label
-                              style={{
-                                display: 'block',
-                                marginBottom: 8,
-                                color: '#333',
-                                fontWeight: 500,
-                              }}
-                            >
-                              Rol del Usuario:
-                            </label>
-                            <select
-                              style={{
-                                width: '100%',
-                                padding: '10px 12px',
-                                border: '1px solid #ddd',
-                                borderRadius: 6,
-                                fontSize: '1em',
-                                background: '#fff',
-                                color: userCreationData.role ? '#333' : '#999',
-                              }}
-                              value={userCreationData.role || ''}
-                              onChange={e =>
-                                setUserCreationData(prev => ({
-                                  ...prev,
-                                  role: e.target.value,
-                                }))
-                              }
-                            >
-                              <option
-                                value=""
-                                disabled
-                                style={{ color: '#999' }}
-                              >
-                                Seleccionar
-                              </option>
-                              <option value="estudiante">Estudiante</option>
-                              <option value="padre">
-                                Padre/Madre/Acudiente
-                              </option>
-                              <option value="profesor">Profesor</option>
-                              <option value="moderador">Moderador</option>
-                              <option value="administrador">
-                                Administrador
-                              </option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Datos generados automáticamente */}
-                      <div
-                        style={{
-                          background: '#e3f2fd',
-                          padding: '20px 24px',
-                          borderRadius: 12,
-                          marginBottom: 24,
-                        }}
-                      >
-                        <h4
-                          style={{
-                            color: '#1976d2',
-                            margin: '0 0 16px 0',
-                            fontSize: '1.15em',
-                            fontWeight: 600,
-                          }}
-                        >
-                          <i
-                            className="fas fa-magic"
-                            style={{ marginRight: 8 }}
-                          />
-                          Datos Generados Automáticamente
-                        </h4>
-                        <div
-                          className="auto-data-grid"
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns:
-                              'repeat(auto-fit, minmax(250px, 1fr))',
-                            gap: 16,
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                color: '#666',
-                                fontSize: '0.9em',
-                                marginBottom: 4,
-                              }}
-                            >
-                              Nombre de Usuario:
-                            </div>
-                            <div
-                              style={{
-                                background: '#fff',
-                                padding: '10px 14px',
-                                borderRadius: 6,
-                                border: '1px solid #bbdefb',
-                                fontFamily: 'monospace',
-                                fontSize: '1em',
-                                color: '#1976d2',
-                                fontWeight: 600,
-                              }}
-                            >
-                              {userCreationData.autoUsername}
-                            </div>
-                          </div>
-                          <div>
-                            <div
-                              style={{
-                                color: '#666',
-                                fontSize: '0.9em',
-                                marginBottom: 4,
-                              }}
-                            >
-                              Correo Electrónico:
-                            </div>
-                            <div
-                              style={{
-                                background: '#fff',
-                                padding: '10px 14px',
-                                borderRadius: 6,
-                                border: '1px solid #bbdefb',
-                                fontFamily: 'monospace',
-                                fontSize: '1em',
-                                color: '#1976d2',
-                                fontWeight: 600,
-                              }}
-                            >
-                              {userCreationData.autoEmail}
-                            </div>
-                          </div>
-                          <div>
-                            <div
-                              style={{
-                                color: '#666',
-                                fontSize: '0.9em',
-                                marginBottom: 4,
-                              }}
-                            >
-                              Contraseña Temporal:
-                            </div>
-                            <div
-                              style={{
-                                background: '#fff',
-                                padding: '10px 14px',
-                                borderRadius: 6,
-                                border: '1px solid #bbdefb',
-                                fontFamily: 'monospace',
-                                fontSize: '1em',
-                                color: '#1976d2',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                              }}
-                            >
-                              {userCreationData.autoPassword}
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setUserCreationData(prev => ({
-                                    ...prev,
-                                    autoPassword: generateAutoPassword(),
-                                  }))
-                                }
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: '#1976d2',
-                                  cursor: 'pointer',
-                                  padding: 4,
-                                }}
-                                title="Generar nueva contraseña"
-                              >
-                                <i className="fas fa-sync-alt" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Botones de acción */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 16,
-                          justifyContent: 'center',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setShowUserCreationFlow(false)}
-                          style={{
-                            background: '#f5f5f5',
-                            color: '#666',
-                            border: '1.5px solid #ddd',
-                            borderRadius: 12,
-                            padding: '12px 24px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            fontSize: '1em',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                          }}
-                        >
-                          <i className="fas fa-arrow-left" />
-                          Volver a Datos
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCreateUser}
-                          style={{
-                            background:
-                              'linear-gradient(90deg, #4caf50 60%, #66bb6a 100%)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 12,
-                            padding: '12px 32px',
-                            fontWeight: 700,
-                            fontSize: '1.1em',
-                            cursor: 'pointer',
-                            transition: 'transform 0.1s, box-shadow 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            boxShadow: '0 4px 16px 0 rgba(76, 175, 80, 0.2)',
-                          }}
-                          onMouseEnter={e => {
-                            e.target.style.transform = 'translateY(-2px)';
-                            e.target.style.boxShadow =
-                              '0 6px 24px 0 rgba(76, 175, 80, 0.3)';
-                          }}
-                          onMouseLeave={e => {
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow =
-                              '0 4px 16px 0 rgba(76, 175, 80, 0.2)';
-                          }}
-                        >
-                          <i className="fas fa-user-plus" />
-                          Crear Usuario
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    /* Confirmación de creación */
-                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                      <div
-                        style={{
-                          background: '#e8f5e8',
-                          color: '#4caf50',
-                          borderRadius: '50%',
-                          width: 80,
-                          height: 80,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          margin: '0 auto 20px auto',
-                          fontSize: 40,
-                        }}
-                      >
-                        <i className="fas fa-check-circle" />
-                      </div>
-                      <h3
-                        style={{
-                          color: '#4caf50',
-                          margin: '0 0 12px 0',
-                          fontSize: '1.4em',
-                        }}
-                      >
-                        ¡Usuario Creado Exitosamente!
-                      </h3>
-                      <p
-                        style={{
-                          color: '#666',
-                          fontSize: '1.1em',
-                          margin: '0 0 20px 0',
-                        }}
-                      >
-                        El usuario <strong>{userForm.nombreCompleto}</strong> ha
-                        sido creado con éxito.
-                      </p>
-                      <div
-                        style={{
-                          background: '#f8f9fa',
-                          padding: '16px 20px',
-                          borderRadius: 8,
-                          margin: '0 auto',
-                          maxWidth: 400,
-                          fontSize: '0.95em',
-                        }}
-                      >
-                        <div style={{ marginBottom: 8 }}>
-                          <strong>Usuario:</strong>{' '}
-                          {userCreationData.autoUsername}
-                        </div>
-                        <div style={{ marginBottom: 8 }}>
-                          <strong>Correo:</strong> {userCreationData.autoEmail}
-                        </div>
-                        <div style={{ marginBottom: 8 }}>
-                          <strong>Estado:</strong> {userCreationData.status}
-                        </div>
-                        <div>
-                          <strong>Rol:</strong> {userCreationData.role}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
-
             {/* Menú principal de pestañas */}
             <nav
               className="menus-html dashboard-tabs"
@@ -2251,6 +1449,296 @@ function AdminDashboard() {
                 overflowY: 'auto',
               }}
             >
+              {/* Consultar/Modificar Usuario */}
+              {activeTab === 'consultarmodificar' && (
+                <section
+                  className="premium-tab-section"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #fafdff 80%, #e3f2fd 100%)',
+                    border: '1.5px solid #d0d7e6',
+                    borderRadius: 18,
+                    padding: '32px 32px 28px 32px',
+                    marginBottom: 32,
+                    boxShadow: '0 4px 24px 0 rgba(25, 118, 210, 0.08)',
+                    width: '100%',
+                    maxWidth: '100%',
+                    minWidth: 0,
+                    position: 'relative',
+                    transition: 'box-shadow 0.2s',
+                    alignSelf: 'stretch',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: '#1976d2',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        width: 44,
+                        height: 44,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: 16,
+                        boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)',
+                      }}
+                    >
+                      <i className="fas fa-user-edit" style={{ fontSize: 22 }} />
+                    </div>
+                    <div>
+                      <h2
+                        style={{
+                          color: '#1976d2',
+                          fontWeight: 800,
+                          fontSize: '1.35em',
+                          margin: 0,
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        Consultar/Modificar Usuario
+                      </h2>
+                      <div
+                        style={{
+                          color: '#4a4a4a',
+                          fontSize: '1.07em',
+                          marginTop: 2,
+                          fontWeight: 400,
+                        }}
+                      >
+                        Busca y modifica información de usuarios del sistema
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      height: 1,
+                      background: '#bbdefb',
+                      margin: '18px 0 32px 0',
+                      borderRadius: 2,
+                    }}
+                  />
+
+                  {/* Formulario de búsqueda */}
+                  <div
+                    style={{
+                      background: '#fff',
+                      padding: '24px 28px',
+                      borderRadius: 16,
+                      border: '1px solid #e0e0e0',
+                      boxShadow: '0 2px 12px 0 rgba(0, 0, 0, 0.05)',
+                      marginBottom: 24,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: '#2196f3',
+                          color: '#fff',
+                          borderRadius: '50%',
+                          width: 36,
+                          height: 36,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginRight: 12,
+                        }}
+                      >
+                        <i className="fas fa-search" style={{ fontSize: 18 }} />
+                      </div>
+                      <h3
+                        style={{
+                          color: '#2196f3',
+                          fontWeight: 700,
+                          fontSize: '1.2em',
+                          margin: 0,
+                        }}
+                      >
+                        Buscar Usuario
+                      </h3>
+                    </div>
+                    
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                        gap: 16,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            marginBottom: 8,
+                            color: '#333',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Buscar por Documento:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Número de documento"
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            border: '1px solid #ddd',
+                            borderRadius: 8,
+                            fontSize: '1em',
+                            outline: 'none',
+                            transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                          }}
+                          onFocus={e => e.target.style.borderColor = '#2196f3'}
+                          onBlur={e => e.target.style.borderColor = '#ddd'}
+                        />
+                      </div>
+                      <div>
+                        <label
+                          style={{
+                            display: 'block',
+                            marginBottom: 8,
+                            color: '#333',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Buscar por Nombre:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nombre completo"
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            border: '1px solid #ddd',
+                            borderRadius: 8,
+                            fontSize: '1em',
+                            outline: 'none',
+                            transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                          }}
+                          onFocus={e => e.target.style.borderColor = '#2196f3'}
+                          onBlur={e => e.target.style.borderColor = '#ddd'}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button
+                        type="button"
+                        style={{
+                          background: 'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '12px 24px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'transform 0.1s, box-shadow 0.2s',
+                          fontSize: '1em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                        onMouseEnter={e => {
+                          e.target.style.transform = 'translateY(-1px)';
+                          e.target.style.boxShadow = '0 4px 16px 0 rgba(33, 150, 243, 0.3)';
+                        }}
+                        onMouseLeave={e => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      >
+                        <i className="fas fa-search" />
+                        Buscar
+                      </button>
+                      <button
+                        type="button"
+                        style={{
+                          background: '#f5f5f5',
+                          color: '#666',
+                          border: '1px solid #ddd',
+                          borderRadius: 8,
+                          padding: '12px 20px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontSize: '1em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                        onMouseEnter={e => {
+                          e.target.style.background = '#eeeeee';
+                          e.target.style.borderColor = '#ccc';
+                        }}
+                        onMouseLeave={e => {
+                          e.target.style.background = '#f5f5f5';
+                          e.target.style.borderColor = '#ddd';
+                        }}
+                      >
+                        <i className="fas fa-eraser" />
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Resultados de búsqueda */}
+                  <div
+                    style={{
+                      background: '#fff',
+                      padding: '24px 28px',
+                      borderRadius: 16,
+                      border: '1px solid #e0e0e0',
+                      boxShadow: '0 2px 12px 0 rgba(0, 0, 0, 0.05)',
+                      minHeight: 200,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div style={{ textAlign: 'center', color: '#888' }}>
+                      <div
+                        style={{
+                          background: '#f0f0f0',
+                          width: 80,
+                          height: 80,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 16px',
+                        }}
+                      >
+                        <i className="fas fa-users" style={{ fontSize: 36, color: '#bbb' }} />
+                      </div>
+                      <h4 style={{ margin: '0 0 8px 0', color: '#666' }}>
+                        Resultados de Búsqueda
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.95em' }}>
+                        Utiliza los filtros de búsqueda para encontrar usuarios
+                      </p>
+                    </div>
+                  </div>
+                </section>
+              )}
+
               {/* Alerta */}
               {activeTab === 'alertar' && (
                 <section

@@ -1,10 +1,17 @@
-@echo off
+  @echo off
 echo ===============================================
 echo 🔋 POWER CELL - PrediVersa Full Stack Startup
 echo ===============================================
 echo.
 echo Iniciando todos los servicios de PrediVersa...
 echo.
+
+REM Detener procesos existentes en los puertos necesarios
+echo 🔧 Liberando puertos necesarios...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":5001"') do taskkill /PID %%a /F >nul 2>&1
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3001"') do taskkill /PID %%a /F >nul 2>&1
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3000"') do taskkill /PID %%a /F >nul 2>&1
+echo ✅ Puertos liberados
 
 REM Abrir 3 terminales CMD para cada servicio
 echo 🔧 Iniciando Backend (Puerto 5001)...

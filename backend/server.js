@@ -1,10 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const { testConnection, closePool } = require('./config/database');
 const User = require('./models/User');
-require('dotenv').config();
 
 const app = express();
 app.set('trust proxy', 1); // Permite que express-rate-limit funcione correctamente detrás de proxies

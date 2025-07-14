@@ -6,6 +6,10 @@ const router = express.Router();
 const { users, recursos } = require('../data');
 const adminController = require('../controllers/adminController');
 const { jwtRequired, roleRequired } = require('../utils/jwt');
+const { getAdminStats } = require('../controllers/statsController');
+
+// GET /admin/stats - Obtener estadísticas administrativas
+router.get('/stats', jwtRequired, roleRequired('admin'), getAdminStats);
 
 // POST /admin/usuarios/generar-credenciales
 router.post(

@@ -13,7 +13,7 @@ app.use(authMiddleware);
 
 // Proxy a servicios Node.js internos
 app.use('/api/node', createProxyMiddleware({
-  target: process.env.NODE_SERVICE_URL || 'http://localhost:4000',
+  target: process.env.NODE_SERVICE_URL || 'http://localhost:5001',
   changeOrigin: true,
   pathRewrite: { '^/api/node': '/api' }
 }));
