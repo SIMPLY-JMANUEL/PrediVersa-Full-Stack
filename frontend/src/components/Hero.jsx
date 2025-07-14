@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./Hero.css";
 import "../styles/main.css"; // Sistema unificado de estilos
 
@@ -84,14 +85,14 @@ function Hero() {
 
               {/* Botones de acción */}
               <div className="hero-actions">
-                <button className="btn-inicio">
+                <Link to="/login" className="btn-inicio">
                   <i className="fas fa-play-circle"></i>
                   Comenzar Demo
-                </button>
-                <button className="btn-regresar">
+                </Link>
+                <Link to="/quienes-somos" className="btn-regresar">
                   <i className="fas fa-info-circle"></i>
                   Más Información
-                </button>
+                </Link>
               </div>
 
             </div>

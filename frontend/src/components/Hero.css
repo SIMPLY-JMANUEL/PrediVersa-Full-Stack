@@ -253,7 +253,8 @@
   flex-wrap: wrap;
 }
 
-.hero-actions button {
+.hero-actions button,
+.hero-actions a {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -268,12 +269,14 @@
   justify-content: center;
 }
 
-.hero-actions button:hover {
+.hero-actions button:hover,
+.hero-actions a:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgb(14 28 44 / 20%);
 }
 
-.hero-actions button i {
+.hero-actions button i,
+.hero-actions a i {
   font-size: 1.1rem;
 }
 
@@ -428,7 +431,8 @@
     margin-top: 1.5rem;
   }
   
-  .hero-actions button {
+  .hero-actions button,
+  .hero-actions a {
     width: 100%;
     max-width: 280px;
   }
