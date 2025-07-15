@@ -188,7 +188,16 @@ function AdminDashboard() {
             address: dbUser.direccion || '',
             photo: dbUser.foto || '',
             contactoEmergencia: dbUser.contactoEmergencia || '',
-            activo: dbUser.activo
+            numeroContactoEmergencia: dbUser.numeroContactoEmergencia || '',
+            activo: dbUser.activo,
+            // Campos adicionales de la tabla dbo.usuarios
+            fechaNacimiento: dbUser.fechaNacimiento || '',
+            edad: dbUser.edad || '',
+            sexo: dbUser.sexo || '',
+            eps: dbUser.eps || '',
+            condicionEspecial: dbUser.condicionEspecial || '',
+            descripcionCondicionEspecial: dbUser.descripcionCondicionEspecial || '',
+            usuario: dbUser.usuario || ''
           });
         }
       } else if (response.status === 401) {
@@ -1167,35 +1176,37 @@ function AdminDashboard() {
                 <>
                   <div className="info-row">
                     <span>
-                      <strong>Nombre:</strong> {adminProfileState.name}{' '}
-                      {adminProfileState.lastName}
+                      <strong>Nombre Completo:</strong> {adminProfileState.name}
                     </span>
                   </div>
                   <div className="info-row">
                     <span>
-                      <strong>Cargo:</strong> {adminProfileState.role}
+                      <strong>Perfil:</strong> {adminProfileState.role}
                     </span>
                   </div>
                   <div className="info-row">
                     <span>
-                      <strong>Tipo documento:</strong>{' '}
-                      {adminProfileState.documentType}
+                      <strong>Usuario:</strong> {adminProfileState.usuario || 'No disponible'}
                     </span>
                   </div>
                   <div className="info-row">
                     <span>
-                      <strong>Número documento:</strong>{' '}
-                      {adminProfileState.documentNumber || 'No disponible'}
+                      <strong>Tipo de Documento:</strong> {adminProfileState.documentType}
                     </span>
                   </div>
                   <div className="info-row">
                     <span>
-                      <strong>Correo:</strong> {adminProfileState.email || 'No disponible'}
+                      <strong>Número de Documento:</strong> {adminProfileState.documentNumber || 'No disponible'}
                     </span>
                   </div>
                   <div className="info-row">
                     <span>
-                      <strong>Teléfono:</strong> {adminProfileState.phone || 'No disponible'}
+                      <strong>Correo Electrónico:</strong> {adminProfileState.email || 'No disponible'}
+                    </span>
+                  </div>
+                  <div className="info-row">
+                    <span>
+                      <strong>Teléfono Personal:</strong> {adminProfileState.phone || 'No disponible'}
                     </span>
                   </div>
                   <div className="info-row">
@@ -1203,10 +1214,59 @@ function AdminDashboard() {
                       <strong>Dirección:</strong> {adminProfileState.address || 'No disponible'}
                     </span>
                   </div>
+                  {adminProfileState.fechaNacimiento && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Fecha de Nacimiento:</strong> {new Date(adminProfileState.fechaNacimiento).toLocaleDateString('es-ES')}
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.edad && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Edad:</strong> {adminProfileState.edad} años
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.sexo && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Sexo:</strong> {adminProfileState.sexo}
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.eps && (
+                    <div className="info-row">
+                      <span>
+                        <strong>EPS:</strong> {adminProfileState.eps}
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.condicionEspecial && adminProfileState.condicionEspecial !== 'No Aplica' && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Condición Especial:</strong> {adminProfileState.condicionEspecial}
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.descripcionCondicionEspecial && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Descripción Condición:</strong> {adminProfileState.descripcionCondicionEspecial}
+                      </span>
+                    </div>
+                  )}
                   {adminProfileState.contactoEmergencia && (
                     <div className="info-row">
                       <span>
-                        <strong>Contacto de emergencia:</strong> {adminProfileState.contactoEmergencia}
+                        <strong>Contacto de Emergencia:</strong> {adminProfileState.contactoEmergencia}
+                      </span>
+                    </div>
+                  )}
+                  {adminProfileState.numeroContactoEmergencia && (
+                    <div className="info-row">
+                      <span>
+                        <strong>Teléfono de Emergencia:</strong> {adminProfileState.numeroContactoEmergencia}
                       </span>
                     </div>
                   )}

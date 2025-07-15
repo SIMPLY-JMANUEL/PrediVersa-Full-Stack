@@ -36,12 +36,22 @@ router.get('/admin/current-user', auth, async (req, res) => {
       SELECT 
         Id_Usuario,
         Nombre_Completo,
-        Perfil,
-        Usuario,
-        Correo,
-        Activo,
+        Tipo_Documento,
         Identificacion,
-        Contacto_Emergencia
+        Telefono,
+        Correo,
+        Direccion,
+        Usuario,
+        Fecha_Nacimiento,
+        Edad,
+        Sexo,
+        EPS,
+        Perfil,
+        Condicion_Especial,
+        Descripción_Condicion_Especial,
+        Contacto_Emergencia,
+        Numero_Contacto_Emergencia,
+        Activo
       FROM dbo.usuarios 
       WHERE Id_Usuario = @userId
     `;
@@ -58,17 +68,22 @@ router.get('/admin/current-user', auth, async (req, res) => {
     const formattedUser = {
       id: userData.Id_Usuario,
       nombreCompleto: userData.Nombre_Completo,
-      perfil: userData.Perfil,
-      usuario: userData.Usuario,
-      correo: userData.Correo,
-      activo: userData.Activo?.trim() === 'SI',
+      tipoDocumento: userData.Tipo_Documento,
       identificacion: userData.Identificacion,
-      contactoEmergencia: userData.Contacto_Emergencia || '',
-      // Campos adicionales para el perfil del admin
-      tipoDocumento: 'Cédula de Ciudadanía',
-      telefono: '',
-      direccion: '',
-      foto: ''
+      telefono: userData.Telefono,
+      correo: userData.Correo,
+      direccion: userData.Direccion,
+      usuario: userData.Usuario,
+      fechaNacimiento: userData.Fecha_Nacimiento,
+      edad: userData.Edad,
+      sexo: userData.Sexo,
+      eps: userData.EPS,
+      perfil: userData.Perfil,
+      condicionEspecial: userData.Condicion_Especial,
+      descripcionCondicionEspecial: userData.Descripción_Condicion_Especial,
+      contactoEmergencia: userData.Contacto_Emergencia,
+      numeroContactoEmergencia: userData.Numero_Contacto_Emergencia,
+      activo: userData.Activo?.trim() === 'SI'
     };
 
     res.json({
@@ -200,8 +215,15 @@ router.post('/admin/create-user', auth, async (req, res) => {
 
     // Mapear campos del frontend a los nombres esperados
     const finalEps = eps || epsSeguroMedico || 'No especificado';
-    const finalContactoEmergencia = telefonoFamiliar || contactoEmergencia || telefono;
-    const finalUsuarioActivo = estadoActivo !== undefined ? estadoActivo : (usuarioActivo !== undefined ? usuarioActivo : '1');
+    const finalContactoEmergencia = contactoEmergencia || 'No especificado';
+    const finalTelefonoFamiliar = telefonoFamiliar || telefono || 'No especificado';
+    const finalCondicionEspecial = condicionEspecial || 'No Aplica';
+    const finalDescripcionCondicion = descripcionCondicion || null;
+    const finalUsuarioActivo = estadoActivo !== undefined ? estadoActivo : (usuarioActivo !== undefined ? usuarioActivo : 'SI');
+    
+    // Convertir el valor del campo activo a "SI" o "NO" para la base de datos
+    const activoValue = finalUsuarioActivo === 'Activo' || finalUsuarioActivo === 'SI' || finalUsuarioActivo === 'Sí' || finalUsuarioActivo === '1' || finalUsuarioActivo === 1 || finalUsuarioActivo === true;
+    const activoForDB = activoValue ? 'SI' : 'NO';
 
     // Validar campos requeridos
     if (!nombreCompleto || !numeroDocumento || !correoElectronico || !telefono || !usuario || !perfil) {
@@ -266,58 +288,72 @@ router.post('/admin/create-user', auth, async (req, res) => {
       INSERT INTO dbo.usuarios (
         Id_Usuario,
         Nombre_Completo,
-        Perfil,
-        Usuario,
-        Correo,
-        Activo,
+        Tipo_Documento,
         Identificacion,
+        Contacto,
+        Correo,
+        Direccion,
+        Usuario,
+        Fecha_Nacimiento,
+        Edad,
+        Sexo,
+        EPS,
+        Perfil,
+        Condicion_Especial,
+        Descripción_Condicion_Especial,
         Contrasena,
         Contacto_Emergencia,
-        Sexo,
-        Tipo_Documento,
-        Edad,
-        Direccion,
-        EPS,
         Numero_Contacto_Emergencia,
-        Fecha_Nacimiento
+        Activo
       ) VALUES (
         @idUsuario,
         @nombreCompleto,
-        @perfil,
-        @usuario,
-        @correoElectronico,
-        @activo,
-        @numeroDocumento,
-        @contrasena,
-        @telefono,
-        @sexo,
         @tipoDocumento,
-        @edad,
+        @numeroDocumento,
+        @telefono,
+        @correoElectronico,
         @direccion,
-        @epsSeguroMedico,
-        @contactoEmergencia,
-        @fechaNacimiento
+        @usuario,
+        @fechaNacimiento,
+        @edad,
+        @sexo,
+        @finalEps,
+        @perfil,
+        @finalCondicionEspecial,
+        @finalDescripcionCondicion,
+        @contrasena,
+        @finalContactoEmergencia,
+        @finalTelefonoFamiliar,
+        @activo
       )
     `;
 
-    await executeQuery(insertQuery, {
+    const insertParams = {
       idUsuario: nextId,
       nombreCompleto,
-      perfil,
-      usuario,
-      correoElectronico,
-      activo: finalUsuarioActivo, // Cambiar usuarioActivo por activo
-      numeroDocumento,
-      contrasena: contrasena.padEnd(10, ' '), // Asegurar que tenga exactamente 10 caracteres
-      telefono,
-      sexo,
       tipoDocumento,
-      edad: parseInt(edad) || 0,
+      numeroDocumento,
+      telefono, // Este va a Contacto
+      correoElectronico,
       direccion,
-      epsSeguroMedico: finalEps,
-      contactoEmergencia: finalContactoEmergencia,
-      fechaNacimiento
-    });
+      usuario,
+      fechaNacimiento,
+      edad: parseInt(edad) || 0,
+      sexo,
+      finalEps: finalEps,
+      perfil,
+      finalCondicionEspecial: finalCondicionEspecial,
+      finalDescripcionCondicion: finalDescripcionCondicion,
+      contrasena: contrasena.padEnd(10, ' '), // Asegurar que tenga exactamente 10 caracteres
+      finalContactoEmergencia: finalContactoEmergencia,
+      finalTelefonoFamiliar: finalTelefonoFamiliar,
+      activo: activoForDB // Usar el valor convertido a "SI"/"NO"
+    };
+
+    console.log('DEBUG - Parámetros a insertar:');
+    console.log(JSON.stringify(insertParams, null, 2));
+
+    await executeQuery(insertQuery, insertParams);
 
     res.json({
       success: true,

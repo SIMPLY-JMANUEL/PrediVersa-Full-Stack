@@ -263,10 +263,10 @@ async function updateUser(req, res) {
     }
 
     if (usuarioActivo !== undefined) {
-      // Convertir el valor a BIT compatible
+      // Convertir el valor a formato "SI" o "NO" para la base de datos
       const activoValue = usuarioActivo === 'Activo' || usuarioActivo === 'SI' || usuarioActivo === 'Sí' || usuarioActivo === '1' || usuarioActivo === 1 || usuarioActivo === true;
       updateFields.push('Activo = @usuarioActivo');
-      updateParams.usuarioActivo = activoValue ? 1 : 0;
+      updateParams.usuarioActivo = activoValue ? 'SI' : 'NO';
     }
 
     if (perfil !== undefined) {

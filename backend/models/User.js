@@ -35,7 +35,8 @@ class User {
   // Buscar usuario por nombre de usuario o correo usando la estructura real
   static async findByUsernameOrEmail(identifier) {
     try {
-      const query = `
+      // Primero verificar si el usuario existe (sin importar si está activo)
+      const userExistsQuery = `
         SELECT 
           Id_Usuario as id,
           Nombre_Completo as nombre,
@@ -47,21 +48,36 @@ class User {
           Identificacion as identificacion
         FROM Usuarios 
         WHERE (Usuario = @identifier OR Correo = @identifier)
-        AND Activo = 'SI'
       `;
-
-      const result = await executeQuery(query, { identifier });
-
-      if (result.recordset.length > 0) {
-        const user = result.recordset[0];
-        // Limpiar la contraseña de espacios extra si existe
-        if (user.contraseña) {
-          user.contraseña = user.contraseña.trim();
-        }
-        return user;
+      
+      const userExistsResult = await executeQuery(userExistsQuery, { identifier });
+      
+      if (userExistsResult.recordset.length === 0) {
+        console.log('❌ Usuario no encontrado en la base de datos');
+        return null;
       }
-
-      return null;
+      
+      const user = userExistsResult.recordset[0];
+      
+      // Verificar si el usuario está activo
+      if (user.activo !== 'SI') {
+        console.log(`⚠️ Usuario ${user.usuario} encontrado pero está INACTIVO (Estado: ${user.activo})`);
+        return { 
+          ...user, 
+          isInactive: true,
+          message: 'Usuario inactivo. Contacte al administrador.' 
+        };
+      }
+      
+      console.log(`✅ Usuario ${user.usuario} encontrado y ACTIVO`);
+      
+      // Limpiar la contraseña de espacios extra si existe
+      if (user.contraseña) {
+        user.contraseña = user.contraseña.trim();
+      }
+      
+      return user;
+      
     } catch (error) {
       console.error('❌ Error buscando usuario:', error.message);
       return null;

@@ -86,10 +86,20 @@ router.post('/login', async (req, res) => {
     console.log('🔍 Buscando usuario con identifier:', identifier);
     const user = await User.findByUsernameOrEmail(identifier);
     console.log('🔍 Usuario encontrado:', user);
+    
     if (!user) {
       console.log('❌ Usuario no encontrado');
       return res.status(400).json({
         msg: 'Credenciales inválidas'
+      });
+    }
+
+    // Verificar si el usuario está inactivo
+    if (user.isInactive) {
+      console.log('⚠️ Usuario inactivo intentando hacer login');
+      return res.status(403).json({
+        msg: 'Usuario inactivo. Contacte al administrador del sistema.',
+        code: 'USER_INACTIVE'
       });
     }
 
