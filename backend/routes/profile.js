@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/auth');
 const { executeQuery } = require('../config/database');
+const { sendWelcomeEmail } = require('../utils/emailService');
 
 // Ruta protegida para obtener el perfil del usuario autenticado
 router.get('/', auth, (req, res) => {
@@ -246,19 +247,19 @@ router.post('/admin/create-user', auth, async (req, res) => {
       SELECT 
         Identificacion,
         Correo,
-        Numero_Contacto_Emergencia,
+        Telefono,
         Usuario
       FROM dbo.usuarios 
       WHERE Identificacion = @numeroDocumento 
          OR Correo = @correoElectronico 
-         OR Contacto_Emergencia = @telefono
+         OR Telefono = @telefono
          OR Usuario = @usuario
     `;
 
     const duplicateCheck = await executeQuery(checkDuplicatesQuery, {
       numeroDocumento,
       correoElectronico,
-      telefono: finalContactoEmergencia,
+      telefono,
       usuario
     });
 
@@ -268,7 +269,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
       
       if (duplicates.Identificacion === numeroDocumento) duplicateFields.push('Número de Documento');
       if (duplicates.Correo === correoElectronico) duplicateFields.push('Correo Electrónico');
-      if (duplicates.Contacto_Emergencia === telefono) duplicateFields.push('Teléfono');
+      if (duplicates.Telefono === telefono) duplicateFields.push('Teléfono');
       if (duplicates.Usuario === usuario) duplicateFields.push('Usuario');
 
       return res.status(400).json({
@@ -290,7 +291,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
         Nombre_Completo,
         Tipo_Documento,
         Identificacion,
-        Contacto,
+        Telefono,
         Correo,
         Direccion,
         Usuario,
@@ -355,9 +356,33 @@ router.post('/admin/create-user', auth, async (req, res) => {
 
     await executeQuery(insertQuery, insertParams);
 
+    // Enviar correo de bienvenida con credenciales
+    console.log('📧 Enviando correo de bienvenida...');
+    const emailResult = await sendWelcomeEmail(correoElectronico, {
+      nombreCompleto,
+      correoElectronico,
+      usuario,
+      contrasena,
+      perfil,
+      telefono,
+      direccion,
+      contactoEmergencia: finalContactoEmergencia,
+      telefonoFamiliar: finalTelefonoFamiliar
+    });
+
+    let responseMsg = 'Usuario creado exitosamente';
+    if (emailResult.success) {
+      responseMsg += ' y correo de bienvenida enviado';
+      console.log('✅ Correo de bienvenida enviado exitosamente');
+    } else {
+      responseMsg += ', pero hubo un error al enviar el correo de bienvenida';
+      console.error('❌ Error enviando correo de bienvenida:', emailResult.error);
+    }
+
     res.json({
       success: true,
-      msg: 'Usuario creado exitosamente',
+      msg: responseMsg,
+      emailSent: emailResult.success,
       data: {
         nombreCompleto,
         usuario,
