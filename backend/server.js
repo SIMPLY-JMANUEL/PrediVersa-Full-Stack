@@ -3,17 +3,11 @@ const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
-const { testConnection, closePool } = require('./config/database');
-const User = require('./models/User');
-
-console.log('🔍 DEBUG: Verificando variables de entorno');
-console.log('🔍 JWT_SECRET:', process.env.JWT_SECRET ? 'DEFINIDO' : 'NO DEFINIDO');
-console.log('🔍 PORT:', process.env.PORT);
-console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+const { closePool } = require('./config/database');
 
 const app = express();
-app.set('trust proxy', 1); // Permite que express-rate-limit funcione correctamente detrás de proxies
-const PORT = process.env.PORT || 5001; // Usa variable de entorno si está definida
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || 5001;
 
 console.log('Iniciando backend PrediVersa...');
 
@@ -37,26 +31,10 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Endpoint temporal para consultar usuarios
-app.get('/api/debug/users', async (req, res) => {
-  try {
-    const { executeQuery } = require('./config/database');
-    const result = await executeQuery('SELECT Id_Usuario, Nombre_Completo, Usuario, Correo, Activo, Perfil FROM Dbo.Usuarios');
-    res.json(result.recordset);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Endpoint temporal para debug - ver contraseñas
-app.get('/api/debug/passwords', async (req, res) => {
-  try {
-    const { executeQuery } = require('./config/database');
-    const result = await executeQuery('SELECT Usuario, Contrasena FROM Dbo.Usuarios');
-    res.json(result.recordset);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Middleware de logging para debug
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
 });
 
 // Rutas principales agrupadas
@@ -64,19 +42,34 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/student', require('./routes/student'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/admin', require('./routes/admin')); // Ruta adicional sin /api para compatibilidad
+app.use('/api/users', require('./routes/users'));
 app.use('/api/parent', require('./routes/parent'));
 app.use('/api/teacher', require('./routes/teacher'));
 app.use('/api/moderator', require('./routes/moderator'));
 app.use('/api/shared', require('./routes/shared'));
 app.use('/api/pqr', require('./routes/pqr'));
 app.use('/api/stats', require('./routes/stats'));
-app.use('/api/users', require('./routes/users'));
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
   res.json({
     message: 'Servidor PrediVersa funcionando correctamente',
     timestamp: new Date().toISOString()
+  });
+});
+
+// Ruta raíz del API
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'API PrediVersa funcionando',
+    version: '1.0.0',
+    endpoints: [
+      '/api/auth/login',
+      '/api/profile',
+      '/api/admin/stats',
+      '/api/test'
+    ]
   });
 });
 

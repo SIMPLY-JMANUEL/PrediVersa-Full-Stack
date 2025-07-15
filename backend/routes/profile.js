@@ -24,10 +24,6 @@ router.get('/', auth, (req, res) => {
 // Ruta para obtener datos completos del usuario desde la base de datos
 router.get('/admin/current-user', auth, async (req, res) => {
   try {
-    console.log('DEBUG - req.user:', req.user);
-    console.log('DEBUG - req.user.rol:', req.user.rol);
-    console.log('DEBUG - Tipo de rol:', typeof req.user.rol);
-    
     if (!req.user || (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')) {
       return res.status(403).json({ msg: 'Acceso denegado. Solo administradores.' });
     }
@@ -334,7 +330,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
       nombreCompleto,
       tipoDocumento,
       numeroDocumento,
-      telefono, // Este va a Contacto
+      telefono,
       correoElectronico,
       direccion,
       usuario,
@@ -345,19 +341,15 @@ router.post('/admin/create-user', auth, async (req, res) => {
       perfil,
       finalCondicionEspecial: finalCondicionEspecial,
       finalDescripcionCondicion: finalDescripcionCondicion,
-      contrasena: contrasena.padEnd(10, ' '), // Asegurar que tenga exactamente 10 caracteres
+      contrasena: contrasena.padEnd(10, ' '),
       finalContactoEmergencia: finalContactoEmergencia,
       finalTelefonoFamiliar: finalTelefonoFamiliar,
-      activo: activoForDB // Usar el valor convertido a "SI"/"NO"
+      activo: activoForDB
     };
-
-    console.log('DEBUG - Parámetros a insertar:');
-    console.log(JSON.stringify(insertParams, null, 2));
 
     await executeQuery(insertQuery, insertParams);
 
     // Enviar correo de bienvenida con credenciales
-    console.log('📧 Enviando correo de bienvenida...');
     const emailResult = await sendWelcomeEmail(correoElectronico, {
       nombreCompleto,
       correoElectronico,
@@ -373,10 +365,9 @@ router.post('/admin/create-user', auth, async (req, res) => {
     let responseMsg = 'Usuario creado exitosamente';
     if (emailResult.success) {
       responseMsg += ' y correo de bienvenida enviado';
-      console.log('✅ Correo de bienvenida enviado exitosamente');
     } else {
       responseMsg += ', pero hubo un error al enviar el correo de bienvenida';
-      console.error('❌ Error enviando correo de bienvenida:', emailResult.error);
+      console.error('Error enviando correo de bienvenida:', emailResult.error);
     }
 
     res.json({

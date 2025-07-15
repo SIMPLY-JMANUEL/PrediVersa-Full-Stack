@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { jwtRequired, roleRequired } = require('../utils/jwt');
-const { users, cuestionarios, recursos, respuestas } = require('../data');
+// Se usa la base de datos en lugar de arrays en memoria
 const validateQuestionnaire = require('../middlewares/validateQuestionnaire');
 
 // Helper para respuestas uniformes

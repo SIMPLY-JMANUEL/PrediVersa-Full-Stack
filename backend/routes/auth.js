@@ -7,75 +7,17 @@ const router = express.Router();
 const auth = require('../middlewares/auth');
 const User = require('../models/User');
 
-// Base de datos simulada de usuarios (en producción usar MongoDB)
-const users = [
-  {
-    id: 1,
-    nombre: 'Juliana Fajardo',
-    usuario: 'admin',
-    correo: 'admin@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'admin'
-  },
-  {
-    id: 2,
-    nombre: 'Andrey Luna',
-    usuario: 'profesor',
-    correo: 'profesor@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'teacher'
-  },
-  {
-    id: 3,
-    nombre: 'Carlos Rodríguez',
-    usuario: 'estudiante',
-    correo: 'estudiante@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'student'
-  },
-  {
-    id: 4,
-    nombre: 'Harold Salcedo',
-    usuario: 'padre',
-    correo: 'padre@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'parent'
-  },
-  {
-    id: 5,
-    nombre: 'Moderador',
-    usuario: 'moderador',
-    correo: 'moderador@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'moderator'
-  }
-];
-
 // ================== AUTENTICACIÓN ==================
 // @route   POST /api/auth/login
 // @desc    Autenticar usuario y obtener token
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    // Debug - imprimir lo que se recibe
-    console.log('=== DEBUG LOGIN ===');
-    console.log('req.body:', req.body);
-    console.log('tipo req.body:', typeof req.body);
-    console.log('Object.keys(req.body):', Object.keys(req.body));
-    
     const { usuario, correo, contraseña, password } = req.body;
-
-    // Debug de destructuring
-    console.log('usuario:', usuario, '- tipo:', typeof usuario);
-    console.log('correo:', correo, '- tipo:', typeof correo);
-    console.log('contraseña:', contraseña, '- tipo:', typeof contraseña);
-    console.log('password:', password, '- tipo:', typeof password);
-    console.log('==================');
 
     // Validar entrada - puede ser usuario o correo, y contraseña o password
     const finalPassword = contraseña || password;
     if ((!usuario && !correo) || !finalPassword) {
-      console.log('❌ Validación falló - usuario/correo o contraseña faltantes');
       return res.status(400).json({
         msg: 'Por favor, proporciona usuario/correo y contraseña'
       });
@@ -83,12 +25,9 @@ router.post('/login', async (req, res) => {
 
     // Buscar usuario por nombre de usuario o correo en la base de datos
     const identifier = usuario || correo;
-    console.log('🔍 Buscando usuario con identifier:', identifier);
     const user = await User.findByUsernameOrEmail(identifier);
-    console.log('🔍 Usuario encontrado:', user);
     
     if (!user) {
-      console.log('❌ Usuario no encontrado');
       return res.status(400).json({
         msg: 'Credenciales inválidas'
       });
@@ -96,7 +35,6 @@ router.post('/login', async (req, res) => {
 
     // Verificar si el usuario está inactivo
     if (user.isInactive) {
-      console.log('⚠️ Usuario inactivo intentando hacer login');
       return res.status(403).json({
         msg: 'Usuario inactivo. Contacte al administrador del sistema.',
         code: 'USER_INACTIVE'
@@ -104,11 +42,8 @@ router.post('/login', async (req, res) => {
     }
 
     // Verificar contraseña
-    console.log('🔐 Verificando contraseña:', finalPassword, 'contra hash:', user.contraseña);
     const isMatch = await User.verifyPassword(finalPassword, user.contraseña);
-    console.log('🔐 Contraseña coincide:', isMatch);
     if (!isMatch) {
-      console.log('❌ Contraseña incorrecta');
       return res.status(400).json({
         msg: 'Credenciales inválidas'
       });
@@ -125,12 +60,7 @@ router.post('/login', async (req, res) => {
       }
     };
 
-    console.log('🔑 Generando JWT con secret:', process.env.JWT_SECRET ? 'DEFINIDO' : 'NO DEFINIDO');
-    console.log('🔑 Payload:', payload);
-
-    // Usar un JWT_SECRET temporal si no está definido
     const jwtSecret = process.env.JWT_SECRET || 'prediversa_secret_key_2024_very_secure_token_for_authentication_do_not_share_in_production';
-    console.log('🔑 Usando JWT_SECRET:', jwtSecret ? 'DEFINIDO' : 'NO DEFINIDO');
 
     jwt.sign(
       payload,
@@ -138,8 +68,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' },
       (err, token) => {
         if (err) {
-          console.error('❌ Error generando JWT:', err);
-          console.error('❌ JWT_SECRET:', process.env.JWT_SECRET);
+          console.error('Error generando JWT:', err);
           throw err;
         }
         res.json({

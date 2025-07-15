@@ -1,7 +1,7 @@
 // controllers/pqrController.js
 // Lógica para gestión de reportes/PQR con validación y helpers reutilizables
 
-const { reportes } = require('../data');
+// Se usa la base de datos en lugar de arrays en memoria
 const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 /**
