@@ -39,15 +39,15 @@ class User {
         SELECT 
           Id_Usuario as id,
           Nombre_Completo as nombre,
-          Perfil as rol,
-          Usuario as usuario,
-          Correo as correo,
-          Contrasena as contraseña,
+          Rol as rol,
+          Nombre_Usuario as usuario,
+          Correo_Electronico as correo,
+          Contrasena_Hash as contraseña,
           Activo as activo,
-          Identificacion as identificacion
+          Numero_Identificacion as identificacion
         FROM Usuarios 
-        WHERE (Usuario = @identifier OR Correo = @identifier)
-        AND Activo = 'SI'
+        WHERE (Nombre_Usuario = @identifier OR Correo_Electronico = @identifier)
+        AND Activo = 1
       `;
 
       const result = await executeQuery(query, { identifier });
@@ -75,14 +75,14 @@ class User {
         SELECT 
           Id_Usuario as id,
           Nombre_Completo as nombre,
-          Perfil as rol,
-          Usuario as usuario,
-          Correo as correo,
+          Rol as rol,
+          Nombre_Usuario as usuario,
+          Correo_Electronico as correo,
           Activo as activo,
-          Identificacion as identificacion
+          Numero_Identificacion as identificacion
         FROM Usuarios 
         WHERE Id_Usuario = @id
-        AND Activo = 'SI'
+        AND Activo = 1
       `;
       
       const result = await executeQuery(query, { id });

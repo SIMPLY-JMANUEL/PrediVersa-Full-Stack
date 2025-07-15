@@ -122,13 +122,13 @@ function AdminDashboard() {
     edad: '', // Edad - calculado automáticamente
     sexo: '', // Sexo - desplegable Masculino/Femenino
     correoElectronico: '', // Correo - validación email
-    telefono: '', // Telefono - numérico 10 caracteres exactos
+    // telefono: '', // Telefono - campo no existe en la tabla
     direccion: '', // Direccion - alfanumérico
     epsSeguroMedico: '', // EPS - desplegable con opciones
-    condicionEspecial: '', // Condición Especial - desplegable
-    descripcionCondicion: '', // Descripcion_Condicion - alfanumérico habilitado condicionalmente
+    condicionEspecial: '', // Condicion_Especial - desplegable
+    // descripcionCondicion: '', // Descripcion_Condicion - campo no existe en la tabla
     contactoEmergencia: '', // Contacto_Emergencia - solo alfabético
-    telefonoFamiliar: '', // Telefono_Familiar - numérico 10 caracteres
+    telefonoFamiliar: '', // Numero_Contacto_Emergencia - numérico 10 caracteres
     usuarioActivo: 'SI', // Activo - desplegable SI/NO
     perfil: '', // Perfil - desplegable con roles
     contrasena: '', // Contrasena - campo con sugerencia
@@ -338,16 +338,16 @@ function AdminDashboard() {
       edad: user.Edad || '',
       sexo: user.Sexo || '',
       correoElectronico: user.Correo || '',
-      telefono: user.Telefono || '',
+      // telefono: user.Telefono || '', // Campo no existe en la tabla
       direccion: user.Direccion || '',
       epsSeguroMedico: user.EPS || '',
       condicionEspecial: user.Condicion_Especial || '',
-      descripcionCondicion: user.Descripcion_Condicion || '',
+      // descripcionCondicion: user.Descripcion_Condicion || '', // Campo no existe en la tabla
       contactoEmergencia: user.Contacto_Emergencia || '',
       telefonoFamiliar: user.Numero_Contacto_Emergencia || '',
-      usuarioActivo: user.Activo || 'SI',
       perfil: user.Perfil || '',
       usuario: user.Usuario || '',
+      usuarioActivo: user.Activo && user.Activo.trim() === 'SI' ? 'SI' : 'NO',
       contrasena: '',
       encontrado: true,
     });
@@ -360,6 +360,62 @@ function AdminDashboard() {
     
     if (!selectedUser) {
       alert('No hay usuario seleccionado para actualizar');
+      return;
+    }
+
+    // Validaciones requeridas
+    if (!userForm.nombreCompleto || !userForm.tipoDocumento || !userForm.numeroDocumento ||
+        !userForm.fechaNacimiento || !userForm.sexo || !userForm.correoElectronico ||
+        !userForm.direccion || !userForm.epsSeguroMedico || !userForm.condicionEspecial ||
+        !userForm.contactoEmergencia || !userForm.telefonoFamiliar || !userForm.perfil ||
+        !userForm.usuario || !userForm.usuarioActivo) {
+      alert('Por favor complete todos los campos obligatorios marcados con *');
+      return;
+    }
+
+    // Validaciones de formato
+    const namePattern = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!namePattern.test(userForm.nombreCompleto)) {
+      alert('El nombre completo solo puede contener letras y espacios');
+      return;
+    }
+
+    const documentPattern = /^\d{5,15}$/;
+    if (!documentPattern.test(userForm.numeroDocumento)) {
+      alert('El número de documento debe tener entre 5 y 15 números');
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(userForm.correoElectronico)) {
+      alert('Por favor ingrese un correo electrónico válido');
+      return;
+    }
+
+    const phonePattern = /^\d{10}$/;
+    if (!phonePattern.test(userForm.telefonoFamiliar)) {
+      alert('El teléfono de emergencia debe tener exactamente 10 números');
+      return;
+    }
+
+    if (!namePattern.test(userForm.contactoEmergencia)) {
+      alert('El contacto de emergencia solo puede contener letras y espacios');
+      return;
+    }
+
+    const usernamePattern = /^[a-zA-Z0-9._-]+$/;
+    if (!usernamePattern.test(userForm.usuario)) {
+      alert('El usuario solo puede contener letras, números, puntos, guiones y guiones bajos');
+      return;
+    }
+
+    if (userForm.usuario.length < 3 || userForm.usuario.length > 20) {
+      alert('El usuario debe tener entre 3 y 20 caracteres');
+      return;
+    }
+
+    if (userForm.contrasena && userForm.contrasena.length < 8) {
+      alert('La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
@@ -379,11 +435,11 @@ function AdminDashboard() {
         edad: userForm.edad,
         sexo: userForm.sexo,
         correoElectronico: userForm.correoElectronico,
-        telefono: userForm.telefono,
+        // telefono: userForm.telefono, // Campo no existe en la tabla
         direccion: userForm.direccion,
         epsSeguroMedico: userForm.epsSeguroMedico,
         condicionEspecial: userForm.condicionEspecial,
-        descripcionCondicion: userForm.descripcionCondicion,
+        // descripcionCondicion: userForm.descripcionCondicion, // Campo no existe en la tabla
         contactoEmergencia: userForm.contactoEmergencia,
         telefonoFamiliar: userForm.telefonoFamiliar,
         usuarioActivo: userForm.usuarioActivo,
@@ -489,6 +545,25 @@ function AdminDashboard() {
     fetchDashboardStats();
   }, [navigate]);
 
+  // useEffect para calcular edad cuando cambia fecha de nacimiento
+  useEffect(() => {
+    if (userForm.fechaNacimiento) {
+      const today = new Date();
+      const birthDate = new Date(userForm.fechaNacimiento);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      setUserForm(prev => ({
+        ...prev,
+        edad: age
+      }));
+    }
+  }, [userForm.fechaNacimiento]);
+
   const handleClearUser = () => {
     setUserForm({
       // Limpiar todos los campos del formulario
@@ -499,11 +574,11 @@ function AdminDashboard() {
       edad: '',
       sexo: '',
       correoElectronico: '',
-      telefono: '',
+      // telefono: '', // Campo no existe en la tabla
       direccion: '',
       epsSeguroMedico: '',
       condicionEspecial: '',
-      descripcionCondicion: '',
+      // descripcionCondicion: '', // Campo no existe en la tabla
       contactoEmergencia: '',
       telefonoFamiliar: '',
       usuarioActivo: 'SI',
@@ -598,11 +673,7 @@ function AdminDashboard() {
         return;
       
       case 'condicionEspecial':
-        // Si es "No Aplica", limpiar descripción
-        if (value === 'No Aplica') {
-          setUserForm(prev => ({ ...prev, [name]: value, descripcionCondicion: '' }));
-          return;
-        }
+        // Si es "No Aplica", no hay campo descripción en la tabla
         break;
       
       default:
@@ -1894,7 +1965,7 @@ function AdminDashboard() {
                                 </div>
                                 <div style={{ display: 'flex', gap: 20, fontSize: '0.85em', color: '#666' }}>
                                   <span><i className="fas fa-envelope" style={{ marginRight: 6 }} />{user.Correo || 'Sin email'}</span>
-                                  <span><i className="fas fa-phone" style={{ marginRight: 6 }} />{user.Telefono || 'Sin teléfono'}</span>
+                                  <span><i className="fas fa-phone" style={{ marginRight: 6 }} />{user.Numero_Contacto_Emergencia || 'Sin teléfono'}</span>
                                   <span><i className="fas fa-user-tag" style={{ marginRight: 6 }} />{user.Perfil || 'Sin perfil'}</span>
                                   <span style={{ 
                                     color: user.Activo === 'SI' ? '#4caf50' : '#f44336',
@@ -2667,6 +2738,9 @@ function AdminDashboard() {
                     type="text"
                     value={userForm.nombreCompleto}
                     onChange={(e) => setUserForm({...userForm, nombreCompleto: e.target.value})}
+                    placeholder="Solo letras y espacios"
+                    pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                    title="Solo se permiten letras y espacios"
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -2719,6 +2793,11 @@ function AdminDashboard() {
                     type="text"
                     value={userForm.numeroDocumento}
                     onChange={(e) => setUserForm({...userForm, numeroDocumento: e.target.value})}
+                    placeholder="Entre 5 y 15 números"
+                    pattern="\d{5,15}"
+                    minLength="5"
+                    maxLength="15"
+                    title="Solo números, entre 5 y 15 caracteres"
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -2733,6 +2812,83 @@ function AdminDashboard() {
                     onBlur={e => e.target.style.borderColor = '#ddd'}
                     required
                   />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Fecha de Nacimiento *
+                  </label>
+                  <input
+                    type="date"
+                    value={userForm.fechaNacimiento}
+                    onChange={(e) => setUserForm({...userForm, fechaNacimiento: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Edad
+                  </label>
+                  <input
+                    type="number"
+                    value={userForm.edad}
+                    readOnly
+                    placeholder="Se calcula automáticamente"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                      backgroundColor: '#f5f5f5',
+                      cursor: 'not-allowed'
+                    }}
+                    min="1"
+                    max="120"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Sexo *
+                  </label>
+                  <select
+                    value={userForm.sexo}
+                    onChange={(e) => setUserForm({...userForm, sexo: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    <option value="">Seleccionar sexo</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                  </select>
                 </div>
 
                 <div>
@@ -2743,6 +2899,7 @@ function AdminDashboard() {
                     type="email"
                     value={userForm.correoElectronico}
                     onChange={(e) => setUserForm({...userForm, correoElectronico: e.target.value})}
+                    placeholder="usuario@ejemplo.com"
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -2761,12 +2918,126 @@ function AdminDashboard() {
 
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
-                    Teléfono *
+                    Dirección Residencia *
                   </label>
                   <input
-                    type="tel"
-                    value={userForm.telefono}
-                    onChange={(e) => setUserForm({...userForm, telefono: e.target.value})}
+                    type="text"
+                    value={userForm.direccion}
+                    onChange={(e) => setUserForm({...userForm, direccion: e.target.value})}
+                    placeholder="Dirección completa"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    EPS o Seguro Médico *
+                  </label>
+                  <select
+                    name="epsSeguroMedico"
+                    value={userForm.epsSeguroMedico}
+                    onChange={(e) => setUserForm({...userForm, epsSeguroMedico: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    <option value="">Seleccione EPS</option>
+                    {EPS_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Condición Especial *
+                  </label>
+                  <select
+                    value={userForm.condicionEspecial}
+                    onChange={(e) => setUserForm({...userForm, condicionEspecial: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    <option value="">Seleccione condición</option>
+                    {CONDICION_ESPECIAL_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Contacto de Emergencia *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.contactoEmergencia}
+                    onChange={(e) => setUserForm({...userForm, contactoEmergencia: e.target.value})}
+                    placeholder="Solo letras y espacios"
+                    pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                    title="Solo se permiten letras y espacios"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Teléfono de Emergencia *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.telefonoFamiliar}
+                    onChange={(e) => setUserForm({...userForm, telefonoFamiliar: e.target.value})}
+                    placeholder="Exactamente 10 números"
+                    pattern="\d{10}"
+                    minLength="10"
+                    maxLength="10"
+                    title="Exactamente 10 números"
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -2813,6 +3084,35 @@ function AdminDashboard() {
 
                 <div>
                   <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Usuario *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.usuario}
+                    onChange={(e) => setUserForm({...userForm, usuario: e.target.value})}
+                    placeholder="Nombre de usuario único"
+                    pattern="^[a-zA-Z0-9._-]+$"
+                    title="Solo se permiten letras, números, puntos, guiones y guiones bajos"
+                    minLength="3"
+                    maxLength="20"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
                     Estado *
                   </label>
                   <select
@@ -2847,6 +3147,8 @@ function AdminDashboard() {
                     value={userForm.contrasena}
                     onChange={(e) => setUserForm({...userForm, contrasena: e.target.value})}
                     placeholder="Dejar vacío para mantener la actual"
+                    minLength="8"
+                    title="Mínimo 8 caracteres"
                     style={{
                       width: '100%',
                       padding: '12px 16px',

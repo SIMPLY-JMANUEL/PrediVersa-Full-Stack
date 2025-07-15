@@ -59,10 +59,18 @@ async function searchUsers(req, res) {
 
     const result = await executeQuery(query, params);
 
+    // Convertir campos varbinary a string
+    const users = result.recordset.map(user => {
+      if (user.Condicion_Especial && Buffer.isBuffer(user.Condicion_Especial)) {
+        user.Condicion_Especial = user.Condicion_Especial.toString('utf8');
+      }
+      return user;
+    });
+
     res.json({
       success: true,
-      data: result.recordset,
-      msg: `Se encontraron ${result.recordset.length} usuarios`
+      data: users,
+      msg: `Se encontraron ${users.length} usuarios`
     });
 
   } catch (error) {
@@ -115,9 +123,15 @@ async function getUserById(req, res) {
       });
     }
 
+    // Convertir el campo varbinary a string
+    const userData = result.recordset[0];
+    if (userData.Condicion_Especial && Buffer.isBuffer(userData.Condicion_Especial)) {
+      userData.Condicion_Especial = userData.Condicion_Especial.toString('utf8');
+    }
+
     res.json({
       success: true,
-      data: result.recordset[0]
+      data: userData
     });
 
   } catch (error) {
@@ -226,8 +240,10 @@ async function updateUser(req, res) {
     }
 
     if (condicionEspecial !== undefined) {
+      // Convertir string a buffer para el campo varbinary
+      const bufferValue = Buffer.from(condicionEspecial, 'utf8');
       updateFields.push('Condicion_Especial = @condicionEspecial');
-      updateParams.condicionEspecial = condicionEspecial;
+      updateParams.condicionEspecial = bufferValue;
     }
 
     // Quitar campos que no existen en la tabla
@@ -247,8 +263,10 @@ async function updateUser(req, res) {
     }
 
     if (usuarioActivo !== undefined) {
+      // Convertir el valor a BIT compatible
+      const activoValue = usuarioActivo === 'Activo' || usuarioActivo === 'SI' || usuarioActivo === 'Sí' || usuarioActivo === '1' || usuarioActivo === 1 || usuarioActivo === true;
       updateFields.push('Activo = @usuarioActivo');
-      updateParams.usuarioActivo = usuarioActivo;
+      updateParams.usuarioActivo = activoValue ? 1 : 0;
     }
 
     if (perfil !== undefined) {
@@ -277,6 +295,9 @@ async function updateUser(req, res) {
 
     updateQuery += updateFields.join(', ') + ' WHERE Id_Usuario = @id';
 
+    console.log('🔍 DEBUG - Update Query:', updateQuery);
+    console.log('🔍 DEBUG - Update Params:', updateParams);
+
     await executeQuery(updateQuery, updateParams);
 
     res.json({
@@ -285,7 +306,8 @@ async function updateUser(req, res) {
     });
 
   } catch (error) {
-    console.error('Error actualizando usuario:', error);
+    console.error('❌ Error actualizando usuario:', error);
+    console.error('❌ Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       msg: 'Error interno del servidor al actualizar usuario'
