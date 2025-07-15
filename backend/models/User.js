@@ -9,13 +9,13 @@ class User {
       const tableCheck = await executeQuery(`
         SELECT COUNT(*) as tableExists 
         FROM INFORMATION_SCHEMA.TABLES 
-        WHERE TABLE_NAME = 'usuarios'
+        WHERE TABLE_NAME = 'Usuarios' AND TABLE_SCHEMA = 'Dbo'
       `);
 
       if (tableCheck.recordset[0].tableExists > 0) {
-        console.log('✅ Tabla usuarios verificada - usando estructura existente');
+        console.log('✅ Tabla Dbo.Usuarios verificada - usando estructura existente');
       } else {
-        console.log('⚠️ Tabla usuarios no existe');
+        console.log('⚠️ Tabla Dbo.Usuarios no existe');
       }
     } catch (error) {
       console.error('❌ Error verificando tabla usuarios:', error.message);
@@ -25,8 +25,8 @@ class User {
   // No insertar usuarios por defecto ya que la tabla ya tiene datos
   static async insertDefaultUsers() {
     try {
-      const existingUsers = await executeQuery('SELECT COUNT(*) as count FROM usuarios');
-      console.log(`✅ La tabla usuarios tiene ${existingUsers.recordset[0].count} registros`);
+      const existingUsers = await executeQuery('SELECT COUNT(*) as count FROM Dbo.Usuarios');
+      console.log(`✅ La tabla Dbo.Usuarios tiene ${existingUsers.recordset[0].count} registros`);
     } catch (error) {
       console.error('❌ Error verificando usuarios:', error.message);
     }
@@ -45,7 +45,7 @@ class User {
           Contrasena as contraseña,
           Activo as activo,
           Identificacion as identificacion
-        FROM usuarios 
+        FROM Dbo.Usuarios 
         WHERE (Usuario = @identifier OR Correo = @identifier)
         AND LTRIM(RTRIM(Activo)) = 'SI'
       `;

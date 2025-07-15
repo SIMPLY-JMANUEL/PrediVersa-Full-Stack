@@ -99,6 +99,11 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('crearusuario');
   const [showSettings, setShowSettings] = useState(false);
   const [userSearch, setUserSearch] = useState('');
+  const [nameSearch, setNameSearch] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserEditor, setShowUserEditor] = useState(false);
   const [showUserCreationFlow, setShowUserCreationFlow] = useState(false);
   const [userCreationData, setUserCreationData] = useState({
     status: '', // Vacío para mostrar "Seleccionar"
@@ -264,11 +269,97 @@ function AdminDashboard() {
     }
   };
 
-  const handleUserSearch = async e => {
+  // Función para buscar usuarios conectada a la base de datos
+  const handleUserSearch = async (searchDocument = '', searchName = '') => {
+    // Usar parámetros o los estados actuales
+    const docToSearch = searchDocument || userSearch;
+    const nameToSearch = searchName || nameSearch;
+    
+    if (!docToSearch.trim() && !nameToSearch.trim()) {
+      alert('Por favor ingrese un número de documento o nombre para buscar');
+      return;
+    }
+
+    try {
+      setLoadingSearch(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Construir parámetros de búsqueda
+      const params = new URLSearchParams();
+      if (docToSearch.trim()) params.append('documento', docToSearch.trim());
+      if (nameToSearch.trim()) params.append('nombre', nameToSearch.trim());
+
+      const response = await fetch(`http://localhost:5001/api/users/search?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setSearchResults(result.data);
+          if (result.data.length === 0) {
+            alert('No se encontraron usuarios con los criterios especificados');
+          }
+        } else {
+          alert(result.msg || 'Error al buscar usuarios');
+        }
+      } else if (response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        const error = await response.json();
+        alert(error.msg || 'Error al buscar usuarios');
+      }
+    } catch (error) {
+      console.error('Error conectando con la base de datos:', error);
+      alert('Error de conexión. Verifique su conexión a internet.');
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  // Función para seleccionar un usuario para editar
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+    setUserForm({
+      nombreCompleto: user.Nombre_Completo || '',
+      tipoDocumento: user.Tipo_Documento || '',
+      numeroDocumento: user.Identificacion || '',
+      fechaNacimiento: user.Fecha_Nacimiento ? user.Fecha_Nacimiento.split('T')[0] : '',
+      edad: user.Edad || '',
+      sexo: user.Sexo || '',
+      correoElectronico: user.Correo || '',
+      telefono: user.Telefono || '',
+      direccion: user.Direccion || '',
+      epsSeguroMedico: user.EPS || '',
+      condicionEspecial: user.Condicion_Especial || '',
+      descripcionCondicion: user.Descripcion_Condicion || '',
+      contactoEmergencia: user.Contacto_Emergencia || '',
+      telefonoFamiliar: user.Numero_Contacto_Emergencia || '',
+      usuarioActivo: user.Activo || 'SI',
+      perfil: user.Perfil || '',
+      usuario: user.Usuario || '',
+      contrasena: '',
+      encontrado: true,
+    });
+    setShowUserEditor(true);
+  };
+
+  // Función para actualizar usuario
+  const handleUpdateUser = async (e) => {
     e.preventDefault();
     
-    if (!userSearch.trim()) {
-      alert('Por favor ingrese un número de identificación');
+    if (!selectedUser) {
+      alert('No hay usuario seleccionado para actualizar');
       return;
     }
 
@@ -280,58 +371,71 @@ function AdminDashboard() {
         return;
       }
 
-      const response = await fetch(`http://localhost:5001/api/profile/admin/search-user/${userSearch}`, {
-        method: 'GET',
+      const updateData = {
+        nombreCompleto: userForm.nombreCompleto,
+        tipoDocumento: userForm.tipoDocumento,
+        numeroDocumento: userForm.numeroDocumento,
+        fechaNacimiento: userForm.fechaNacimiento,
+        edad: userForm.edad,
+        sexo: userForm.sexo,
+        correoElectronico: userForm.correoElectronico,
+        telefono: userForm.telefono,
+        direccion: userForm.direccion,
+        epsSeguroMedico: userForm.epsSeguroMedico,
+        condicionEspecial: userForm.condicionEspecial,
+        descripcionCondicion: userForm.descripcionCondicion,
+        contactoEmergencia: userForm.contactoEmergencia,
+        telefonoFamiliar: userForm.telefonoFamiliar,
+        usuarioActivo: userForm.usuarioActivo,
+        perfil: userForm.perfil,
+        usuario: userForm.usuario,
+      };
+
+      // Solo incluir contraseña si se ha ingresado una nueva
+      if (userForm.contrasena.trim()) {
+        updateData.contrasena = userForm.contrasena;
+      }
+
+      const response = await fetch(`http://localhost:5001/api/users/${selectedUser.Id_Usuario}`, {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(updateData)
       });
 
       if (response.ok) {
         const result = await response.json();
-        if (result.success && result.data) {
-          const dbUser = result.data;
-          setUserForm({
-            nombreCompleto: dbUser.nombreCompleto || '',
-            tipoDocumento: dbUser.tipoDocumento || '',
-            numeroDocumento: dbUser.identificacion || '',
-            fechaNacimiento: dbUser.fechaNacimiento || '',
-            edad: dbUser.edad || calculateAge(dbUser.fechaNacimiento),
-            sexo: dbUser.sexo || '',
-            correoElectronico: dbUser.correo || '',
-            telefonoUsuario: dbUser.telefono || '',
-            direccionResidencia: dbUser.direccion || '',
-            epsSeguroMedico: dbUser.eps || '',
-            condicionEspecial: dbUser.condicionEspecial || '',
-            descripcionCondicion: dbUser.descripcionCondicion || '',
-            nombreFamiliarContacto: dbUser.contactoEmergencia || '',
-            telefonoFamiliarContacto: dbUser.numeroContactoEmergencia || '',
-            usuarioActivo: dbUser.activo ? 'SI' : 'NO',
-            perfil: dbUser.perfil || '',
-            contrasena: '', // No mostrar contraseña existente por seguridad
-            encontrado: true,
-          });
+        if (result.success) {
+          alert('Usuario actualizado correctamente');
+          setShowUserEditor(false);
+          setSelectedUser(null);
+          // Actualizar los resultados de búsqueda
+          handleUserSearch();
+        } else {
+          alert(result.msg || 'Error al actualizar usuario');
         }
-      } else if (response.status === 404) {
-        // Usuario no encontrado
-        setUserForm({
-          ...userForm,
-          numeroDocumento: userSearch,
-          encontrado: false,
-        });
-        alert('Usuario no encontrado con esa identificación');
       } else if (response.status === 401) {
         localStorage.removeItem('token');
         navigate('/login');
       } else {
-        console.error('Error buscando usuario:', response.statusText);
-        alert('Error al buscar el usuario. Inténtelo de nuevo.');
+        const error = await response.json();
+        alert(error.msg || 'Error al actualizar usuario');
       }
     } catch (error) {
-      console.error('Error conectando con la base de datos:', error);
+      console.error('Error actualizando usuario:', error);
       alert('Error de conexión. Verifique su conexión a internet.');
     }
+  };
+
+  // Función para limpiar búsqueda
+  const handleClearSearch = () => {
+    setUserSearch('');
+    setNameSearch('');
+    setSearchResults([]);
+    setSelectedUser(null);
+    setShowUserEditor(false);
   };
 
   // Función para obtener estadísticas del dashboard
@@ -1595,6 +1699,8 @@ function AdminDashboard() {
                         <input
                           type="text"
                           placeholder="Número de documento"
+                          value={userSearch}
+                          onChange={(e) => setUserSearch(e.target.value)}
                           style={{
                             width: '100%',
                             padding: '12px 16px',
@@ -1623,6 +1729,8 @@ function AdminDashboard() {
                         <input
                           type="text"
                           placeholder="Nombre completo"
+                          value={nameSearch}
+                          onChange={(e) => setNameSearch(e.target.value)}
                           style={{
                             width: '100%',
                             padding: '12px 16px',
@@ -1642,14 +1750,16 @@ function AdminDashboard() {
                     <div style={{ display: 'flex', gap: 12 }}>
                       <button
                         type="button"
+                        onClick={() => handleUserSearch()}
+                        disabled={loadingSearch}
                         style={{
-                          background: 'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
+                          background: loadingSearch ? '#ccc' : 'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
                           color: '#fff',
                           border: 'none',
                           borderRadius: 8,
                           padding: '12px 24px',
                           fontWeight: 600,
-                          cursor: 'pointer',
+                          cursor: loadingSearch ? 'not-allowed' : 'pointer',
                           transition: 'transform 0.1s, box-shadow 0.2s',
                           fontSize: '1em',
                           display: 'flex',
@@ -1657,19 +1767,24 @@ function AdminDashboard() {
                           gap: 8,
                         }}
                         onMouseEnter={e => {
-                          e.target.style.transform = 'translateY(-1px)';
-                          e.target.style.boxShadow = '0 4px 16px 0 rgba(33, 150, 243, 0.3)';
+                          if (!loadingSearch) {
+                            e.target.style.transform = 'translateY(-1px)';
+                            e.target.style.boxShadow = '0 4px 16px 0 rgba(33, 150, 243, 0.3)';
+                          }
                         }}
                         onMouseLeave={e => {
-                          e.target.style.transform = 'translateY(0)';
-                          e.target.style.boxShadow = 'none';
+                          if (!loadingSearch) {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = 'none';
+                          }
                         }}
                       >
-                        <i className="fas fa-search" />
-                        Buscar
+                        <i className={loadingSearch ? "fas fa-spinner fa-spin" : "fas fa-search"} />
+                        {loadingSearch ? 'Buscando...' : 'Buscar'}
                       </button>
                       <button
                         type="button"
+                        onClick={handleClearSearch}
                         style={{
                           background: '#f5f5f5',
                           color: '#666',
@@ -1708,33 +1823,148 @@ function AdminDashboard() {
                       border: '1px solid #e0e0e0',
                       boxShadow: '0 2px 12px 0 rgba(0, 0, 0, 0.05)',
                       minHeight: 200,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                     }}
                   >
-                    <div style={{ textAlign: 'center', color: '#888' }}>
-                      <div
-                        style={{
-                          background: '#f0f0f0',
-                          width: 80,
-                          height: 80,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          margin: '0 auto 16px',
-                        }}
-                      >
-                        <i className="fas fa-users" style={{ fontSize: 36, color: '#bbb' }} />
+                    {loadingSearch ? (
+                      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                        <i className="fas fa-spinner fa-spin" style={{ fontSize: 32, color: '#2196f3', marginBottom: 16 }} />
+                        <p style={{ margin: 0, color: '#666' }}>Buscando usuarios...</p>
                       </div>
-                      <h4 style={{ margin: '0 0 8px 0', color: '#666' }}>
-                        Resultados de Búsqueda
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '0.95em' }}>
-                        Utiliza los filtros de búsqueda para encontrar usuarios
-                      </p>
-                    </div>
+                    ) : searchResults.length > 0 ? (
+                      <div>
+                        <h3 style={{ color: '#2196f3', marginBottom: 20 }}>
+                          Resultados encontrados ({searchResults.length})
+                        </h3>
+                        <div style={{ 
+                          display: 'grid', 
+                          gap: 16, 
+                          maxHeight: 400, 
+                          overflowY: 'auto',
+                          paddingRight: 8
+                        }}>
+                          {searchResults.map((user, index) => (
+                            <div
+                              key={user.Id_Usuario}
+                              style={{
+                                background: '#f8f9fa',
+                                padding: '16px 20px',
+                                borderRadius: 12,
+                                border: '1px solid #e9ecef',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s',
+                                cursor: 'pointer'
+                              }}
+                              onMouseEnter={e => {
+                                e.target.style.background = '#e3f2fd';
+                                e.target.style.borderColor = '#2196f3';
+                              }}
+                              onMouseLeave={e => {
+                                e.target.style.background = '#f8f9fa';
+                                e.target.style.borderColor = '#e9ecef';
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                  <div
+                                    style={{
+                                      background: '#2196f3',
+                                      color: '#fff',
+                                      borderRadius: '50%',
+                                      width: 32,
+                                      height: 32,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.9em',
+                                      fontWeight: 'bold'
+                                    }}
+                                  >
+                                    {user.Nombre_Completo?.charAt(0)?.toUpperCase() || 'U'}
+                                  </div>
+                                  <div>
+                                    <h4 style={{ margin: 0, color: '#333', fontSize: '1.1em' }}>
+                                      {user.Nombre_Completo || 'Sin nombre'}
+                                    </h4>
+                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9em' }}>
+                                      {user.Tipo_Documento}: {user.Identificacion}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: 20, fontSize: '0.85em', color: '#666' }}>
+                                  <span><i className="fas fa-envelope" style={{ marginRight: 6 }} />{user.Correo || 'Sin email'}</span>
+                                  <span><i className="fas fa-phone" style={{ marginRight: 6 }} />{user.Telefono || 'Sin teléfono'}</span>
+                                  <span><i className="fas fa-user-tag" style={{ marginRight: 6 }} />{user.Perfil || 'Sin perfil'}</span>
+                                  <span style={{ 
+                                    color: user.Activo === 'SI' ? '#4caf50' : '#f44336',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    <i className={`fas ${user.Activo === 'SI' ? 'fa-check-circle' : 'fa-times-circle'}`} style={{ marginRight: 6 }} />
+                                    {user.Activo === 'SI' ? 'Activo' : 'Inactivo'}
+                                  </span>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSelectUser(user);
+                                  }}
+                                  style={{
+                                    background: '#2196f3',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 6,
+                                    padding: '8px 16px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    fontSize: '0.9em',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                  }}
+                                  onMouseEnter={e => {
+                                    e.target.style.background = '#1976d2';
+                                  }}
+                                  onMouseLeave={e => {
+                                    e.target.style.background = '#2196f3';
+                                  }}
+                                >
+                                  <i className="fas fa-edit" />
+                                  Editar
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', color: '#888' }}>
+                        <div
+                          style={{
+                            background: '#f0f0f0',
+                            width: 80,
+                            height: 80,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 16px',
+                          }}
+                        >
+                          <i className="fas fa-users" style={{ fontSize: 36, color: '#bbb' }} />
+                        </div>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#666' }}>
+                          Resultados de Búsqueda
+                        </h4>
+                        <p style={{ margin: 0, fontSize: '0.95em' }}>
+                          Utiliza los filtros de búsqueda para encontrar usuarios
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </section>
               )}
@@ -2360,6 +2590,338 @@ function AdminDashboard() {
           </section>
         </main>
       </div>
+
+      {/* Modal para editar usuario */}
+      {showUserEditor && selectedUser && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowUserEditor(false)}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: '32px',
+              borderRadius: 16,
+              maxWidth: '800px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ margin: 0, color: '#2196f3', fontWeight: 700 }}>
+                Editar Usuario
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowUserEditor(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666',
+                  padding: 0,
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => {
+                  e.target.style.background = '#f0f0f0';
+                  e.target.style.color = '#333';
+                }}
+                onMouseLeave={e => {
+                  e.target.style.background = 'none';
+                  e.target.style.color = '#666';
+                }}
+              >
+                <i className="fas fa-times" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateUser}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+                {/* Información básica */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Nombre Completo *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.nombreCompleto}
+                    onChange={(e) => setUserForm({...userForm, nombreCompleto: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Tipo de Documento *
+                  </label>
+                  <select
+                    value={userForm.tipoDocumento}
+                    onChange={(e) => setUserForm({...userForm, tipoDocumento: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    <option value="">Seleccionar tipo</option>
+                    {TIPO_DOCUMENTO_OPTIONS.map(tipo => (
+                      <option key={tipo} value={tipo}>{tipo}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Número de Documento *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.numeroDocumento}
+                    onChange={(e) => setUserForm({...userForm, numeroDocumento: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Correo Electrónico *
+                  </label>
+                  <input
+                    type="email"
+                    value={userForm.correoElectronico}
+                    onChange={(e) => setUserForm({...userForm, correoElectronico: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Teléfono *
+                  </label>
+                  <input
+                    type="tel"
+                    value={userForm.telefono}
+                    onChange={(e) => setUserForm({...userForm, telefono: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Perfil *
+                  </label>
+                  <select
+                    value={userForm.perfil}
+                    onChange={(e) => setUserForm({...userForm, perfil: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    <option value="">Seleccionar perfil</option>
+                    {PERFIL_OPTIONS.map(perfil => (
+                      <option key={perfil} value={perfil}>{perfil}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Estado *
+                  </label>
+                  <select
+                    value={userForm.usuarioActivo}
+                    onChange={(e) => setUserForm({...userForm, usuarioActivo: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                    required
+                  >
+                    {ACTIVO_OPTIONS.map(estado => (
+                      <option key={estado} value={estado}>{estado}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Nueva Contraseña (opcional)
+                  </label>
+                  <input
+                    type="password"
+                    value={userForm.contrasena}
+                    onChange={(e) => setUserForm({...userForm, contrasena: e.target.value})}
+                    placeholder="Dejar vacío para mantener la actual"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      border: '1px solid #ddd',
+                      borderRadius: 8,
+                      fontSize: '1em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2196f3'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowUserEditor(false)}
+                  style={{
+                    background: '#f5f5f5',
+                    color: '#666',
+                    border: '1px solid #ddd',
+                    borderRadius: 8,
+                    padding: '12px 24px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '1em',
+                  }}
+                  onMouseEnter={e => {
+                    e.target.style.background = '#eeeeee';
+                    e.target.style.borderColor = '#ccc';
+                  }}
+                  onMouseLeave={e => {
+                    e.target.style.background = '#f5f5f5';
+                    e.target.style.borderColor = '#ddd';
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    background: 'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '12px 24px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'transform 0.1s, box-shadow 0.2s',
+                    fontSize: '1em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                  onMouseEnter={e => {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 4px 16px 0 rgba(33, 150, 243, 0.3)';
+                  }}
+                  onMouseLeave={e => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <i className="fas fa-save" />
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Panel de configuración */}
       {showSettings && (

@@ -6,14 +6,9 @@ const cors = require('cors');
 const { testConnection, closePool } = require('./config/database');
 const User = require('./models/User');
 
-console.log('🔍 DEBUG: Verificando variables de entorno');
-console.log('🔍 JWT_SECRET:', process.env.JWT_SECRET ? 'DEFINIDO' : 'NO DEFINIDO');
-console.log('🔍 PORT:', process.env.PORT);
-console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
-
 const app = express();
-app.set('trust proxy', 1); // Permite que express-rate-limit funcione correctamente detrás de proxies
-const PORT = process.env.PORT || 5001; // Usa variable de entorno si está definida
+app.set('trust proxy', 1); 
+const PORT = process.env.PORT || 5001;
 
 console.log('Iniciando backend PrediVersa...');
 
@@ -100,15 +95,14 @@ async function startServer() {
     console.log('🚀 Servidor ejecutándose en puerto', PORT);
     console.log('📡 API disponible en http://localhost:' + PORT + '/api');
     
-    // Comentar temporalmente la conexión a la base de datos para debugging
-    // console.log('🔌 Conectando a SQL Server...');
-    // await testConnection();
-    // console.log('✅ Conectado a SQL Server');
+    console.log('🔌 Conectando a SQL Server...');
+    await testConnection();
+    console.log('✅ Conectado a SQL Server');
     
-    // console.log('📋 Inicializando tablas...');
-    // await User.createUsersTable();
-    // await User.insertDefaultUsers();
-    // console.log('✅ Base de datos inicializada correctamente');
+    console.log('📋 Inicializando tablas...');
+    await User.createUsersTable();
+    await User.insertDefaultUsers();
+    console.log('✅ Base de datos inicializada correctamente');
     
     app.listen(PORT, () => {
       console.log(`🌟 Servidor PrediVersa corriendo en puerto ${PORT}`);

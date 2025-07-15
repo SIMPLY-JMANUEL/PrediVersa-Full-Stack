@@ -83,16 +83,22 @@ router.post('/login', async (req, res) => {
 
     // Buscar usuario por nombre de usuario o correo en la base de datos
     const identifier = usuario || correo;
+    console.log('🔍 Buscando usuario con identifier:', identifier);
     const user = await User.findByUsernameOrEmail(identifier);
+    console.log('🔍 Usuario encontrado:', user);
     if (!user) {
+      console.log('❌ Usuario no encontrado');
       return res.status(400).json({
         msg: 'Credenciales inválidas'
       });
     }
 
     // Verificar contraseña
+    console.log('🔐 Verificando contraseña:', finalPassword, 'contra hash:', user.contraseña);
     const isMatch = await User.verifyPassword(finalPassword, user.contraseña);
+    console.log('🔐 Contraseña coincide:', isMatch);
     if (!isMatch) {
+      console.log('❌ Contraseña incorrecta');
       return res.status(400).json({
         msg: 'Credenciales inválidas'
       });
@@ -109,12 +115,21 @@ router.post('/login', async (req, res) => {
       }
     };
 
+    console.log('🔑 Generando JWT con secret:', process.env.JWT_SECRET ? 'DEFINIDO' : 'NO DEFINIDO');
+    console.log('🔑 Payload:', payload);
+
+    // Usar un JWT_SECRET temporal si no está definido
+    const jwtSecret = process.env.JWT_SECRET || 'prediversa_secret_key_2024_very_secure_token_for_authentication_do_not_share_in_production';
+    console.log('🔑 Usando JWT_SECRET:', jwtSecret ? 'DEFINIDO' : 'NO DEFINIDO');
+
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '24h' },
       (err, token) => {
         if (err) {
+          console.error('❌ Error generando JWT:', err);
+          console.error('❌ JWT_SECRET:', process.env.JWT_SECRET);
           throw err;
         }
         res.json({

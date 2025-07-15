@@ -1,0 +1,75 @@
+# Dependencias
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de build
+build/
+dist/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de log
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+temp/
+
+# Archivos de prueba temporales
+test-*.js
+debug-*.js
+diagnostico-*.js
+verify-*.js
+simple-test.js
+get-users.js
+check-*.js
+
+# Archivos de documentación obsoletos
+REPORTE_*.md
+RESTAURACION_*.md
+RESOLUCION_*.md
+CORRECCION_*.md
+CONFIGURACION_*.md
+NUEVA_PESTANA_*.md
+SISTEMA_LOGIN_*.md
+USUARIOS_PRUEBA.md
+TEST_*.md
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Archivos de base de datos locales
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de compilación
+*.o
+*.obj
+*.exe
+
+# Archivos de configuración personal
+config/local.js
+config/development.js
