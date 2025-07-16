@@ -1,0 +1,188 @@
+.background {
+  width: 100vw;
+  min-height: calc(
+    100vh - var(--header-height, 80px) - var(--footer-height, 60px)
+  );
+  margin: 0;
+  margin-left: calc(50% - 50vw);
+  margin-top: calc(-4.5rem);
+  margin-bottom: calc(-2rem);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2dvh 15rem;
+  background: rgba(255, 255, 255, 0.9);
+  margin: 5cm 0 2cm 0;
+  width: 80%;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.titleSection {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.titleText {
+  font-size: 4rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.twoSectionLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  width: 100%;
+  margin-bottom: 3rem;
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  background: #3498db;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.sectionContent {
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.textContainer {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.imageContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.sectionImage {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.sectionText {
+  font-size: 1.5rem;
+  color: #34495e;
+  line-height: 1.6;
+  text-align: justify;
+  margin-bottom: 1rem;
+}
+
+.objectivesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.objectivesList li {
+  font-size: 1.5rem;
+  color: #34495e;
+  line-height: 1.6;
+  text-align: justify;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.objectivesList li::before {
+  content: '•';
+  color: #3498db;
+  font-weight: bold;
+  font-size: 1.8rem;
+  position: absolute;
+  left: 0;
+  top: -0.1rem;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  width: 50%;
+}
+
+@media (max-width: 768px) {
+  .sectionContent {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .textContainer {
+    flex: none;
+  }
+
+  .imageContainer {
+    flex: none;
+    min-height: 150px;
+  }
+
+  .mainContent {
+    padding: 2dvh 2rem;
+    margin: 2cm 1rem;
+    width: 90%;
+  }
+
+  .titleText {
+    font-size: 2.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+    padding: 0.8rem;
+  }
+
+  .sectionText,
+  .objectivesList li {
+    font-size: 1.2rem;
+  }
+
+  .objectivesList li::before {
+    font-size: 1.5rem;
+  }
+}

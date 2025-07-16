@@ -1,5 +1,59 @@
 /* ===== ESTILOS PRINCIPALES PREDIVERSA ===== */
 
+/* === SISTEMA CSS CORPORATIVO === */
+/* Variables globales y design tokens */
+@import './globals/variables.css';
+
+/* === SISTEMA BASE DE SECCIONES === */
+/* Clases estándar unificadas para todos los componentes */
+@import './base/section-standard.css';
+
+/* === CONFIGURACIÓN GLOBAL DE LA APP === */
+/* Estructura y configuración principal de la aplicación */
+@import './globals/app.css';
+
+/* === SISTEMA DE BREAKPOINTS === */
+/* Utilidades responsivas y breakpoints corporativos */
+@import './utils/breakpoints.css';
+
+/* === 🎨 SISTEMA DE ICONOGRAFÍA === */
+/* Sistema completo de iconos corporativos */
+@import './globals/iconography.css';
+
+/* === 🔄 ANIMACIONES CORPORATIVAS === */
+/* Biblioteca de animaciones y transiciones corporativas */
+@import './globals/animations.css';
+
+/* === 📱 FOCUS Y ACCESIBILIDAD === */
+/* Sistema de accesibilidad e inclusividad */
+@import './globals/accessibility.css';
+
+/* === 🎭 OVERLAYS Y MODALES === */
+/* Sistema de interacciones avanzadas */
+@import './globals/overlays.css';
+
+/* === COMPONENTES MIGRADOS === */
+/* Formularios y navegación migrados a sistemas globales */
+@import './components/forms.css';
+@import './components/navigation.css';
+
+/* === PÁGINAS PRINCIPALES === */
+/* Dashboards unificados con sistema corporativo */
+@import './pages/dashboards.css';
+@import './pages/components.css';
+@import './pages/layout.css';
+
+/* === TESTING Y DEBUGGING === */
+/* Solo en desarrollo - remover en producción */
+@import './utils/testing.css';
+
+/* === DESIGN TOKENS DIMENSIONALES === */
+@import './tokens.css';
+
+/* === ESTILOS CORPORATIVOS (OPCIONAL) === */
+/* Importar solo si se necesitan los estilos predefinidos */
+/* @import './corporativo.css'; */
+
 /* === OPTIMIZACIONES DE PERFORMANCE === */
 * {
   box-sizing: border-box;
@@ -13,6 +67,16 @@
 /* Optimización de fuentes */
 html {
   font-display: swap;
+  /* Aplicar tipografía corporativa como base */
+  font-family: var(
+    --font-primary,
+    'Calibri Light',
+    'Calibri',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif
+  );
 }
 
 /* Optimización de scroll */
@@ -21,7 +85,8 @@ html {
 }
 
 /* Prevenir layout shift */
-img, video {
+img,
+video {
   max-width: 100%;
   height: auto;
 }
@@ -34,7 +99,6 @@ img, video {
 @import './globals/accessibility.css';
 
 /* === IMPORTACIONES DE COMPONENTES === */
-@import './components/buttons.css';
 @import './components/forms.css';
 @import './components/navigation.css';
 
@@ -224,12 +288,12 @@ img, video {
 /* === OPTIMIZACIONES PARA PERFORMANCE === */
 
 /* Lazy loading images */
-img[loading="lazy"] {
+img[loading='lazy'] {
   opacity: 0;
   transition: opacity var(--duration-normal) var(--easing-ease-out);
 }
 
-img[loading="lazy"].loaded {
+img[loading='lazy'].loaded {
   opacity: 1;
 }
 
@@ -252,11 +316,11 @@ img[loading="lazy"].loaded {
   .container-narrow {
     padding: 0 var(--spacing-sm);
   }
-  
+
   .section {
     padding: var(--spacing-lg) 0;
   }
-  
+
   .section-hero {
     padding: calc(60px + var(--spacing-lg)) 0 var(--spacing-lg) 0;
   }
@@ -267,8 +331,8 @@ img[loading="lazy"].loaded {
   .pwa-install-banner {
     transition: none;
   }
-  
-  img[loading="lazy"] {
+
+  img[loading='lazy'] {
     transition: none;
   }
 }
@@ -284,7 +348,7 @@ img[loading="lazy"].loaded {
   .modern-layout {
     display: none;
   }
-  
+
   .legacy-layout {
     display: block;
   }
@@ -297,7 +361,7 @@ img[loading="lazy"].loaded {
     --color-texto: #e5e5e5;
     --color-borde-suave: #333;
   }
-  
+
   .error-boundary__container {
     background: #2a2a2a;
     color: #e5e5e5;
@@ -362,7 +426,7 @@ img[loading="lazy"].loaded {
   .hide-mobile {
     display: block;
   }
-  
+
   .hide-desktop {
     display: none;
   }

@@ -1,0 +1,239 @@
+/* ===== SISTEMA DE TEMAS ADAPTATIVOS PREDIVERSA ===== */
+
+/* Base del sistema de temas con tokens dimensionales */
+:root {
+  /* === TEMA CLARO (DEFAULT) === */
+  --theme-background: #ffffff;
+  --theme-background-alt: #f8fafc;
+  --theme-surface: #ffffff;
+  --theme-surface-variant: #f1f5f9;
+  --theme-border: #e2e8f0;
+  --theme-border-variant: #cbd5e1;
+
+  /* Text colors */
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-tertiary: #64748b;
+  --theme-text-inverse: #ffffff;
+
+  /* Brand colors adaptativos */
+  --theme-primary: #3b82f6;
+  --theme-primary-variant: #2563eb;
+  --theme-primary-hover: #1d4ed8;
+  --theme-secondary: #8b5cf6;
+  --theme-accent: #06b6d4;
+
+  /* Status colors */
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-error: #ef4444;
+  --theme-info: #3b82f6;
+
+  /* Shadow tokens adaptativos */
+  --theme-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
+  --theme-shadow-md: 0 4px 6px rgb(15 23 42 / 0.07);
+  --theme-shadow-lg: 0 10px 15px rgb(15 23 42 / 0.1);
+  --theme-shadow-xl: 0 20px 25px rgb(15 23 42 / 0.1);
+
+  /* Interactive states con opacity fluida */
+  --theme-hover-opacity: clamp(0.05, 1vw, 0.1);
+  --theme-active-opacity: clamp(0.1, 1.5vw, 0.15);
+  --theme-disabled-opacity: clamp(0.3, 0.5vw, 0.5);
+
+  /* Blur effects adaptativos */
+  --theme-blur-sm: clamp(4px, 0.5vw, 8px);
+  --theme-blur-md: clamp(8px, 1vw, 16px);
+  --theme-blur-lg: clamp(16px, 2vw, 32px);
+}
+
+/* === TEMA OSCURO === */
+[data-theme='dark'] {
+  --theme-background: #0f172a;
+  --theme-background-alt: #1e293b;
+  --theme-surface: #1e293b;
+  --theme-surface-variant: #334155;
+  --theme-border: #334155;
+  --theme-border-variant: #475569;
+
+  /* Text colors invertidos */
+  --theme-text-primary: #f8fafc;
+  --theme-text-secondary: #cbd5e1;
+  --theme-text-tertiary: #94a3b8;
+  --theme-text-inverse: #0f172a;
+
+  /* Brand colors ajustados para contraste */
+  --theme-primary: #60a5fa;
+  --theme-primary-variant: #3b82f6;
+  --theme-primary-hover: #2563eb;
+  --theme-secondary: #a78bfa;
+  --theme-accent: #22d3ee;
+
+  /* Shadow tokens para tema oscuro */
+  --theme-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --theme-shadow-md: 0 4px 6px rgb(0 0 0 / 0.4);
+  --theme-shadow-lg: 0 10px 15px rgb(0 0 0 / 0.5);
+  --theme-shadow-xl: 0 20px 25px rgb(0 0 0 / 0.6);
+}
+
+/* === TEMA AUTO (SISTEMA) === */
+@media (prefers-color-scheme: dark) {
+  [data-theme='auto'] {
+    --theme-background: #0f172a;
+    --theme-background-alt: #1e293b;
+    --theme-surface: #1e293b;
+    --theme-surface-variant: #334155;
+    --theme-border: #334155;
+    --theme-border-variant: #475569;
+    --theme-text-primary: #f8fafc;
+    --theme-text-secondary: #cbd5e1;
+    --theme-text-tertiary: #94a3b8;
+    --theme-text-inverse: #0f172a;
+    --theme-primary: #60a5fa;
+    --theme-primary-variant: #3b82f6;
+    --theme-primary-hover: #2563eb;
+    --theme-secondary: #a78bfa;
+    --theme-accent: #22d3ee;
+    --theme-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --theme-shadow-md: 0 4px 6px rgb(0 0 0 / 0.4);
+    --theme-shadow-lg: 0 10px 15px rgb(0 0 0 / 0.5);
+    --theme-shadow-xl: 0 20px 25px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* === TEMA HIGH CONTRAST === */
+[data-theme='high-contrast'] {
+  --theme-background: #000000;
+  --theme-background-alt: #111111;
+  --theme-surface: #111111;
+  --theme-surface-variant: #222222;
+  --theme-border: #ffffff;
+  --theme-border-variant: #cccccc;
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #ffffff;
+  --theme-text-tertiary: #cccccc;
+  --theme-text-inverse: #000000;
+  --theme-primary: #00ff00;
+  --theme-primary-variant: #00cc00;
+  --theme-primary-hover: #00aa00;
+  --theme-secondary: #ffff00;
+  --theme-accent: #00ffff;
+  --theme-success: #00ff00;
+  --theme-warning: #ffff00;
+  --theme-error: #ff0000;
+  --theme-info: #00ffff;
+  --theme-shadow-sm: 0 0 0 1px #ffffff;
+  --theme-shadow-md: 0 0 0 2px #ffffff;
+  --theme-shadow-lg: 0 0 0 3px #ffffff;
+  --theme-shadow-xl: 0 0 0 4px #ffffff;
+}
+
+/* === UTILIDADES DE TEMA === */
+.theme-bg {
+  background-color: var(--theme-background);
+  color: var(--theme-text-primary);
+}
+
+.theme-surface {
+  background-color: var(--theme-surface);
+  color: var(--theme-text-primary);
+}
+
+.theme-surface-variant {
+  background-color: var(--theme-surface-variant);
+  color: var(--theme-text-primary);
+}
+
+.theme-border {
+  border-color: var(--theme-border);
+}
+
+.theme-text-primary {
+  color: var(--theme-text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.theme-text-tertiary {
+  color: var(--theme-text-tertiary);
+}
+
+.theme-primary {
+  background-color: var(--theme-primary);
+  color: var(--theme-text-inverse);
+}
+
+.theme-primary-hover:hover {
+  background-color: var(--theme-primary-hover);
+}
+
+.theme-shadow-sm {
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.theme-shadow-md {
+  box-shadow: var(--theme-shadow-md);
+}
+
+.theme-shadow-lg {
+  box-shadow: var(--theme-shadow-lg);
+}
+
+.theme-shadow-xl {
+  box-shadow: var(--theme-shadow-xl);
+}
+
+/* === ANIMACIONES DE TRANSICIÓN DE TEMA === */
+* {
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition), box-shadow var(--transition);
+}
+
+/* Excepciones para elementos que no deben animar */
+.no-theme-transition,
+.loading-spinner {
+  transition: none;
+}
+
+/* === RESPONSIVE THEMING === */
+/* Ajustes de tema según container size */
+@container (max-width: 600px) {
+  :root {
+    /* Reducir intensidad de sombras en móvil */
+    --theme-shadow-lg: var(--theme-shadow-md);
+    --theme-shadow-xl: var(--theme-shadow-lg);
+
+    /* Simplificar blur en dispositivos menos potentes */
+    --theme-blur-lg: var(--theme-blur-md);
+  }
+}
+
+/* === ACCESIBILIDAD Y MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --theme-border: var(--theme-text-primary);
+    --theme-border-variant: var(--theme-text-secondary);
+  }
+}
+
+/* === PRINT STYLES === */
+@media print {
+  :root {
+    --theme-background: #ffffff;
+    --theme-text-primary: #000000;
+    --theme-text-secondary: #333333;
+    --theme-border: #000000;
+    --theme-shadow-sm: none;
+    --theme-shadow-md: none;
+    --theme-shadow-lg: none;
+    --theme-shadow-xl: none;
+  }
+}

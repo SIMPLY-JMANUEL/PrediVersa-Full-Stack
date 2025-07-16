@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/main.css'; // Sistema CSS unificado
 
 const ThemeToggle = () => {
   const [isDark, setIsDark] = useState(() => {
@@ -21,8 +22,8 @@ const ThemeToggle = () => {
   useEffect(() => {
     // Escuchar cambios en la preferencia del sistema
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => setIsDark(e.matches);
-    
+    const handleChange = e => setIsDark(e.matches);
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
@@ -34,14 +35,13 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="theme-toggle"
+      className="btn-icon btn-icon-circle theme-toggle"
       aria-label={`Cambiar a tema ${isDark ? 'claro' : 'oscuro'}`}
       title={`Tema ${isDark ? 'claro' : 'oscuro'}`}
+      data-theme={isDark ? 'dark' : 'light'}
     >
-      <span className="icon-sun">☀️</span>
-      <span className="icon-moon">🌙</span>
-      <span className="theme-label">
-        {isDark ? 'Claro' : 'Oscuro'}
+      <span className={`icon-theme ${isDark ? 'icon-sun' : 'icon-moon'}`}>
+        {isDark ? '☀️' : '🌙'}
       </span>
     </button>
   );

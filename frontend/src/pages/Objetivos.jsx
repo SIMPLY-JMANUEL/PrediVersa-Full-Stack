@@ -1,99 +1,100 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import "./Objetivos.css";
+import React from 'react';
+import styles from './Objetivos.module.css';
+import fondo from '../assets/img/fondo12.png';
+import objetivosImg from '../assets/img/objetivos.png';
+import generalesImg from '../assets/img/generales.png';
+import HomeButton from '../components/Button/HomeButton';
 
-const objetivosEspecificos = [
-  "Recopilar y analizar datos escolares, sociales y demográficos relevantes para detectar patrones de violencia.",
-  "Construir un modelo predictivo basado en técnicas de aprendizaje automático que identifique factores de riesgo.",
-  "Validar el modelo con pruebas reales para garantizar su precisión y aplicabilidad en contextos educativos.",
-  "Implementar estrategias de intervención personalizadas según el nivel de riesgo detectado.",
-  "Extender la aplicación del modelo a entornos empresariales, promoviendo el bienestar psicosocial laboral.",
-  "Reducir significativamente los casos de bullying en las instituciones participantes.",
-  "Mejorar el clima escolar y las relaciones interpersonales entre los estudiantes.",
-  "Capacitar a los docentes en técnicas de detección temprana y manejo adecuado del acoso escolar.",
-  "Empoderar a los estudiantes con herramientas que les permitan protegerse y apoyar a sus compañeros."
-];
+const Objetivos = () => (
+  <div
+    className={styles.background}
+    style={{
+      backgroundImage: `url(${fondo})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      minHeight: '100vh',
+    }}
+  >
+    <section className={styles.mainContent}>
+      <div className={styles.titleSection}>
+        <h1 className={styles.titleText}>Objetivos</h1>
+      </div>
 
-function Objetivos() {
-  return (
-    <div className="objetivos-page">
-      {/* Hero Section */}
-      <section className="obj-hero">
-        <div className="container">
-          <div className="obj-hero-content animate-fade-in-up">
-            <h1 className="obj-main-title">Nuestros Objetivos</h1>
-            <p className="obj-hero-subtitle">
-              Metas concretas que nos impulsan hacia un cambio positivo en la educación y la prevención del bullying escolar
-            </p>
-            <div className="obj-divider"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* Objetivo General */}
-      <section className="obj-general-section">
-        <div className="container">
-          <div className="obj-general-container">
-            <article 
-              className="obj-general-card animate-fade-in-up-delay hover-lift"
-              tabIndex={0}
-              aria-label="Objetivo General de PrediVersa"
-            >
-              <header className="obj-general-header">
-                <div className="obj-general-icon">
-                  <i className="fas fa-bullseye" aria-hidden="true"></i>
-                </div>
-                <h2 className="obj-general-title">Objetivo General</h2>
-              </header>
-              <div className="obj-general-content">
-                <p className="obj-general-text">
-                  Desarrollar y aplicar un <strong>modelo predictivo innovador</strong> que permita prevenir y reducir los casos de violencia escolar, apoyando la toma de decisiones en instituciones educativas y empresariales mediante herramientas tecnológicas, analíticas y de acompañamiento profesional.
-                </p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      {/* Objetivos Específicos */}
-      <section className="obj-especificos-section">
-        <div className="container">
-          <div className="obj-especificos-container">
-            <h2 className="obj-section-title">Objetivos Específicos</h2>
-            <div className="obj-grid">
-              {objetivosEspecificos.map((objetivo, idx) => (
-                <article
-                  key={idx}
-                  className="obj-card hover-lift"
-                  tabIndex={0}
-                  aria-label={`Objetivo Específico ${idx + 1}`}
-                >
-                  <header className="obj-card-header">
-                    <div className="obj-number">{idx + 1}</div>
-                  </header>
-                  <div className="obj-card-body">
-                    <p className="obj-card-content">{objetivo}</p>
-                  </div>
-                </article>
-              ))}
+      <div className={styles.twoSectionLayout}>
+        {/* Sección Objetivo General */}
+        <div className={styles.sectionContainer}>
+          <h2 className={styles.sectionTitle}>OBJETIVO GENERAL</h2>
+          <div className={styles.sectionContent}>
+            <div className={styles.textContainer}>
+              <p className={styles.sectionText}>
+                Diseñar, desarrollar e implementar un sistema web predictivo que
+                permita a las instituciones educativas anticipar, intervenir y
+                gestionar situaciones de riesgo psicosocial con respaldo técnico
+                y analítico.
+              </p>
+              <p className={styles.sectionText}>
+                Como segundo foco, adaptar gradualmente el sistema a escenarios
+                empresariales que deseen fortalecer su gestión del riesgo
+                laboral y salud emocional.
+              </p>
+            </div>
+            <div className={styles.imageContainer}>
+              <img
+                src={objetivosImg}
+                alt="Objetivo General PrediVersa"
+                className={styles.sectionImage}
+              />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Navigation */}
-      <section className="obj-navigation">
-        <div className="container">
-          <div className="obj-nav-content animate-fade-in-up">
-            <Link to="/" className="obj-back-btn hover-glow">
-              <i className="fas fa-arrow-left" aria-hidden="true"></i>
-              Regresar al inicio
-            </Link>
+        {/* Sección Objetivos Específicos */}
+        <div className={styles.sectionContainer}>
+          <h2 className={styles.sectionTitle}>OBJETIVOS ESPECÍFICOS</h2>
+          <div className={styles.sectionContent}>
+            <div className={styles.textContainer}>
+              <ul className={styles.objectivesList}>
+                <li>
+                  Integrar datos contextuales, socioemocionales y disciplinarios
+                  en un motor de inferencia predictiva escolar, y establecer un
+                  marco replicable para el entorno laboral.
+                </li>
+                <li>
+                  Generar alertas automáticas y recomendaciones de intervención
+                  ajustadas a distintos perfiles de riesgo.
+                </li>
+                <li>
+                  Capacitar a los equipos institucionales (educativos y
+                  corporativos) en el uso y aplicación de la herramienta.
+                </li>
+                <li>
+                  Desarrollar visualizaciones, informes e indicadores para
+                  apoyar procesos de decisión en tiempo real.
+                </li>
+                <li>
+                  Validar el modelo predictivo a través de pruebas piloto en
+                  instituciones educativas y pruebas exploratorias en entornos
+                  empresariales de alto impacto social.
+                </li>
+              </ul>
+            </div>
+            <div className={styles.imageContainer}>
+              <img
+                src={generalesImg}
+                alt="Objetivos Específicos PrediVersa"
+                className={styles.sectionImage}
+              />
+            </div>
           </div>
         </div>
-      </section>
-    </div>
-  );
-}
+      </div>
+
+      <div className={styles.buttonContainer}>
+        <HomeButton size="medium" variant="primary" />
+      </div>
+    </section>
+  </div>
+);
 
 export default Objetivos;

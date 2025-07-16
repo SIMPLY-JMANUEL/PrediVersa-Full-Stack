@@ -1,0 +1,43 @@
+.background {
+  width: 100vw;
+  min-height: calc(
+    100vh - var(--header-height, 80px) - var(--footer-height, 60px)
+  );
+  margin: 0;
+  margin-left: calc(50% - 50vw);
+  margin-top: calc(-4.5rem);
+  margin-bottom: calc(-2rem);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem 6rem;
+  background: rgba(255, 255, 255, 0.9);
+  margin: 6rem auto;
+  width: 80%;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.text {
+  font-size: 1.2rem;
+  color: #34495e;
+  text-align: center;
+  line-height: 1.6;
+}

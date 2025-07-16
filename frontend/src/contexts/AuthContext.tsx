@@ -1,5 +1,16 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { User, AuthContextType, LoginCredentials, AuthResponse } from '../types';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  ReactNode,
+} from 'react';
+import {
+  User,
+  AuthContextType,
+  LoginCredentials,
+  AuthResponse,
+} from '../types';
 
 // Action types
 type AuthAction =
@@ -80,7 +91,9 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 // Context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 // Provider component
 interface AuthProviderProps {
@@ -94,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
-    
+
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
@@ -108,9 +121,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+  const login = async (
+    credentials: LoginCredentials
+  ): Promise<AuthResponse> => {
     dispatch({ type: 'LOGIN_START' });
-    
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -125,19 +140,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const data: AuthResponse = await response.json();
-      
+
       // Store in localStorage
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user_data', JSON.stringify(data.user));
-      
-      dispatch({ 
-        type: 'LOGIN_SUCCESS', 
-        payload: { user: data.user, token: data.token } 
+
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: data.user, token: data.token },
       });
-      
+
       return data;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido';
       dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
       throw error;
     }
@@ -162,7 +178,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${state.token}`,
+          Authorization: `Bearer ${state.token}`,
         },
       });
 
@@ -208,15 +224,15 @@ export const withAuth = <P extends object>(
 ): React.FC<P> => {
   return (props: P) => {
     const { isAuthenticated, loading } = useAuth();
-    
+
     if (loading) {
       return <div>Cargando...</div>;
     }
-    
+
     if (!isAuthenticated) {
       return <div>No autorizado</div>;
     }
-    
+
     return <Component {...props} />;
   };
 };

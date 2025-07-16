@@ -1,77 +1,232 @@
 /* ===== VARIABLES GLOBALES PREDIVERSA ===== */
+/* Sistema de Design Tokens Corporativo */
+
 :root {
-  /* === COLORES PRINCIPALES === */
-  --color-azul-claro: #4AB2E3;
-  --color-azul-oscuro: #0E1C2C;
-  --color-fondo: #f7f9fb;
-  --color-texto: #0E1C2C;
-  --color-acento: #4AB2E3;
-  --color-borde-suave: #dce8f2;
-  --color-hover-azul: #379acb;
-  --color-blanco: #fff;
-  --color-gris-claro: #f1f5f9;
-  
+  /* === PALETA DE COLORES CORPORATIVA === */
+  /* Colores principales según identidad visual PrediVersa */
+  --color-primary: #0c1b32; /* Azul corporativo principal */
+  --color-secondary: #42c0f9; /* Azul claro secundario */
+  --color-accent: #169cd8; /* Azul medio de acento */
+  --color-dark: #091424; /* Azul muy oscuro */
+  --color-white: #ffffff; /* Blanco puro */
+
+  /* === VARIACIONES DE COLORES === */
+  /* Basadas en la paleta corporativa */
+  --color-primary-light: #1a2a42; /* Primary + 10% más claro */
+  --color-primary-dark: #081221; /* Primary + 10% más oscuro */
+  --color-secondary-light: #5cc7fa; /* Secondary + 10% más claro */
+  --color-secondary-dark: #2eb8f8; /* Secondary + 10% más oscuro */
+  --color-accent-light: #2fa6df; /* Accent + 10% más claro */
+  --color-accent-dark: #1188c1; /* Accent + 10% más oscuro */
+
+  /* === COLORES FUNCIONALES === */
+  /* Para textos, fondos y estados */
+  --color-text-primary: #0c1b32; /* Texto principal */
+  --color-text-secondary: #091424; /* Texto secundario */
+  --color-text-light: #5a6c7d; /* Texto ligero */
+  --color-text-white: #ffffff; /* Texto blanco */
+
+  --color-bg-primary: #ffffff; /* Fondo principal */
+  --color-bg-secondary: #f8fafc; /* Fondo secundario */
+  --color-bg-dark: #0c1b32; /* Fondo oscuro */
+  --color-bg-overlay: rgba(12, 27, 50, 0.9); /* Overlay oscuro */
+
+  /* === COLORES DE ESTADO === */
+  --color-success: #10b981; /* Verde éxito */
+  --color-warning: #f59e0b; /* Amarillo advertencia */
+  --color-error: #ef4444; /* Rojo error */
+  --color-info: #42c0f9; /* Azul información */
+
+  /* === COLORES DE INTERACCIÓN === */
+  --color-hover: #169cd8; /* Color hover general */
+  --color-focus: #42c0f9; /* Color focus */
+  --color-active: #091424; /* Color activo */
+  --color-disabled: #94a3b8; /* Color deshabilitado */
+
+  /* === BORDES Y LÍNEAS === */
+  --color-border: #e2e8f0; /* Borde principal */
+  --color-border-light: #f1f5f9; /* Borde ligero */
+  --color-border-dark: #cbd5e1; /* Borde oscuro */
+  --color-divider: #e2e8f0; /* Líneas divisorias */
+
+  /* === COMPATIBILIDAD CON SISTEMA ANTERIOR === */
+  /* Mantener retrocompatibilidad */
+  --color-azul-claro: #42c0f9;
+  --color-azul-oscuro: #0c1b32;
+  --color-fondo: #ffffff;
+  --color-texto: #0c1b32;
+  --color-acento: #169cd8;
+  --color-borde-suave: #e2e8f0;
+  --color-hover-azul: #169cd8;
+  --color-blanco: #ffffff;
+  --color-gris-claro: #f8fafc;
+
+  --primary: #0c1b32;
+  --primary-dark: #091424;
+  --secondary: #42c0f9;
+  --accent: #169cd8;
+  --text: #0c1b32;
+  --text-light: #5a6c7d;
+  --bg: #ffffff;
+  --white: #ffffff;
+  --gray: #e2e8f0;
+  --gray-light: #f8fafc;
+
+  /* === SOMBRAS CORPORATIVAS === */
+  /* Basadas en el azul corporativo principal #0C1B32 */
+  --shadow-xs: 0 1px 2px rgba(12, 27, 50, 0.05);
+  --shadow-sm: 0 1px 3px rgba(12, 27, 50, 0.12);
+  --shadow-md: 0 4px 6px rgba(12, 27, 50, 0.15);
+  --shadow-lg: 0 10px 25px rgba(12, 27, 50, 0.15);
+  --shadow-xl: 0 20px 25px rgba(12, 27, 50, 0.25);
+  --shadow-2xl: 0 25px 50px rgba(12, 27, 50, 0.25);
+  --shadow-inner: inset 0 2px 4px rgba(12, 27, 50, 0.06);
+
+  /* Sombras de color para elementos destacados */
+  --shadow-primary: 0 4px 14px rgba(12, 27, 50, 0.25);
+  --shadow-secondary: 0 4px 14px rgba(66, 192, 249, 0.25);
+  --shadow-accent: 0 4px 14px rgba(22, 156, 216, 0.25);
+
   /* === COMPATIBILIDAD === */
-  --primary: #4AB2E3;
-  --primary-dark: #0E1C2C;
-  --secondary: #379acb;
-  --accent: #4AB2E3;
-  --text: #0E1C2C;
-  --text-light: #64748b;
-  --bg: #f7f9fb;
-  --white: #fff;
-  --gray: #dce8f2;
-  --gray-light: #f1f5f9;
-  
-  /* === EFECTOS Y TRANSICIONES === */
-  --transition: all 0.3s ease;
-  --transicion: all 0.3s ease;
-  --shadow-sm: 0 1px 3px rgb(14 28 44 / 12%);
-  --shadow-md: 0 4px 6px rgb(14 28 44 / 15%);
-  --shadow-lg: 0 10px 25px rgb(14 28 44 / 15%);
-  --sombra-suave: 0 2px 8px rgb(14 28 44 / 10%);
+  --sombra-suave: 0 2px 8px rgba(12, 27, 50, 0.1);
+
+  /* === BORDES REDONDEADOS === */
+  --radius-xs: 2px; /* Muy pequeño */
+  --radius-sm: 4px; /* Pequeño */
+  --radius-md: 6px; /* Medio - estándar */
+  --radius-lg: 12px; /* Grande */
+  --radius-xl: 16px; /* Muy grande */
+  --radius-2xl: 24px; /* Extra grande */
+  --radius-full: 9999px; /* Circular */
+
+  /* === COMPATIBILIDAD === */
   --radius: 6px;
   --border-radius: 6px;
-  --radius-lg: 12px;
-  
-  /* === TIPOGRAFÍA === */
-  --font-primary: 'Montserrat', -apple-system, blinkmacsystemfont, 'Segoe UI', sans-serif;
-  --font-secondary: 'Inter', arial, sans-serif;
-  
-  /* === TAMAÑOS DE TEXTO FLUIDOS === */
-  --text-xs: clamp(0.75rem, 2vw, 0.875rem);
-  --text-sm: clamp(0.875rem, 2.5vw, 1rem);
-  --text-base: clamp(1rem, 3vw, 1.125rem);
-  --text-lg: clamp(1.125rem, 3.5vw, 1.25rem);
-  --text-xl: clamp(1.25rem, 4vw, 1.5rem);
-  --text-2xl: clamp(1.5rem, 5vw, 2rem);
-  --text-3xl: clamp(2rem, 6vw, 2.5rem);
-  --text-4xl: clamp(2.5rem, 7vw, 3.5rem);
-  
-  /* Tamaños específicos comunes */
+
+  /* === TRANSICIONES Y ANIMACIONES === */
+  --transition-fast: all 0.15s ease; /* Rápida */
+  --transition-normal: all 0.3s ease; /* Normal - estándar */
+  --transition-slow: all 0.5s ease; /* Lenta */
+  --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* === COMPATIBILIDAD === */
+  --transition: all 0.3s ease;
+  --transicion: all 0.3s ease;
+
+  /* === ESPACIADOS SISTEMÁTICOS === */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 4rem; /* 64px */
+  --spacing-4xl: 6rem; /* 96px */
+
+  /* === DIMENSIONES DE LAYOUT === */
+  /* Alturas de componentes fijos */
+  --header-height: 80px; /* Altura estándar del header */
+  --footer-height: 60px; /* Altura estándar del footer */
+  --navbar-height: 60px; /* Altura de navegación secundaria */
+
+  /* === TIPOGRAFÍA INSTITUCIONAL === */
+  /* Fuente principal: Calibri Light como estándar corporativo */
+  --font-primary: 'Calibri Light', 'Calibri', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-secondary: 'Calibri', 'Segoe UI', -apple-system, BlinkMacSystemFont,
+    Arial, sans-serif;
+  --font-display: 'Calibri', 'Segoe UI', sans-serif; /* Para títulos destacados */
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace; /* Para código */
+
+  /* === PESOS DE FUENTE === */
+  --font-weight-light: 300; /* Calibri Light */
+  --font-weight-regular: 400; /* Calibri Regular */
+  --font-weight-medium: 500; /* Calibri Medium */
+  --font-weight-semibold: 600; /* Calibri Semibold */
+  --font-weight-bold: 700; /* Calibri Bold */
+
+  /* === TAMAÑOS DE TEXTO RESPONSIVOS === */
+  /* Sistema de tipografía fluida basado en viewport */
+  --text-xs: clamp(0.75rem, 1.5vw, 0.875rem); /* 12-14px */
+  --text-sm: clamp(0.875rem, 2vw, 1rem); /* 14-16px */
+  --text-base: clamp(1rem, 2.5vw, 1.125rem); /* 16-18px - Base corporativo */
+  --text-lg: clamp(1.125rem, 3vw, 1.25rem); /* 18-20px */
+  --text-xl: clamp(1.25rem, 3.5vw, 1.5rem); /* 20-24px */
+  --text-2xl: clamp(1.5rem, 4vw, 2rem); /* 24-32px */
+  --text-3xl: clamp(2rem, 5vw, 2.5rem); /* 32-40px */
+  --text-4xl: clamp(2.5rem, 6vw, 3.5rem); /* 40-56px */
+  --text-5xl: clamp(3rem, 7vw, 4rem); /* 48-64px */
+
+  /* === ALTURAS DE LÍNEA === */
+  --line-height-tight: 1.25; /* Para títulos */
+  --line-height-normal: 1.5; /* Para texto general */
+  --line-height-relaxed: 1.75; /* Para párrafos largos */
+
+  /* === ESPACIADO DE LETRAS === */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+
+  /* === TAMAÑOS ESPECÍFICOS PARA SECCIONES === */
   --text-hero-main: clamp(2rem, 5vw, 3.5rem);
   --text-hero-sub: clamp(1rem, 2vw, 1.3rem);
   --text-section-title: clamp(2rem, 4vw, 3rem);
   --text-section-subtitle: clamp(1rem, 2vw, 1.2rem);
 
-  /* === ESPACIADO === */
-  --spacing-xs: clamp(0.25rem, 1vw, 0.5rem);
-  --spacing-sm: clamp(0.5rem, 2vw, 0.75rem);
-  --spacing-md: clamp(1rem, 3vw, 1.5rem);
-  --spacing-lg: clamp(1.5rem, 4vw, 2rem);
-  --spacing-xl: clamp(2rem, 5vw, 3rem);
-  --spacing-xxl: clamp(3rem, 8vw, 5rem);
-  
+  /* === ESPACIADO RESPONSIVO === */
+  --spacing-xs-fluid: clamp(0.25rem, 1vw, 0.5rem);
+  --spacing-sm-fluid: clamp(0.5rem, 2vw, 0.75rem);
+  --spacing-md-fluid: clamp(1rem, 3vw, 1.5rem);
+  --spacing-lg-fluid: clamp(1.5rem, 4vw, 2rem);
+  --spacing-xl-fluid: clamp(2rem, 5vw, 3rem);
+  --spacing-xxl-fluid: clamp(3rem, 8vw, 5rem);
+
   /* Espaciado para secciones */
   --section-padding: clamp(3rem, 8vw, 6rem);
   --container-padding: clamp(1rem, 4vw, 2rem);
-  
-  /* === BREAKPOINTS === */
-  --bp-mobile: 576px;
-  --bp-tablet: 768px;
-  --bp-desktop: 992px;
-  --bp-large: 1200px;
-  --bp-xl: 1400px;
+
+  /* === BREAKPOINTS CORPORATIVOS PREDIVERSA === */
+  /* Sistema de pantallas actualizado según especificaciones */
+
+  /* Breakpoints principales */
+  --bp-xs: 480px; /* Pantallas extra pequeñas - Teléfonos pequeños (≤ 480px) */
+  --bp-sm: 481px; /* Pantallas pequeñas - Teléfonos estándar (481-767px) */
+  --bp-md: 768px; /* Pantallas medianas - Tablets (768-1023px) */
+  --bp-lg: 1024px; /* Pantallas grandes - Laptops y monitores estándar (1024-1439px) */
+  --bp-xl: 1440px; /* Pantallas extra grandes - Monitores amplios 1080p (1440-1919px) */
+  --bp-xxl: 1920px; /* Pantallas 2K y superiores - 2K, 4K, múltiples (≥ 1920px) */
+
+  /* Breakpoints específicos para max-width (mobile-first) */
+  --bp-xs-down: 480px; /* Hasta teléfonos pequeños */
+  --bp-sm-down: 767px; /* Hasta teléfonos estándar */
+  --bp-md-down: 1023px; /* Hasta tablets */
+  --bp-lg-down: 1439px; /* Hasta laptops estándar */
+  --bp-xl-down: 1919px; /* Hasta monitores amplios */
+
+  /* Breakpoints de compatibilidad (mantener para código existente) */
+  --bp-mobile: 481px; /* Equivale a --bp-sm */
+  --bp-tablet: 768px; /* Equivale a --bp-md */
+  --bp-desktop: 1024px; /* Equivale a --bp-lg */
+  --bp-large: 1440px; /* Equivale a --bp-xl */
+
+  /* Contenedores máximos por breakpoint */
+  --container-xs: 100%; /* 480px y menor */
+  --container-sm: 540px; /* 481px - 767px */
+  --container-md: 720px; /* 768px - 1023px */
+  --container-lg: 960px; /* 1024px - 1439px */
+  --container-xl: 1140px; /* 1440px - 1919px */
+  --container-xxl: 1320px; /* 1920px y mayor */
+
+  /* === Z-INDEX SISTEMÁTICO === */
+  --z-background: -1;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
 
   /* === TRANSFORMACIONES COMUNES === */
   --transform-hover-lift: translateY(-2px);

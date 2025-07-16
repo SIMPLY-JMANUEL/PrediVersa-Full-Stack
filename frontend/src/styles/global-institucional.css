@@ -1,0 +1,48 @@
+:root {
+  --color-azul-oscuro: #0c1b32;
+  --color-blanco: #ffffff;
+  --color-celeste: #42c0f9;
+  --color-azul-medio: #169cd8;
+  --color-azul-profundo: #091424;
+  --font-institucional: 'Montserrat', 'Arial', sans-serif;
+}
+body {
+  background: var(--color-blanco);
+  color: var(--color-azul-oscuro);
+  font-family: var(--font-institucional);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.main-content {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-celeste);
+  color: var(--color-blanco);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-family: var(--font-institucional);
+  cursor: pointer;
+  margin-top: 2rem;
+  box-shadow: 0 2px 8px rgba(12, 27, 50, 0.08);
+  transition: background 0.2s;
+}
+.btn-home:hover {
+  background: var(--color-azul-medio);
+}
+.btn-home svg {
+  width: 1.2em;
+  height: 1.2em;
+  fill: var(--color-blanco);
+}

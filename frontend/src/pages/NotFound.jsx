@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import HomeButton from '../components/Button/HomeButton';
 
 function NotFound() {
   return (
@@ -8,10 +8,7 @@ function NotFound() {
         <h1>404 - Página no encontrada</h1>
         <p>Lo sentimos, la página que buscas no existe o ha sido movida.</p>
         <div className="mt-3">
-          <Link to="/" className="btn-regresar">
-            <i className="fas fa-home"></i>
-            Regresar al Inicio
-          </Link>
+          <HomeButton label="Regresar al Inicio" />
         </div>
       </div>
     </section>

@@ -1,13 +1,32 @@
 /* ===== CONFIGURACIÓN ESPECÍFICA DE REACT ===== */
+/* Solo configuraciones técnicas de React, no estilos visuales */
 
-/* Solo estilos específicos que no están en el sistema modular */
+/* === CONFIGURACIÓN DE RENDERIZADO === */
 body {
   /* Configuración específica de React para suavizado de fuentes */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Configuración para React Code Font */
+/* === CONFIGURACIÓN PARA CÓDIGO === */
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* 
+  NOTA: Los estilos visuales están centralizados en:
+  - src/styles/main.css (sistema completo)
+  - src/styles/globals/variables.css (variables corporativas)
+  - src/styles/globals/app.css (configuración de la App)
+*/
+
+body,
+main,
+#root,
+.App {
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }

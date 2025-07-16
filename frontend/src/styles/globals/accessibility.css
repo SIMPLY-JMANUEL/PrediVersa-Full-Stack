@@ -1,17 +1,272 @@
-/* ===== UTILIDADES DE ACCESIBILIDAD GLOBALES ===== */
+/* ===== SISTEMA DE FOCUS Y ACCESIBILIDAD PREDIVERSA ===== */
+/* Sistema completo de accesibilidad e inclusividad */
 
-/* === PREFERENCIAS DE MOVIMIENTO === */
+/* === VARIABLES DE ACCESIBILIDAD === */
+:root {
+  /* === FOCUS RING CORPORATIVO === */
+  --focus-ring-width: 2px;
+  --focus-ring-style: solid;
+  --focus-ring-color: var(--color-secondary); /* #42C0F9 */
+  --focus-ring-offset: 2px;
+  --focus-ring-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  --focus-ring-inset: inset 0 0 0 var(--focus-ring-width) var(--color-white);
+
+  /* Focus para diferentes contextos */
+  --focus-ring-light: 0 0 0 var(--focus-ring-width) rgba(66, 192, 249, 0.5);
+  --focus-ring-dark: 0 0 0 var(--focus-ring-width) rgba(255, 255, 255, 0.8);
+  --focus-ring-error: 0 0 0 var(--focus-ring-width) var(--color-error);
+  --focus-ring-success: 0 0 0 var(--focus-ring-width) var(--color-success);
+
+  /* === CONTRASTES DE ACCESIBILIDAD === */
+  --contrast-min: 4.5; /* WCAG AA */
+  --contrast-enhanced: 7; /* WCAG AAA */
+
+  /* === TAMAÑOS MÍNIMOS TÁCTILES === */
+  --touch-target-min: 44px; /* Mínimo recomendado */
+  --touch-target-comfortable: 48px; /* Cómodo */
+  --touch-target-large: 56px; /* Grande */
+
+  /* === TIMING DE ACCESIBILIDAD === */
+  --focus-transition: 0.15s ease-out;
+  --skip-link-transition: 0.2s ease-out;
+}
+
+/* === RESET DE FOCUS BASE === */
+
+/* Eliminar outline por defecto del navegador */
+*:focus {
+  outline: none;
+}
+
+/* === FOCUS RING CORPORATIVO === */
+
+/* Focus visible solo con teclado */
+*:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style)
+    var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  transition: outline var(--focus-transition);
+}
+
+/* Focus ring con box-shadow para mayor control */
+.focus-ring {
+  transition: box-shadow var(--focus-transition);
+}
+
+.focus-ring:focus-visible {
+  box-shadow: var(--focus-ring-shadow);
+  outline: none;
+}
+
+/* Focus ring inset */
+.focus-ring-inset:focus-visible {
+  box-shadow: var(--focus-ring-inset);
+  outline: none;
+}
+
+/* === FOCUS ESPECÍFICO POR COMPONENTE === */
+
+/* Botones */
+button:focus-visible,
+.btn:focus-visible {
+  box-shadow: var(--focus-ring-shadow);
+  outline: none;
+}
+
+/* Enlaces */
+a:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style)
+    var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  text-decoration: underline;
+}
+
+/* Inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-color: var(--focus-ring-color);
+  box-shadow: var(--focus-ring-light);
+  outline: none;
+}
+
+/* Checkboxes y radios */
+input[type='checkbox']:focus-visible,
+input[type='radio']:focus-visible {
+  box-shadow: var(--focus-ring-shadow);
+  outline: none;
+}
+
+/* === ESTADOS DE FOCUS ESPECIALES === */
+
+/* Focus en error */
+.focus-error:focus-visible {
+  box-shadow: var(--focus-ring-error);
+}
+
+/* Focus en éxito */
+.focus-success:focus-visible {
+  box-shadow: var(--focus-ring-success);
+}
+
+/* Focus en contexto oscuro */
+.focus-dark:focus-visible {
+  box-shadow: var(--focus-ring-dark);
+}
+
+/* Focus en contexto claro */
+.focus-light:focus-visible {
+  box-shadow: var(--focus-ring-light);
+}
+
+/* === SKIP LINKS === */
+
+/* Enlaces de salto para navegación con teclado */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: var(--z-tooltip);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  border-radius: 0 0 var(--radius-md) 0;
+  transition: top var(--skip-link-transition);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* === TEXTO PARA SCREEN READERS === */
+
+/* Solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mostrar en focus para debug */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: initial;
+  margin: initial;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* === INDICADORES VISUALES === */
+
+/* Indicador de estado requerido */
+.required::after {
+  content: ' *';
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Indicador de aria-describedby */
+.has-description {
+  position: relative;
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-text-light);
+  margin-top: var(--spacing-xs);
+}
+
+.error-message {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.success-message {
+  font-size: var(--text-sm);
+  color: var(--color-success);
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* === TARGETS TÁCTILES === */
+
+/* Tamaño mínimo para elementos interactivos */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-comfortable {
+  min-height: var(--touch-target-comfortable);
+  min-width: var(--touch-target-comfortable);
+}
+
+.touch-target-large {
+  min-height: var(--touch-target-large);
+  min-width: var(--touch-target-large);
+}
+
+/* === CONTRASTE Y LEGIBILIDAD === */
+
+/* Alto contraste */
+.high-contrast {
+  color: var(--color-text-primary);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-text-primary);
+}
+
+/* Texto con contraste mejorado */
+.text-high-contrast {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* === MODO OSCURO ACCESIBLE === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --focus-ring-color: #60a5fa;
+    --focus-ring-shadow: 0 0 0 var(--focus-ring-width) #60a5fa;
+  }
+}
+
+/* === MOTION PREFERENCES === */
+
+/* Respetar preferencia de movimiento reducido */
 @media (prefers-reduced-motion: reduce) {
-  /* Desactivar transiciones y animaciones para elementos genéricos */
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
+  .parallax {
+    transform: none !important;
+  }
+
   /* Elementos específicos que no deben tener movimiento */
   .card,
   .btn,
@@ -26,11 +281,236 @@
   }
 }
 
-/* === FOCUS STATES GLOBALES === */
-*:focus-visible {
-  outline: 3px solid var(--color-azul-claro);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* === CONTRAST PREFERENCES === */
+
+/* Alto contraste preferido */
+@media (prefers-contrast: high) {
+  :root {
+    --focus-ring-width: 3px;
+    --color-border: #000000;
+    --color-text-primary: #000000;
+    --color-bg-primary: #ffffff;
+  }
+
+  * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  .btn {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* === NAVEGACIÓN CON TECLADO === */
+
+/* Indicadores de navegación con teclado */
+.keyboard-navigation-active *:focus-visible {
+  animation: focusPulse 0.3s ease-out;
+}
+
+@keyframes focusPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* === GRUPOS DE FORMULARIOS ACCESIBLES === */
+
+/* Fieldsets accesibles */
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+legend {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  padding: 0 var(--spacing-sm);
+}
+
+/* === ALERTAS Y NOTIFICACIONES ACCESIBLES === */
+
+/* Roles ARIA styling */
+[role='alert'] {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-error);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+}
+
+[role='status'] {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-info);
+  background-color: rgba(66, 192, 249, 0.1);
+  color: var(--color-info);
+}
+
+/* Live regions */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* === TOOLTIPS ACCESIBLES === */
+
+/* Tooltip con aria-describedby */
+.tooltip-trigger {
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: var(--z-tooltip);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--focus-transition),
+    visibility var(--focus-transition);
+  pointer-events: none;
+}
+
+.tooltip-trigger:hover .tooltip,
+.tooltip-trigger:focus-visible .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* === DROPDOWNS ACCESIBLES === */
+
+/* Dropdown con navegación por teclado */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: var(--z-dropdown);
+  min-width: 200px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity var(--focus-transition),
+    visibility var(--focus-transition), transform var(--focus-transition);
+}
+
+.dropdown.is-open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--focus-transition);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background-color: var(--color-bg-secondary);
+  outline: none;
+}
+
+.dropdown-item[aria-selected='true'] {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+/* === TABLAS ACCESIBLES === */
+
+/* Tablas responsive y accesibles */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  background-color: var(--color-bg-secondary);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  padding: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-border);
+}
+
+td {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* Focus en celdas */
+th:focus-visible,
+td:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style)
+    var(--focus-ring-color);
+  outline-offset: -2px;
+}
+
+/* === BREADCRUMBS ACCESIBLES === */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--text-sm);
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+  content: '/';
+  margin-left: var(--spacing-sm);
+  color: var(--color-text-light);
+}
+
+.breadcrumb-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover,
+.breadcrumb-link:focus-visible {
+  text-decoration: underline;
 }
 
 /* === UTILIDADES DE PRINT === */
@@ -44,7 +524,7 @@
   .scroll-indicator {
     display: none !important;
   }
-  
+
   /* Optimizar elementos para impresión */
   .card,
   .info-card,
@@ -54,17 +534,22 @@
     break-inside: avoid;
     margin-bottom: 1rem;
   }
-  
+
   /* Texto optimizado para impresión */
   * {
     color: black !important;
     background: white !important;
   }
-  
+
   .title-1,
   .title-2,
   .title-3,
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     color: black !important;
     background: none !important;
     -webkit-text-fill-color: black !important;
@@ -78,11 +563,11 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-  
+
   .hover-scale:hover {
     transform: scale(1.02);
   }
-  
+
   .hover-glow:hover {
     box-shadow: 0 0 20px rgb(74 178 227 / 30%);
   }
@@ -128,4 +613,76 @@
 
 .skip-link:focus {
   top: 6px;
+}
+
+/* === PRUEBAS DE ACCESIBILIDAD === */
+
+/* Outline para debug de accesibilidad */
+.debug-accessibility * {
+  outline: 1px solid red !important;
+}
+
+.debug-accessibility *:focus {
+  outline: 3px solid blue !important;
+}
+
+/* === RESPONSIVE ACCESSIBILITY === */
+
+@media (max-width: 768px) {
+  /* Aumentar targets táctiles en móviles */
+  .touch-target {
+    min-height: var(--touch-target-comfortable);
+    min-width: var(--touch-target-comfortable);
+  }
+
+  /* Texto más grande en móviles para legibilidad */
+  .text-accessible-mobile {
+    font-size: calc(var(--text-base) * 1.1);
+    line-height: 1.6;
+  }
+}
+
+/* === PRINT ACCESSIBILITY === */
+
+@media print {
+  /* Asegurar contraste en impresión */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a::after {
+    content: ' (' attr(href) ')';
+    font-size: smaller;
+  }
+
+  .sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Ocultar elementos no necesarios para impresión */
+  .navigation,
+  .header-menu,
+  .footer-social,
+  .btn,
+  .back-btn,
+  .scroll-indicator {
+    display: none !important;
+  }
+
+  /* Optimizar elementos para impresión */
+  .card,
+  .info-card {
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+  }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorInfo, ReactNode } from 'react';
+import Button from './Button/Button';
 
 interface Props {
   children: ReactNode;
@@ -24,10 +25,10 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-    
+
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Enviar error a servicio de monitoreo
@@ -46,18 +47,17 @@ class ErrorBoundary extends React.Component<Props, State> {
         componentStack: errorInfo.componentStack,
         timestamp: new Date().toISOString(),
         url: window.location.href,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
       };
-      
+
       // Enviar a endpoint de logging
       fetch('/api/errors', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(errorData)
+        body: JSON.stringify(errorData),
       }).catch(console.error);
-      
     } catch (logError) {
       console.error('Failed to log error:', logError);
     }
@@ -73,32 +73,43 @@ class ErrorBoundary extends React.Component<Props, State> {
         <div className="error-boundary">
           <div className="error-boundary__container">
             <h2>¡Oops! Algo salió mal</h2>
-            <p>Ha ocurrido un error inesperado. Por favor, actualiza la página e intenta nuevamente.</p>
-            
+            <p>
+              Ha ocurrido un error inesperado. Por favor, actualiza la página e
+              intenta nuevamente.
+            </p>
+
             {process.env.NODE_ENV === 'development' && (
               <details style={{ whiteSpace: 'pre-wrap' }}>
                 <summary>Detalles del error (solo en desarrollo)</summary>
-                <p><strong>Error:</strong> {this.state.error?.message}</p>
-                <p><strong>Stack trace:</strong></p>
+                <p>
+                  <strong>Error:</strong> {this.state.error?.message}
+                </p>
+                <p>
+                  <strong>Stack trace:</strong>
+                </p>
                 <code>{this.state.error?.stack}</code>
-                <p><strong>Component stack:</strong></p>
+                <p>
+                  <strong>Component stack:</strong>
+                </p>
                 <code>{this.state.errorInfo?.componentStack}</code>
               </details>
             )}
-            
+
             <div className="error-boundary__actions">
-              <button 
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => window.location.reload()}
-                className="btn btn-primary"
               >
                 Actualizar página
-              </button>
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="btn btn-secondary"
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => (window.location.href = '/')}
               >
                 Ir al inicio
-              </button>
+              </Button>
             </div>
           </div>
         </div>

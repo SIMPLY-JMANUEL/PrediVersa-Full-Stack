@@ -5,7 +5,7 @@ import styles from './Button.module.css';
 const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
-  size = 'medium',
+  size = 'md',
   disabled = false,
   loading = false,
   onClick,
@@ -18,8 +18,10 @@ const Button: React.FC<ButtonProps> = ({
     styles[variant],
     styles[size],
     loading && styles.loading,
-    className
-  ].filter(Boolean).join(' ');
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const handleClick = () => {
     if (!disabled && !loading && onClick) {

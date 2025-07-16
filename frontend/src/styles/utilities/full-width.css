@@ -1,0 +1,29 @@
+/* === UTILIDADES PARA FONDOS DE ANCHO COMPLETO === */
+
+/* Utilidad para componentes que necesitan extenderse al ancho completo */
+.full-width-section {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
+/* Contenedores centralizados para secciones de ancho completo */
+.full-width-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive para contenedores de ancho completo */
+@media (max-width: 768px) {
+  .full-width-container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .full-width-container {
+    padding: 0 0.5rem;
+  }
+}

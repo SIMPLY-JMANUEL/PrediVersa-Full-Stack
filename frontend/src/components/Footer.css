@@ -1,100 +1,226 @@
-/* ===== FOOTER MODERNO CON DISTRIBUCIÓN ORIGINAL ===== */
-footer {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
-  color: #fff !important;
-  padding: 2rem 0 1rem;
-  width: 100%;
-  box-sizing: border-box;
+/* ===== FOOTER MINIMALISTA PREMIUM PREDIVERSA ===== */
+/* Diseño elegante y sofisticado - VERSIÓN COMPACTA */
+
+/* === IMPORTACIONES DE FUENTES === */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* === CONTENEDOR PRINCIPAL === */
+.footer-modern {
+  background: #2799ce;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
   position: relative;
   overflow: hidden;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border-top: 4px solid rgba(255, 255, 255, 0.8) !important;
 }
 
-footer::before {
+/* Formas geométricas decorativas para seguir la línea blanca */
+.footer-modern::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 20%, rgb(59 130 246 / 3%) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgb(139 92 246 / 3%) 0%, transparent 50%);
-  pointer-events: none;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  clip-path: polygon(0 100%, 15% 0%, 85% 0%, 100% 100%);
+  z-index: 0;
 }
 
-.container {
-  max-width: calc(100% - 48px); /* 2cm a cada lado - distribución original */
+/* Overlay transparente para profundidad */
+.footer-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.footer-modern .container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 24px;
-  box-sizing: border-box;
+  padding: 0 2rem;
   position: relative;
   z-index: 2;
 }
 
-.footer-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  width: 100%;
-  margin-bottom: 2rem;
+/* === CONTENIDO PRINCIPAL === */
+.footer-content {
+  padding: 1rem 0 0.5rem;
 }
 
-.footer-col {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+/* === LAYOUT ASIMÉTRICO === */
+.footer-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 0.5rem;
 }
 
-.footer-title {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  color: var(--color-blanco);
-  position: relative;
-}
-
-.footer-title::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  width: 25px;
-  height: 2px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-  border-radius: 1px;
+/* === SECCIÓN BRAND (COLUMNA PRINCIPAL) === */
+.footer-brand {
+  padding-right: 2rem;
 }
 
 .footer-logo {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 0.8rem;
-  color: var(--color-blanco);
+  display: inline-block;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--color-azul-claro) 0%, var(--color-azul-oscuro) 100%);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin-bottom: 1.2rem;
   transition: all 0.3s ease;
-  display: block;
-  text-align: left;
 }
 
 .footer-logo:hover {
-  transform: scale(1.02);
-  text-decoration: none;
+  transform: translateY(-2px);
 }
 
-.footer-desc {
-  width: 100%;
-  text-align: left;
-  margin: 0 0 1rem;
-  display: block;
-  color: rgb(255 255 255 / 80%);
-  line-height: 1.5;
+/* Jerarquía Tipográfica Nivel 1 - Logo Principal */
+.logo-predi {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-right: 0.2rem;
+  line-height: 1.1;
+}
+
+.logo-versa {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: #ffffff;
+  opacity: 0.9;
+  line-height: 1.1;
+}
+
+/* Jerarquía Tipográfica Nivel 4 - Descripción */
+.footer-description {
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+  font-weight: 400;
+}
+
+/* === REDES SOCIALES === */
+.footer-social {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.footer-social .social-btn,
+.social-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  min-height: 52px !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.footer-social .social-btn::before,
+.social-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 16px;
+}
+
+.footer-social .social-btn:hover::before,
+.social-btn:hover::before {
+  opacity: 1;
+}
+
+.footer-social .social-btn svg,
+.social-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  transition: all 0.3s ease !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+  flex-shrink: 0 !important;
+  fill: currentColor !important;
+  color: #ffffff !important;
+}
+
+.footer-social .social-btn:hover,
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-4px) scale(1.05) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.footer-social .social-btn:hover svg,
+.social-btn:hover svg {
+  transform: scale(1.1) !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15)) !important;
+  color: #ffffff !important;
+}
+
+.footer-social .social-btn:active,
+.social-btn:active {
+  transform: translateY(-2px) scale(1.02) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* === SECCIONES DE NAVEGACIÓN === */
+.footer-nav,
+.footer-products,
+.footer-contact {
+  padding-left: 1rem;
+}
+
+/* Jerarquía Tipográfica Nivel 2 - Títulos de Sección */
+.footer-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
 }
 
 .footer-links {
@@ -107,288 +233,280 @@ footer::before {
   margin-bottom: 0.6rem;
 }
 
-.footer-links a {
-  color: rgb(255 255 255 / 80%);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 400;
-  transition: all 0.3s ease;
-  line-height: 1.4;
-}
-
-.footer-links a:hover {
-  color: #60a5fa !important;
-  text-decoration: none;
-}
-
-/* Botones funcionales del footer */
+/* Jerarquía Tipográfica Nivel 3 - Enlaces de Navegación */
+.footer-links a,
 .footer-link-btn {
-  background: none;
-  border: none;
-  color: rgb(255 255 255 / 80%);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 400;
-  transition: all 0.3s ease;
-  line-height: 1.4;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  font-family: inherit;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.75) !important;
+  text-decoration: none !important;
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  transition: all 0.3s ease !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  position: relative !important;
 }
 
+.footer-links a:hover,
 .footer-link-btn:hover {
-  color: #60a5fa !important;
-  text-decoration: none;
+  color: #ffffff !important;
+  transform: translateX(5px) !important;
 }
 
-.footer-link-btn:focus {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
-  border-radius: 4px;
+.footer-links a::after,
+.footer-link-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.6);
+  transition: width 0.3s ease;
 }
 
-/* Redes sociales */
-.social-links {
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
+.footer-links a:hover::after,
+.footer-link-btn:hover::after {
+  width: 100%;
 }
 
-.social-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0.8rem;
-  background: rgb(255 255 255 / 8%);
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 15px;
-  color: rgb(255 255 255 / 80%) !important;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.social-link:hover {
-  background: rgb(59 130 246 / 20%);
-  border-color: rgb(59 130 246 / 30%);
-  color: #fff !important;
-  transform: translateY(-1px);
-  text-decoration: none;
-}
-
-.social-link:focus {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Botones de contacto interactivos */
-.contact-action {
-  background: none;
-  border: none;
-  color: rgb(255 255 255 / 80%);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: inherit;
-  padding: 2px 0;
-  transition: all 0.3s ease;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-}
-
-.contact-action:hover {
-  color: #60a5fa;
-  text-decoration-color: #60a5fa;
-}
-
-.contact-action:focus {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-.contact-action:active {
-  transform: scale(0.98);
-}
-
-/* Información de contacto */
-.contact-info li {
+/* === SECCIÓN DE CONTACTO === */
+.contact-info {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  color: rgb(255 255 255 / 80%);
+  gap: 1rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Jerarquía Tipográfica Nivel 3 - Información de Contacto */
+.contact-btn {
+  font-family: 'Inter', sans-serif;
+  background: none !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  padding: 0.5rem 0 !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.contact-btn:hover {
+  color: #ffffff !important;
+  transform: translateX(5px) !important;
+}
+
+.contact-icon {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.contact-btn:hover .contact-icon {
+  opacity: 1;
+}
+
+.location {
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.9rem;
-  margin-bottom: 0.8rem;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-.contact-label {
-  font-weight: 600;
-  color: #93c5fd;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.2rem;
-}
-
-/* FOOTER - ESTILOS ADICIONALES */
+/* === FOOTER BOTTOM === */
 .footer-bottom {
-  border-top: 1px solid rgb(255 255 255 / 10%);
-  padding: 1.5rem 0;
-  text-align: center;
-  background: rgb(0 0 0 / 10%);
-  backdrop-filter: blur(10px);
-}
-
-.footer-bottom-content {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+.footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 .copyright {
-  color: rgb(255 255 255 / 80%);
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.made-with {
-  color: rgb(255 255 255 / 60%);
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.2px;
   margin: 0;
-  font-style: italic;
 }
 
-/* RESPONSIVE DESIGN - DISTRIBUCIÓN ORIGINAL */
-
-/* Tablets grandes */
-@media (max-width: 1024px) {
-  .footer-grid {
-    gap: 20px;
-  }
-  
-  .footer-col {
-    padding: 0 8px;
-  }
+.legal-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
-/* Tablets */
-@media (max-width: 900px) {
-  .footer-grid {
-    flex-direction: column;
-    gap: 18px;
-    align-items: stretch;
-  }
-  
-  .footer-col {
-    padding: 0;
-  }
-  
-  .footer-bottom-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-  }
+.legal-link {
+  font-family: 'Inter', sans-serif !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  text-decoration: none !important;
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.2px !important;
+  transition: color 0.3s ease !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
 }
 
-/* Mobile */
-@media (max-width: 800px) {
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    text-align: center;
-  }
-  
-  .footer-links li {
-    justify-content: center;
-  }
-  
-  .footer-logo {
-    margin-bottom: 18px;
-  }
-  
-  .footer-title::after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .social-links {
-    justify-content: center;
-  }
+.legal-link:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Mobile pequeño */
-@media (max-width: 700px) {
-  .footer-grid {
+/* === RESPONSIVE DESIGN === */
+
+/* Tablets (768px - 1023px) */
+@media (max-width: 1023px) {
+  .footer-main {
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    margin-bottom: 1rem;
   }
 }
 
-@media (max-width: 480px) {
-  .footer-grid {
+/* Móviles (hasta 767px) */
+@media (max-width: 767px) {
+  .footer-modern .container {
+    padding: 0 1rem;
+  }
+
+  .footer-content {
+    padding: 2rem 0 1rem;
+  }
+
+  .footer-main {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 1.5rem;
   }
-  
-  .container {
-    padding: 0 8px;
+
+  .footer-nav,
+  .footer-products,
+  .footer-contact {
+    padding-left: 0;
   }
-  
-  .social-links {
-    gap: 0.5rem;
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding-top: 1rem;
   }
-  
-  .social-link {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
+
+  .footer-legal {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .legal-links {
+    justify-content: center;
+  }
+
+  .logo-predi,
+  .logo-versa {
+    font-size: 2rem;
   }
 }
 
-/* Accesibilidad y efectos suaves */
-@media (prefers-reduced-motion: reduce) {
-  .footer-logo,
-  .footer-links a,
-  .social-link {
-    transition: none !important;
+/* Pantallas muy pequeñas (hasta 480px) */
+@media (max-width: 480px) {
+  .footer-social {
+    justify-content: center;
+    gap: 1rem;
   }
-  
-  .footer-col {
-    animation: none !important;
+
+  .footer-social .social-btn,
+  .social-btn {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    border-radius: 14px !important;
+  }
+
+  .footer-social .social-btn svg,
+  .social-btn svg {
+    width: 20px !important;
+    height: 20px !important;
   }
 }
 
-.footer-links a:focus,
-.social-link:focus,
-.footer-logo:focus {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Efectos de entrada suaves - simplificados */
-.footer-col {
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fadeInUp 0.5s ease forwards;
-}
-
-.footer-col:nth-child(1) { animation-delay: 0.1s; }
-.footer-col:nth-child(2) { animation-delay: 0.15s; }
-.footer-col:nth-child(3) { animation-delay: 0.2s; }
-.footer-col:nth-child(4) { animation-delay: 0.25s; }
-
+/* === ANIMACIONES ADICIONALES === */
 @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+.footer-modern {
+  animation: fadeInUp 0.6s ease-out;
+}
 
+/* === MEJORAS DE ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  .footer-modern,
+  .footer-modern *,
+  .footer-modern *::before,
+  .footer-modern *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para navegación por teclado */
+.footer-modern a:focus-visible,
+.footer-modern button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* === OPTIMIZACIONES DE PERFORMANCE === */
+.footer-modern {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+.footer-modern::before {
+  will-change: transform;
+}

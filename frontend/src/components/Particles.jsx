@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import "./Particles.css"; // Crea este archivo para los estilos de .particle
+import React, { useEffect, useRef } from 'react';
+import './Particles.css';
 
 function Particles() {
   const containerRef = useRef();
@@ -7,11 +7,11 @@ function Particles() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    container.innerHTML = "";
+    container.innerHTML = '';
     const particleCount = 30;
     for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement("div");
-      particle.className = "particle";
+      const particle = document.createElement('div');
+      particle.className = 'particle';
       const size = Math.random() * 4 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
@@ -25,7 +25,7 @@ function Particles() {
     }
   }, []);
 
-  return <div className="particles" ref={containerRef}></div>;
+  return <div className="particles" ref={containerRef} />;
 }
 
 export default Particles;

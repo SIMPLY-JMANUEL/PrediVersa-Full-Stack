@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Testimonios PrediVersa</title>
+    <style>
+      /* Variables CSS básicas */
+      :root {
+        --color-azul-claro: #42c0f9;
+        --color-secondary: #169cd8;
+        --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        --color-white: #ffffff;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-primary);
+        background: #000;
+        color: white;
+        padding: 2rem;
+      }
+
+      /* Clases estándar básicas */
+      .section-standard {
+        position: relative;
+        width: 100%;
+        display: block;
+      }
+
+      .container-standard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+        z-index: 3;
+      }
+
+      .section-content {
+        position: relative;
+        z-index: 3;
+      }
+
+      /* Grid de testimonios básico */
+      .testimonios-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      /* Tarjeta básica visible */
+      .testimonio-card {
+        background: rgba(66, 192, 249, 0.15);
+        border: 2px solid #42c0f9;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        color: white;
+      }
+
+      .testimonio-stat {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: rgba(66, 192, 249, 0.2);
+        border-radius: 10px;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #42c0f9;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: #42c0f9;
+        text-transform: uppercase;
+      }
+
+      .testimonio-content {
+        flex: 1;
+        margin: 1rem 0;
+      }
+
+      .testimonio-text {
+        font-style: italic;
+        line-height: 1.6;
+      }
+
+      .testimonio-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      .testimonio-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid #42c0f9;
+      }
+
+      .author-info {
+        text-align: left;
+        flex: 1;
+      }
+
+      .author-name {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+      }
+
+      .author-role {
+        color: #42c0f9;
+        font-size: 0.9rem;
+      }
+
+      .author-institution {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+      }
+
+      .testimonio-rating {
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+
+      .star {
+        color: #fbbf24;
+        font-size: 1.2rem;
+      }
+
+      @media (max-width: 1200px) {
+        .testimonios-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .testimonios-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .testimonios-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="text-align: center; margin-bottom: 2rem; color: #42c0f9">
+      🧪 TEST TESTIMONIOS PREDIVERSA
+    </h1>
+
+    <div class="testimonios-grid">
+      <!-- Tarjeta 1 -->
+      <div class="testimonio-card">
+        <div class="testimonio-stat">
+          <div class="stat-number">85%</div>
+          <div class="stat-label">Reducción de incidentes</div>
+        </div>
+
+        <div class="testimonio-content">
+          <div class="testimonio-text">
+            PrediVersa transformó completamente nuestra capacidad para prevenir
+            situaciones de riesgo. En solo 3 meses, redujimos los incidentes de
+            bullying en un 85%.
+          </div>
+        </div>
+
+        <div class="testimonio-author">
+          <img
+            src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80"
+            alt="Dr. Ana María Rodríguez"
+            class="testimonio-avatar"
+          />
+          <div class="author-info">
+            <div class="author-name">Dr. Ana María Rodríguez</div>
+            <div class="author-role">Rectora</div>
+            <div class="author-institution">Colegio San Patricio</div>
+          </div>
+        </div>
+
+        <div class="testimonio-rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2 -->
+      <div class="testimonio-card">
+        <div class="testimonio-stat">
+          <div class="stat-number">92%</div>
+          <div class="stat-label">Mejora en clima laboral</div>
+        </div>
+
+        <div class="testimonio-content">
+          <div class="testimonio-text">
+            Implementamos PrediVersa en nuestras 5 sedes y los resultados han
+            sido extraordinarios. El clima laboral mejoró notablemente.
+          </div>
+        </div>
+
+        <div class="testimonio-author">
+          <img
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80"
+            alt="Ing. Carlos Mendoza"
+            class="testimonio-avatar"
+          />
+          <div class="author-info">
+            <div class="author-name">Ing. Carlos Mendoza</div>
+            <div class="author-role">Director de RR.HH.</div>
+            <div class="author-institution">Corporación Empresarial XYZ</div>
+          </div>
+        </div>
+
+        <div class="testimonio-rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3 -->
+      <div class="testimonio-card">
+        <div class="testimonio-stat">
+          <div class="stat-number">90%</div>
+          <div class="stat-label">Satisfacción profesional</div>
+        </div>
+
+        <div class="testimonio-content">
+          <div class="testimonio-text">
+            Como psicóloga, valoro enormemente las herramientas analíticas que
+            nos proporciona PrediVersa. Ha revolucionado nuestra forma de
+            trabajar.
+          </div>
+        </div>
+
+        <div class="testimonio-author">
+          <img
+            src="https://images.unsplash.com/photo-1594736797933-d0f75ad95d82?auto=format&fit=crop&w=400&q=80"
+            alt="Psic. Laura Jiménez"
+            class="testimonio-avatar"
+          />
+          <div class="author-info">
+            <div class="author-name">Psic. Laura Jiménez</div>
+            <div class="author-role">Coordinadora de Bienestar</div>
+            <div class="author-institution">Universidad Nacional</div>
+          </div>
+        </div>
+
+        <div class="testimonio-rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta 4 -->
+      <div class="testimonio-card">
+        <div class="testimonio-stat">
+          <div class="stat-number">78%</div>
+          <div class="stat-label">Aumento en inclusión</div>
+        </div>
+
+        <div class="testimonio-content">
+          <div class="testimonio-text">
+            PrediVersa nos ayudó a crear un ambiente más inclusivo y seguro para
+            nuestros estudiantes internacionales. Una fortaleza en nuestra
+            comunidad.
+          </div>
+        </div>
+
+        <div class="testimonio-author">
+          <img
+            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80"
+            alt="Lic. Patricia Hernández"
+            class="testimonio-avatar"
+          />
+          <div class="author-info">
+            <div class="author-name">Lic. Patricia Hernández</div>
+            <div class="author-role">Coordinadora Académica</div>
+            <div class="author-institution">Colegio Bilingüe Internacional</div>
+          </div>
+        </div>
+
+        <div class="testimonio-rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: rgba(66, 192, 249, 0.1);
+        border-radius: 10px;
+      "
+    >
+      <h2 style="color: #42c0f9; margin-bottom: 1rem">✅ Test Completado</h2>
+      <p>
+        Si puedes ver las 4 tarjetas de testimonios arriba, el CSS está
+        funcionando correctamente.
+      </p>
+      <p style="margin-top: 1rem; color: rgba(255, 255, 255, 0.7)">
+        Cada tarjeta debe mostrar: estadística, texto, autor con avatar y rating
+        de estrellas.
+      </p>
+    </div>
+  </body>
+</html>

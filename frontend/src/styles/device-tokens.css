@@ -1,0 +1,328 @@
+/* ===== DEVICE-SPECIFIC TOKENS PREDIVERSA ===== */
+
+:root {
+  /* === BASE DEVICE TOKENS === */
+  --device-type: 'unknown';
+  --device-pixel-ratio: 1;
+  --device-orientation: 'portrait';
+  --device-input: 'mouse';
+
+  /* === MOBILE TOKENS === */
+  --mobile-safe-area-top: env(safe-area-inset-top, 0px);
+  --mobile-safe-area-right: env(safe-area-inset-right, 0px);
+  --mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-safe-area-left: env(safe-area-inset-left, 0px);
+
+  /* Mobile specific spacing */
+  --mobile-header-height: clamp(56px, 8vh, 64px);
+  --mobile-tab-height: clamp(48px, 7vh, 56px);
+  --mobile-thumb-size: clamp(44px, 6vw, 48px);
+  --mobile-tap-target: clamp(44px, 6vw, 48px);
+
+  /* === TABLET TOKENS === */
+  --tablet-sidebar-width: clamp(240px, 25vw, 320px);
+  --tablet-content-padding: clamp(16px, 3vw, 32px);
+  --tablet-grid-gap: clamp(16px, 2vw, 24px);
+
+  /* === DESKTOP TOKENS === */
+  --desktop-sidebar-width: clamp(280px, 20vw, 400px);
+  --desktop-content-max-width: clamp(800px, 80vw, 1200px);
+  --desktop-grid-gap: clamp(24px, 2vw, 40px);
+  --desktop-hover-offset: clamp(2px, 0.2vw, 4px);
+
+  /* === LARGE SCREEN TOKENS === */
+  --large-content-max-width: clamp(1200px, 70vw, 1600px);
+  --large-sidebar-width: clamp(320px, 18vw, 480px);
+  --large-grid-columns: clamp(3, 4vw - 8, 6);
+}
+
+/* === MOBILE DEVICE DETECTION === */
+@media (max-width: 767px) and (pointer: coarse) {
+  :root {
+    --device-type: 'mobile';
+    --device-input: 'touch';
+
+    /* Optimize for touch */
+    --space-tap-target: var(--mobile-tap-target);
+    --space-comfortable: var(--space-lg);
+
+    /* Larger text for mobile */
+    --text-mobile-base: clamp(16px, 4vw, 18px);
+    --text-mobile-small: clamp(14px, 3.5vw, 16px);
+    --text-mobile-large: clamp(18px, 4.5vw, 22px);
+
+    /* Mobile specific borders */
+    --border-mobile: clamp(1px, 0.1vw, 2px);
+    --border-radius-mobile: clamp(8px, 2vw, 12px);
+
+    /* Performance optimizations for mobile */
+    --motion-duration-mobile: clamp(200ms, 0.2s, 300ms);
+    --motion-reduced-scale: clamp(1.02, 1.03, 1.05);
+  }
+
+  /* Mobile safe area utilities */
+  .mobile-safe-top {
+    padding-top: var(--mobile-safe-area-top);
+  }
+
+  .mobile-safe-bottom {
+    padding-bottom: var(--mobile-safe-area-bottom);
+  }
+
+  .mobile-safe-left {
+    padding-left: var(--mobile-safe-area-left);
+  }
+
+  .mobile-safe-right {
+    padding-right: var(--mobile-safe-area-right);
+  }
+
+  .mobile-safe-all {
+    padding-top: var(--mobile-safe-area-top);
+    padding-right: var(--mobile-safe-area-right);
+    padding-bottom: var(--mobile-safe-area-bottom);
+    padding-left: var(--mobile-safe-area-left);
+  }
+}
+
+/* === TABLET DETECTION === */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --device-type: 'tablet';
+
+    /* Tablet-optimized spacing */
+    --space-comfortable: var(--space-xl);
+    --content-padding: var(--tablet-content-padding);
+    --grid-gap: var(--tablet-grid-gap);
+
+    /* Tablet typography */
+    --text-tablet-base: clamp(16px, 2.5vw, 18px);
+    --text-tablet-large: clamp(20px, 3vw, 24px);
+
+    /* Tablet specific borders */
+    --border-tablet: clamp(1px, 0.08vw, 1.5px);
+    --border-radius-tablet: clamp(8px, 1.5vw, 16px);
+  }
+}
+
+/* === DESKTOP DETECTION === */
+@media (min-width: 1025px) and (pointer: fine) {
+  :root {
+    --device-type: 'desktop';
+    --device-input: 'mouse';
+
+    /* Desktop-optimized spacing */
+    --space-comfortable: var(--space-2xl);
+    --content-padding: var(--space-2xl);
+    --grid-gap: var(--desktop-grid-gap);
+
+    /* Desktop typography */
+    --text-desktop-base: clamp(16px, 1.2vw, 18px);
+    --text-desktop-large: clamp(20px, 1.5vw, 28px);
+
+    /* Hover states for desktop */
+    --hover-lift: var(--desktop-hover-offset);
+    --hover-scale: 1.02;
+    --hover-opacity: 0.8;
+
+    /* Desktop specific borders */
+    --border-desktop: 1px;
+    --border-radius-desktop: clamp(8px, 0.8vw, 16px);
+  }
+}
+
+/* === HIGH DPI SCREENS === */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  :root {
+    --device-pixel-ratio: 2;
+
+    /* Thinner borders on high DPI */
+    --border-hairline: 0.5px;
+
+    /* Crisp shadows */
+    --shadow-crisp: 0 0.5px 1px rgba(0, 0, 0, 0.2);
+    --shadow-crisp-lg: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+
+  .border-hairline {
+    border-width: var(--border-hairline);
+  }
+
+  .shadow-crisp {
+    box-shadow: var(--shadow-crisp);
+  }
+}
+
+/* === ORIENTATION TOKENS === */
+@media (orientation: landscape) {
+  :root {
+    --device-orientation: 'landscape';
+
+    /* Landscape optimizations */
+    --content-max-height: 80vh;
+    --modal-max-height: 85vh;
+    --hero-height: 70vh;
+  }
+}
+
+@media (orientation: portrait) {
+  :root {
+    --device-orientation: 'portrait';
+
+    /* Portrait optimizations */
+    --content-max-height: 90vh;
+    --modal-max-height: 95vh;
+    --hero-height: 80vh;
+  }
+}
+
+/* === SPECIFIC DEVICE ADAPTATIONS === */
+
+/* iPhone specific */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    --device-type: 'ios';
+
+    /* iOS specific adjustments */
+    --ios-bounce-scroll: hidden;
+    --ios-tap-highlight: transparent;
+  }
+
+  body {
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: var(--ios-tap-highlight);
+  }
+}
+
+/* Android specific */
+@media (max-width: 767px) and (min-resolution: 192dpi) {
+  :root {
+    --device-type: 'android';
+
+    /* Android specific optimizations */
+    --android-overscroll: contain;
+  }
+
+  body {
+    overscroll-behavior: var(--android-overscroll);
+  }
+}
+
+/* === FOLDABLE DEVICES === */
+@media (min-width: 768px) and (max-width: 1024px) and (min-height: 600px) {
+  :root {
+    --device-type: 'foldable';
+
+    /* Foldable specific spacing */
+    --foldable-hinge-gap: 20px;
+    --foldable-content-split: 50%;
+  }
+
+  .foldable-layout {
+    display: grid;
+    grid-template-columns: 1fr var(--foldable-hinge-gap) 1fr;
+    gap: var(--foldable-hinge-gap);
+  }
+}
+
+/* === DEVICE UTILITY CLASSES === */
+
+/* Show/hide based on device */
+.mobile-only {
+  display: none;
+}
+
+.tablet-only {
+  display: none;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tablet-only {
+    display: block;
+  }
+
+  .tablet-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .desktop-hidden {
+    display: none !important;
+  }
+}
+
+/* Touch vs Mouse optimizations */
+@media (pointer: coarse) {
+  .touch-optimized {
+    padding: var(--space-md);
+    min-height: var(--mobile-tap-target);
+    min-width: var(--mobile-tap-target);
+  }
+
+  .hover-effects {
+    display: none;
+  }
+}
+
+@media (pointer: fine) {
+  .mouse-optimized {
+    padding: var(--space-sm);
+  }
+
+  .hover-effects:hover {
+    transform: translateY(calc(var(--hover-lift) * -1));
+    opacity: var(--hover-opacity);
+  }
+}
+
+/* === PERFORMANCE BY DEVICE === */
+
+/* Reduce animations on lower-end devices */
+@media (max-width: 767px) and (max-resolution: 150dpi) {
+  :root {
+    --motion-duration-fast: 100ms;
+    --motion-duration-medium: 200ms;
+    --motion-duration-slow: 300ms;
+  }
+
+  .complex-animation {
+    animation: none;
+  }
+
+  .gpu-intensive {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Enhanced effects for high-end devices */
+@media (min-width: 1025px) and (min-resolution: 192dpi) {
+  .enhanced-effects {
+    backdrop-filter: blur(var(--theme-blur-lg));
+    box-shadow: var(--theme-shadow-xl);
+  }
+
+  .premium-animation {
+    animation-duration: var(--motion-duration-slow);
+    animation-timing-function: var(--motion-ease-elastic);
+  }
+}

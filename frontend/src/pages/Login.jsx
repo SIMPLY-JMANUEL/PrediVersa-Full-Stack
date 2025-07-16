@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import "./Login.css";
+import Button from '../components/Button/Button';
+import './Login.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -25,7 +26,7 @@ function Login() {
     return errs.length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!validateForm()) {
       return;
@@ -39,7 +40,7 @@ function Login() {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email, contraseña: password })
+        body: JSON.stringify({ correo: email, contraseña: password }),
       });
 
       const result = await response.json();
@@ -108,7 +109,11 @@ function Login() {
 
           {errors.length > 0 && (
             <div className="error-messages">
-              {errors.map((err, i) => <p key={i} className="error-text">{err}</p>)}
+              {errors.map((err, i) => (
+                <p key={i} className="error-text">
+                  {err}
+                </p>
+              ))}
             </div>
           )}
 
@@ -119,13 +124,13 @@ function Login() {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="correo@prediversa.com"
                 required
                 disabled={loading}
               />
               <span className="input-icon">
-                <i className="fas fa-envelope"></i>
+                <i className="fas fa-envelope" />
               </span>
             </div>
           </div>
@@ -137,13 +142,13 @@ function Login() {
                 type="password"
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
                 disabled={loading}
               />
               <span className="input-icon">
-                <i className="fas fa-lock"></i>
+                <i className="fas fa-lock" />
               </span>
             </div>
           </div>
@@ -154,27 +159,29 @@ function Login() {
                 type="checkbox"
                 id="remember"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={e => setRememberMe(e.target.checked)}
               />
               <label htmlFor="remember">Recordarme</label>
             </div>
           </div>
 
-          <button className="login-btn" type="submit" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="loading-spinner"></span>
-                Iniciando sesión...
-              </>
-            ) : (
-              'Iniciar Sesión'
-            )}
-          </button>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            loading={loading}
+          >
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          </Button>
 
           <div className="login-links">
-            <a href="/forgot" className="link">¿Olvidaste tu contraseña?</a>
+            <a href="/forgot" className="link">
+              ¿Olvidaste tu contraseña?
+            </a>
             <span className="divider">|</span>
-            <a href="/register" className="link">Crear cuenta nueva</a>
+            <a href="/register" className="link">
+              Crear cuenta nueva
+            </a>
           </div>
         </form>
       </div>
