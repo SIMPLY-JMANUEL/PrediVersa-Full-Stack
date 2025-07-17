@@ -13,7 +13,7 @@ const AdminDashboard = lazy(
   () => import('../pages/dashboards/AdminDashboard.jsx')
 );
 const ModeratorDashboard = lazy(
-  () => import('../pages/dashboards/ModeratorDashboard')
+  () => import('../pages/dashboards/ModeratorDashboard.jsx')
 );
 const TeacherDashboard = lazy(
   () => import('../pages/dashboards/TeacherDashboard.jsx')

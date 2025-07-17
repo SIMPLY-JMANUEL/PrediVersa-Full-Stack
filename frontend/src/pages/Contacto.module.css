@@ -11,33 +11,267 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  align-items: center;
+  background: #f8f9fa;
 }
 
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 6rem 6rem;
-  background: rgba(255, 255, 255, 0.9);
-  margin: 6rem auto;
-  width: 80%;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  margin: 3rem auto;
+  width: 90%;
+  max-width: 1200px;
   border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.title {
-  font-size: 2.5rem;
+/* ===== SECCIÓN DE TÍTULO ===== */
+.titleSection {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.titleText {
+  font-size: 3.5rem;
   color: #2c3e50;
   margin-bottom: 1rem;
   text-align: center;
   font-weight: bold;
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.text {
-  font-size: 1.2rem;
-  color: #34495e;
+.subtitleText {
+  font-size: 1.3rem;
+  color: #555;
   text-align: center;
   line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.contactLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  width: 100%;
+  margin-bottom: 3rem;
+}
+
+/* ===== INFORMACIÓN DE CONTACTO ===== */
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #3498db;
+  transition: all 0.3s ease;
+}
+
+.contactItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.contactIcon {
+  font-size: 2rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.contactDetails h3 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.contactDetails p {
+  font-size: 1rem;
+  color: #555;
+  margin: 0.2rem 0;
+  line-height: 1.4;
+}
+
+/* ===== FORMULARIO DE CONTACTO ===== */
+.contactForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: #999;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+  background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+/* ===== BOTÓN DE INICIO ===== */
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 2rem 1rem;
+    margin: 2rem auto;
+    width: 95%;
+  }
+
+  .titleText {
+    font-size: 2.5rem;
+  }
+
+  .contactLayout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .benefitsList {
+    grid-template-columns: 1fr;
+  }
+
+  .contactItem {
+    padding: 1rem;
+  }
+
+  .submitButton {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleText {
+    font-size: 2rem;
+  }
+
+  .subtitleText {
+    font-size: 1.1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .contactIcon {
+    font-size: 1.5rem;
+  }
+
+  .benefit {
+    flex-direction: column;
+    text-align: center;
+  }
 }

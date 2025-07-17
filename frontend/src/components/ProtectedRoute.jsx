@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 const routeCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-const ProtectedRoute = ({ children, requiredRoute }) => {
+const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
   const [hasAccess, setHasAccess] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,10 +23,33 @@ const ProtectedRoute = ({ children, requiredRoute }) => {
   const verifyAccess = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userStr = localStorage.getItem('user');
+      
+      if (!token || !userStr) {
         setHasAccess(false);
         setLoading(false);
         return;
+      }
+
+      // Si se requiere un rol específico, verificar inmediatamente
+      if (requiredRole) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user.rol === requiredRole) {
+            setHasAccess(true);
+            setLoading(false);
+            return;
+          } else {
+            setHasAccess(false);
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          setHasAccess(false);
+          setLoading(false);
+          return;
+        }
       }
 
       // Limpiar cache expirado
@@ -78,7 +101,7 @@ const ProtectedRoute = ({ children, requiredRoute }) => {
     } finally {
       setLoading(false);
     }
-  }, [requiredRoute, cleanExpiredCache]);
+  }, [requiredRoute, requiredRole, cleanExpiredCache]);
 
   // Función para limpiar cache manualmente (útil cuando cambian roles)
   const refreshPermissions = useCallback(() => {

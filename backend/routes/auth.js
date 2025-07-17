@@ -1,48 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const router = express.Router();
 const auth = require('../middlewares/auth');
-
-// Base de datos simulada de usuarios (en producción usar MongoDB)
-const users = [
-  {
-    id: 1,
-    nombre: 'Juliana Fajardo',
-    correo: 'admin@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'admin'
-  },
-  {
-    id: 2,
-    nombre: 'Andrey Luna',
-    correo: 'profesor@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'teacher'
-  },
-  {
-    id: 3,
-    nombre: 'Carlos Rodríguez',
-    correo: 'estudiante@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'student'
-  },
-  {
-    id: 4,
-    nombre: 'Harold Salcedo',
-    correo: 'padre@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'parent'
-  },
-  {
-    id: 5,
-    nombre: 'Moderador',
-    correo: 'moderador@prediversa.com',
-    contraseña: '$2a$10$yQrYmsxA/iHExDbizYKGkOIsRvTBy4ph6YHNgS9BsflI.nR0w6naK', // admin123
-    rol: 'moderator'
-  }
-];
+const User = require('../models/User');
 
 // ================== AUTENTICACIÓN ==================
 // @route   POST /api/auth/login
@@ -50,28 +13,39 @@ const users = [
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    const { correo, contraseña } = req.body;
+    const { usuario, correo, contraseña, password } = req.body;
 
-    // Validar entrada
-    if (!correo || !contraseña) {
-      return res.status(400).json({ 
-        msg: 'Por favor, proporciona correo y contraseña' 
+    // Validar entrada - puede ser usuario o correo, y contraseña o password
+    const finalPassword = contraseña || password;
+    if ((!usuario && !correo) || !finalPassword) {
+      return res.status(400).json({
+        msg: 'Por favor, proporciona usuario/correo y contraseña'
       });
     }
 
-    // Buscar usuario
-    const user = users.find(u => u.correo === correo);
+    // Buscar usuario por nombre de usuario o correo en la base de datos
+    const identifier = usuario || correo;
+    const user = await User.findByUsernameOrEmail(identifier);
+    
     if (!user) {
-      return res.status(400).json({ 
-        msg: 'Credenciales inválidas' 
+      return res.status(400).json({
+        msg: 'Credenciales inválidas'
+      });
+    }
+
+    // Verificar si el usuario está inactivo
+    if (user.isInactive) {
+      return res.status(403).json({
+        msg: 'Usuario inactivo. Contacte al administrador del sistema.',
+        code: 'USER_INACTIVE'
       });
     }
 
     // Verificar contraseña
-    const isMatch = await bcrypt.compare(contraseña, user.contraseña);
+    const isMatch = await User.verifyPassword(finalPassword, user.contraseña);
     if (!isMatch) {
-      return res.status(400).json({ 
-        msg: 'Credenciales inválidas' 
+      return res.status(400).json({
+        msg: 'Credenciales inválidas'
       });
     }
 
@@ -80,17 +54,21 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         nombre: user.nombre,
+        usuario: user.usuario,
         correo: user.correo,
         rol: user.rol
       }
     };
 
+    const jwtSecret = process.env.JWT_SECRET || 'prediversa_secret_key_2024_very_secure_token_for_authentication_do_not_share_in_production';
+
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '24h' },
       (err, token) => {
         if (err) {
+          console.error('Error generando JWT:', err);
           throw err;
         }
         res.json({
@@ -98,6 +76,7 @@ router.post('/login', async (req, res) => {
           user: {
             id: user.id,
             nombre: user.nombre,
+            usuario: user.usuario,
             correo: user.correo,
             rol: user.rol
           }
@@ -120,16 +99,16 @@ router.post('/register', async (req, res) => {
 
     // Validar entrada
     if (!nombre || !correo || !contraseña || !rol) {
-      return res.status(400).json({ 
-        msg: 'Por favor, proporciona todos los campos requeridos' 
+      return res.status(400).json({
+        msg: 'Por favor, proporciona todos los campos requeridos'
       });
     }
 
     // Verificar si el usuario ya existe
     const existingUser = users.find(u => u.correo === correo);
     if (existingUser) {
-      return res.status(400).json({ 
-        msg: 'El usuario ya existe' 
+      return res.status(400).json({
+        msg: 'El usuario ya existe'
       });
     }
 
@@ -280,7 +259,7 @@ router.get('/routes', auth, (req, res) => {
   try {
     const userRole = req.user.rol;
     const availableRoutes = routesByRole[userRole] || [];
-    
+
     res.json({
       success: true,
       routes: availableRoutes,
@@ -302,11 +281,11 @@ router.get('/verify-route/:route', auth, (req, res) => {
     const userRole = req.user.rol;
     const requestedRoute = req.params.route;
     const availableRoutes = routesByRole[userRole] || [];
-    
-    const hasAccess = availableRoutes.some(route => 
+
+    const hasAccess = availableRoutes.some(route =>
       route.path === `/${requestedRoute}` || route.path === requestedRoute
     );
-    
+
     res.json({
       success: true,
       hasAccess: hasAccess,

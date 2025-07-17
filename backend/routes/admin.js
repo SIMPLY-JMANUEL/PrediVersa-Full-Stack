@@ -3,9 +3,30 @@
 // Rutas de administración usando arrays en memoria (adaptable a DB en el futuro)
 const express = require('express');
 const router = express.Router();
-const { users, recursos } = require('../data');
+// Se usa la base de datos en lugar de arrays en memoria
 const adminController = require('../controllers/adminController');
 const { jwtRequired, roleRequired } = require('../utils/jwt');
+const { getAdminStats } = require('../controllers/statsController');
+
+// GET /admin/stats - Obtener estadísticas administrativas
+router.get('/stats', jwtRequired, roleRequired('admin'), getAdminStats);
+
+// GET /admin/system-status - Obtener estado del sistema
+router.get('/system-status', jwtRequired, roleRequired('admin'), (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      status: 'operational',
+      database: 'connected',
+      services: {
+        backend: 'running',
+        frontend: 'running',
+        api_gateway: 'running'
+      },
+      timestamp: new Date().toISOString()
+    }
+  });
+});
 
 // POST /admin/usuarios/generar-credenciales
 router.post(

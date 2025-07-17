@@ -1,12 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
-require('dotenv').config();
+const { closePool } = require('./config/database');
 
 const app = express();
-app.set('trust proxy', 1); // Permite que express-rate-limit funcione correctamente detrás de proxies
-const PORT = process.env.PORT || 5001; // Usa variable de entorno si está definida
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || 5001;
 
 console.log('Iniciando backend PrediVersa...');
 
@@ -15,29 +16,37 @@ app.use(helmet());
 app.use(
   cors({
     origin: ['http://localhost:3000', 'http://192.168.0.102:3000'],
-    credentials: true,
+    credentials: true
   })
 );
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por ventana de tiempo
+  max: 100 // máximo 100 requests por 15 minutos
 });
-app.use(limiter);
+app.use('/api/', limiter);
 
 // Middleware para parsing JSON
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Middleware de logging para debug
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
 
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/student', require('./routes/student'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/moderator', require('./routes/moderator'));
-app.use('/api/teacher', require('./routes/teacher'));
+app.use('/admin', require('./routes/admin')); // Ruta adicional sin /api para compatibilidad
+app.use('/api/users', require('./routes/users'));
 app.use('/api/parent', require('./routes/parent'));
+app.use('/api/teacher', require('./routes/teacher'));
+app.use('/api/moderator', require('./routes/moderator'));
 app.use('/api/shared', require('./routes/shared'));
 app.use('/api/pqr', require('./routes/pqr'));
 app.use('/api/stats', require('./routes/stats'));
@@ -46,7 +55,21 @@ app.use('/api/stats', require('./routes/stats'));
 app.get('/api/test', (req, res) => {
   res.json({
     message: 'Servidor PrediVersa funcionando correctamente',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Ruta raíz del API
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'API PrediVersa funcionando',
+    version: '1.0.0',
+    endpoints: [
+      '/api/auth/login',
+      '/api/profile',
+      '/api/admin/stats',
+      '/api/test'
+    ]
   });
 });
 
@@ -55,7 +78,7 @@ app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
   res.status(500).json({
     msg: 'Error interno del servidor',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
@@ -64,9 +87,43 @@ app.use('*', (req, res) => {
   res.status(404).json({ msg: 'Ruta no encontrada' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
-  console.log(`📡 API disponible en http://localhost:${PORT}/api`);
+// Inicialización de la base de datos y arranque del servidor
+async function startServer() {
+  try {
+    console.log('🚀 Servidor ejecutándose en puerto', PORT);
+    console.log('📡 API disponible en http://localhost:' + PORT + '/api');
+    
+    // Comentar temporalmente la conexión a la base de datos para debugging
+    // console.log('🔌 Conectando a SQL Server...');
+    // await testConnection();
+    // console.log('✅ Conectado a SQL Server');
+    
+    // console.log('📋 Inicializando tablas...');
+    // await User.createUsersTable();
+    // await User.insertDefaultUsers();
+    // console.log('✅ Base de datos inicializada correctamente');
+    
+    app.listen(PORT, () => {
+      console.log(`🌟 Servidor PrediVersa corriendo en puerto ${PORT}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Error al iniciar el servidor:', error);
+    process.exit(1);
+  }
+}
+
+// Manejo de cierre graceful
+process.on('SIGINT', async () => {
+  console.log('\n🔴 Cerrando servidor...');
+  await closePool();
+  process.exit(0);
 });
 
-module.exports = app;
+process.on('SIGTERM', async () => {
+  console.log('\n🔴 Cerrando servidor...');
+  await closePool();
+  process.exit(0);
+});
+
+startServer();
