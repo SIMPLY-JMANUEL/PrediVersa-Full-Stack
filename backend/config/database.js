@@ -1,16 +1,16 @@
 const sql = require('mssql');
+require('dotenv').config(); // Añadido para cargar las variables del archivo .env
 
-// Configuración de la base de datos SQL Server
+// Configuración de la base de datos SQL Server AHORA LEE DESDE .ENV
 const dbConfig = {
-  server: 'DESKTOP-5R27AVI\\PREDIVERSA',
-  database: 'PrediVersa',
-  user: 'sa',
-  password: '123456789',
+  server: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   options: {
     encrypt: false, // Para conexiones locales
     trustServerCertificate: true,
     enableArithAbort: true,
-    instanceName: 'PREDIVERSA'
   },
   pool: {
     max: 10,
