@@ -187,4 +187,4 @@ Para soporte técnico o reporte de bugs, por favor abrir un issue en el reposito
 ---
 
 **Versión**: 1.0.0
-**Última actualización**: Diciembre 2024
+**Última actualización**: Diciembre 2025
