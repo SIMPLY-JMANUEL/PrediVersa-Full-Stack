@@ -205,7 +205,7 @@
   }
 }
 
-/* --- SOLUCIÓN GENERAL PARA MÓVILES --- */
+/* --- PARA MÓVILES --- */
 /* Se activa en pantallas de 768px de ancho o menos */
 @media (max-width: 768px) {
   /* Apila las columnas principales verticalmente */
