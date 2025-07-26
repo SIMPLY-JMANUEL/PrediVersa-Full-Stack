@@ -9,6 +9,7 @@
     "api-gateway"
   ],
   "scripts": {
+    "preinstall": "npx pnpm install -g pnpm",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:gateway\"",
     "start:frontend": "cd frontend && npm start",
     "start:backend": "cd backend && npm start",
