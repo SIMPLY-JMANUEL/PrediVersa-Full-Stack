@@ -15,8 +15,8 @@ const dbConfig = {
   pool: {
     max: 10,
     min: 0,
-    idleTimeoutMillis: 30000
-  }
+    idleTimeoutMillis: 30000,
+  },
 };
 
 // Pool de conexiones global
@@ -91,6 +91,5 @@ module.exports = {
   executeQuery,
   closePool,
   testConnection,
-  dbConfig
+  dbConfig,
 };
-
