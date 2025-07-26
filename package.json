@@ -27,7 +27,8 @@
     "clean:gateway": "cd api-gateway && rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
-    "concurrently": "^7.6.0"
+    "concurrently": "^7.6.0",
+    "pnpm": "^10.13.1"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,6 @@
 
 
-[build]
-  command = "pnpm --filter frontend... run build"
+  command = "npx pnpm --filter frontend... run build"
   publish = "frontend/build"
   node_version = "20"
 
