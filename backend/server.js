@@ -3,59 +3,78 @@ const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
-const { closePool } = require('./config/database');
 
 const app = express();
 app.set('trust proxy', 1);
-const PORT = process.env.PORT || 5001;
+const PORT = 5003; // Forzar puerto 5003
 
 console.log('Iniciando backend PrediVersa...');
+console.log(`🚀 Puerto configurado: ${PORT}`);
 
 // Middlewares de seguridad
 app.use(helmet());
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://192.168.0.102:3000'],
-    credentials: true
+    origin: process.env.CORS_ORIGIN?.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
+    credentials: true,
   })
 );
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // máximo 100 requests por 15 minutos
+  max: 100, // máximo 100 requests por 15 minutos
 });
 app.use('/api/', limiter);
 
-// Middleware para parsing JSON
+// Middleware para parsing JSON simplificado
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware de logging para debug
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
+  }
   next();
 });
 
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/profile', require('./routes/profile'));
-app.use('/api/student', require('./routes/student'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/admin', require('./routes/admin')); // Ruta adicional sin /api para compatibilidad
-app.use('/api/users', require('./routes/users'));
-app.use('/api/parent', require('./routes/parent'));
-app.use('/api/teacher', require('./routes/teacher'));
-app.use('/api/moderator', require('./routes/moderator'));
-app.use('/api/shared', require('./routes/shared'));
-app.use('/api/pqr', require('./routes/pqr'));
-app.use('/api/stats', require('./routes/stats'));
+
+// Ruta de perfil
+app.get('/api/profile', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Profile endpoint',
+    data: null
+  });
+});
+
+// Middleware de manejo de errores JSON
+app.use((error, req, res, next) => {
+  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+    console.error('❌ JSON Parse Error:', error.message);
+    console.error('📄 Request headers:', req.headers);
+    return res.status(400).json({
+      success: false,
+      msg: 'Invalid JSON format',
+      error: error.message,
+    });
+  }
+  next(error);
+});
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
   res.json({
     message: 'Servidor PrediVersa funcionando correctamente',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -68,17 +87,17 @@ app.get('/api', (req, res) => {
       '/api/auth/login',
       '/api/profile',
       '/api/admin/stats',
-      '/api/test'
-    ]
+      '/api/test',
+    ],
   });
 });
 
 // Manejo de errores global
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('Error:', err.stack);
   res.status(500).json({
     msg: 'Error interno del servidor',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 
@@ -87,26 +106,15 @@ app.use('*', (req, res) => {
   res.status(404).json({ msg: 'Ruta no encontrada' });
 });
 
-// Inicialización de la base de datos y arranque del servidor
-async function startServer() {
+// Inicialización del servidor sin base de datos
+function startServer() {
   try {
     console.log('🚀 Servidor ejecutándose en puerto', PORT);
-    console.log('📡 API disponible en http://localhost:' + PORT + '/api');
-    
-    // Comentar temporalmente la conexión a la base de datos para debugging
-    // console.log('🔌 Conectando a SQL Server...');
-    // await testConnection();
-    // console.log('✅ Conectado a SQL Server');
-    
-    // console.log('📋 Inicializando tablas...');
-    // await User.createUsersTable();
-    // await User.insertDefaultUsers();
-    // console.log('✅ Base de datos inicializada correctamente');
-    
+    console.log(`📡 API disponible en http://localhost:${PORT}/api`);
+
     app.listen(PORT, () => {
       console.log(`🌟 Servidor PrediVersa corriendo en puerto ${PORT}`);
     });
-    
   } catch (error) {
     console.error('❌ Error al iniciar el servidor:', error);
     process.exit(1);
@@ -114,15 +122,13 @@ async function startServer() {
 }
 
 // Manejo de cierre graceful
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('\n🔴 Cerrando servidor...');
-  await closePool();
   process.exit(0);
 });
 
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('\n🔴 Cerrando servidor...');
-  await closePool();
   process.exit(0);
 });
 

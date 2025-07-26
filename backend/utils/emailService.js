@@ -1,123 +1,138 @@
 // utils/emailService.js
 const nodemailer = require('nodemailer');
 
-// Configuración del transporte de correo
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'prediversapruebas@gmail.com',
-    pass: 'wzjt xrua ukeb nxyi'
+// Configuración del transporter de email
+const createTransporter = () => {
+  // Si no hay configuración de email, usar un transporter de prueba
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER) {
+    console.log(
+      '⚠️ Configuración de email no encontrada, usando modo de prueba'
+    );
+    return null;
   }
-});
 
-// Función para enviar correo de bienvenida con credenciales
-async function sendWelcomeEmail(userEmail, userData) {
+  return nodemailer.createTransporter({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT) || 587,
+    secure: false, // true para 465, false para otros puertos
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+};
+
+// Función para enviar email de bienvenida
+const sendWelcomeEmail = async (userEmail, userName) => {
   try {
-    console.log('📧 Enviando correo de bienvenida a:', userEmail);
-    
+    const transporter = createTransporter();
+
+    // Si no hay transporter, simular envío exitoso
+    if (!transporter) {
+      console.log(`📧 [SIMULADO] Email de bienvenida enviado a: ${userEmail}`);
+      return {
+        success: true,
+        message: 'Email simulado (configuración pendiente)',
+      };
+    }
+
     const mailOptions = {
-      from: 'prediversapruebas@gmail.com',
+      from: process.env.EMAIL_USER,
       to: userEmail,
-      subject: '¡Bienvenido a PrediVersa! - Credenciales de Acceso',
+      subject: '¡Bienvenido a PrediVersa!',
       html: `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Bienvenido a PrediVersa</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
-            .content { background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; }
-            .credentials { background-color: #e8f5e8; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0; }
-            .warning { background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-            .btn { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; margin: 10px 0; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🌟 ¡Bienvenido a PrediVersa!</h1>
-            </div>
-            <div class="content">
-              <p>Estimado/a <strong>${userData.nombreCompleto}</strong>,</p>
-              
-              <p>¡Felicitaciones! Tu cuenta en PrediVersa ha sido creada exitosamente. A continuación encontrarás tus credenciales de acceso:</p>
-              
-              <div class="credentials">
-                <h3>📋 Información de tu cuenta:</h3>
-                <p><strong>Nombre:</strong> ${userData.nombreCompleto}</p>
-                <p><strong>Correo:</strong> ${userData.correoElectronico}</p>
-                <p><strong>Usuario:</strong> ${userData.usuario}</p>
-                <p><strong>Contraseña:</strong> ${userData.contrasena}</p>
-                <p><strong>Perfil:</strong> ${userData.perfil}</p>
-              </div>
-              
-              <div class="warning">
-                <strong>⚠️ Importante:</strong> Por seguridad, te recomendamos cambiar tu contraseña una vez que ingreses al sistema.
-              </div>
-              
-              <p>Puedes acceder al sistema PrediVersa en el siguiente enlace:</p>
-              <p style="text-align: center;">
-                <a href="http://localhost:3000" class="btn">Acceder a PrediVersa</a>
-              </p>
-              
-              <h3>📞 Información de contacto registrada:</h3>
-              <ul>
-                <li><strong>Teléfono:</strong> ${userData.telefono}</li>
-                <li><strong>Dirección:</strong> ${userData.direccion}</li>
-                ${userData.contactoEmergencia ? `<li><strong>Contacto de emergencia:</strong> ${userData.contactoEmergencia} (${userData.telefonoFamiliar})</li>` : ''}
-              </ul>
-              
-              <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.</p>
-              
-              <p>¡Esperamos que disfrutes de tu experiencia en PrediVersa!</p>
-              
-              <p>Saludos cordiales,<br>
-              <strong>El equipo de PrediVersa</strong></p>
-            </div>
-            <div class="footer">
-              <p>Este es un mensaje automático, por favor no responder a este correo.</p>
-              <p>© 2025 PrediVersa. Todos los derechos reservados.</p>
-            </div>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">¡Bienvenido a PrediVersa, ${userName}!</h2>
+          <p>Tu cuenta ha sido creada exitosamente.</p>
+          <p>Ahora puedes acceder a todas las funcionalidades de nuestro sistema de gestión educativa.</p>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>Próximos pasos:</h3>
+            <ul>
+              <li>Completa tu perfil</li>
+              <li>Explora las funcionalidades disponibles</li>
+              <li>Contacta con soporte si necesitas ayuda</li>
+            </ul>
           </div>
-        </body>
-        </html>
-      `
+          <p style="color: #6b7280; font-size: 14px;">
+            Este es un mensaje automático, por favor no respondas a este email.
+          </p>
+        </div>
+      `,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Correo enviado exitosamente:', info.messageId);
-    return {
-      success: true,
-      messageId: info.messageId
-    };
-    
+    console.log('✅ Email de bienvenida enviado:', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error enviando correo:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    console.error('❌ Error enviando email de bienvenida:', error.message);
+    return { success: false, error: error.message };
   }
-}
+};
 
-// Función para verificar la conexión del servicio de correo
-async function verifyEmailService() {
+// Función para enviar email de notificación
+const sendNotificationEmail = async (userEmail, subject, message) => {
   try {
-    await transporter.verify();
-    console.log('✅ Servicio de correo verificado correctamente');
-    return true;
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.log(
+        `📧 [SIMULADO] Notificación enviada a: ${userEmail} - ${subject}`
+      );
+      return { success: true, message: 'Notificación simulada' };
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">PrediVersa - Notificación</h2>
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+            ${message}
+          </div>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+            Este es un mensaje automático del sistema PrediVersa.
+          </p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Email de notificación enviado:', info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error verificando servicio de correo:', error);
-    return false;
+    console.error('❌ Error enviando notificación:', error.message);
+    return { success: false, error: error.message };
   }
-}
+};
+
+// Función para verificar configuración de email
+const testEmailConfiguration = async () => {
+  try {
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      return {
+        success: false,
+        message: 'Configuración de email no disponible',
+      };
+    }
+
+    await transporter.verify();
+    console.log('✅ Configuración de email verificada');
+    return { success: true, message: 'Configuración de email correcta' };
+  } catch (error) {
+    console.error(
+      '❌ Error verificando configuración de email:',
+      error.message
+    );
+    return { success: false, error: error.message };
+  }
+};
 
 module.exports = {
   sendWelcomeEmail,
-  verifyEmailService
+  sendNotificationEmail,
+  testEmailConfiguration,
 };

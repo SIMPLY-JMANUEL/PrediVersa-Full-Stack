@@ -2,7 +2,7 @@ import React from 'react';
 import './Features.css';
 import Button from './Button/Button';
 import { FaBrain, FaShieldAlt, FaChartBar, FaLock } from 'react-icons/fa';
-import fondo6 from '../assets/img/fondo6.png';
+import F4 from '../assets/img/F4.png';
 
 const FEATURES = [
   {
@@ -52,7 +52,7 @@ const Features = () => {
     >
       {/* Imagen de fondo */}
       <div className="features-background-image">
-        <img src={fondo6} alt="Fondo PrediVersa" className="background-img" />
+        <img src={F4} alt="Fondo PrediVersa" className="background-img" />
       </div>
 
       <div className="features-container">

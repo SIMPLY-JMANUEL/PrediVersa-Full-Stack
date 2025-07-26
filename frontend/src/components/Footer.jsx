@@ -184,6 +184,11 @@ function Footer() {
                     Contacto
                   </Button>
                 </li>
+                <li>
+                  <Link to="/login" className="footer-login-link">
+                    Iniciar Sesión
+                  </Link>
+                </li>
               </ul>
             </div>
 

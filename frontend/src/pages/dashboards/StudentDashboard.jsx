@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/img/logo-prediversa.png';
-import './HeaderDashboard.css';
+import Footer from '../../components/Footer';
+import './_dashboard-variables.css'; // Variables y estilos centralizados
 import './StudentDashboard.css';
-import './components/AdminDashboard.css'; // Importamos los estilos del AdminDashboard
 import useProfile from '../../hooks/useProfile';
 import SettingsPanel from '../../components/SettingsPanel';
+import { useStudentDashboard } from '../../hooks/useDashboardData';
 
 const StudentDashboard = () => {
   const { profile, updateProfile, error } = useProfile();
   const navigate = useNavigate();
+
+  // Hook para manejar datos del estudiante con conexión a BD
+  const {
+    loading: dashboardLoading,
+    error: dashboardError,
+    profile: studentProfile,
+    questionnaireHistory,
+    submitEmotionalQuestionnaire,
+    submitViolenceReport,
+    updateProfile: updateStudentProfile,
+    refreshData,
+  } = useStudentDashboard();
 
   // Estados centralizados
   const [showSettings, setShowSettings] = useState(false);
@@ -133,18 +146,52 @@ const StudentDashboard = () => {
   });
 
   // Datos del usuario dinámicos desde localStorage con fallbacks seguros
-  const userData = {
-    name: localStorage.getItem('nombre') || 'Estudiante',
-    lastName: localStorage.getItem('apellido') || '',
-    documentType: localStorage.getItem('tipoDocumento') || 'DNI',
-    documentNumber: localStorage.getItem('documento') || '',
-    birthDate: localStorage.getItem('fechaNacimiento') || '',
-    age: localStorage.getItem('edad') || '',
-    phone: localStorage.getItem('telefono') || '',
-    email: localStorage.getItem('correo') || '',
-    rol: localStorage.getItem('rol') || 'student',
-    fechaRegistro: localStorage.getItem('fechaRegistro') || '',
+  const getUserData = () => {
+    try {
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        const user = JSON.parse(userString);
+        return {
+          name:
+            user.nombre || user.Nombre_Completo?.split(' ')[0] || 'Estudiante',
+          lastName:
+            user.apellido ||
+            user.Nombre_Completo?.split(' ').slice(1).join(' ') ||
+            '',
+          documentType: user.tipo_documento || user.Tipo_Documento || 'DNI',
+          documentNumber: user.identificacion || user.Identificacion || '',
+          birthDate: user.fecha_nacimiento || user.Fecha_Nacimiento || '',
+          age: user.edad || user.Edad || '',
+          phone: user.telefono || user.Telefono || '',
+          email: user.correo || user.Correo || user.correoElectronico || '',
+          rol: user.rol || user.Perfil || 'estudiante',
+          fechaRegistro: user.fecha_registro || user.Fecha_Registro || '',
+          activo: user.activo || user.Activo || false,
+          id: user.id || user.Id_Usuario || null,
+        };
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+    }
+
+    // Fallback a datos individuales del localStorage (compatibilidad)
+    return {
+      name: localStorage.getItem('nombre') || 'Estudiante',
+      lastName: localStorage.getItem('apellido') || '',
+      documentType: localStorage.getItem('tipoDocumento') || 'DNI',
+      documentNumber: localStorage.getItem('documento') || '',
+      birthDate: localStorage.getItem('fechaNacimiento') || '',
+      age: localStorage.getItem('edad') || '',
+      phone: localStorage.getItem('telefono') || '',
+      email: localStorage.getItem('correo') || '',
+      rol: localStorage.getItem('rol') || 'estudiante',
+      fechaRegistro: localStorage.getItem('fechaRegistro') || '',
+      activo: true,
+      id: null,
+    };
   };
+
+  const userData = getUserData();
 
   // Estado centralizado del perfil estudiante
   const [studentProfileState, setStudentProfileState] = useState({
@@ -159,8 +206,9 @@ const StudentDashboard = () => {
   };
 
   const handleLogout = () => {
+    console.log('🚪 Logging out student');
     localStorage.clear();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   const handleSettingsSave = newProfile => {
@@ -290,62 +338,88 @@ const StudentDashboard = () => {
     }));
   };
 
-  const handleEmotionalQuestionnaireSubmit = () => {
-    console.log('Respuestas del cuestionario emocional:', emotionalAnswers);
+  const handleEmotionalQuestionnaireSubmit = async () => {
+    try {
+      // Enviar respuestas a la base de datos real
+      const response = await submitEmotionalQuestionnaire(emotionalAnswers);
 
-    // Calcular puntuación
-    const positiveQuestions = [
-      'pregunta1',
-      'pregunta2',
-      'pregunta3',
-      'pregunta4',
-      'pregunta5',
-    ];
-    const negativeQuestions = [
-      'pregunta6',
-      'pregunta7',
-      'pregunta8',
-      'pregunta9',
-      'pregunta10',
-    ];
+      if (response.success) {
+        // Calcular puntuación para mostrar resultado
+        const positiveQuestions = [
+          'pregunta1',
+          'pregunta2',
+          'pregunta3',
+          'pregunta4',
+          'pregunta5',
+        ];
+        const negativeQuestions = ['pregunta6', 'pregunta7', 'pregunta8'];
 
-    let positiveScore = 0;
-    let negativeScore = 0;
+        let positiveScore = 0;
+        let negativeScore = 0;
 
-    positiveQuestions.forEach(q => {
-      if (emotionalAnswers[q]) positiveScore += parseInt(emotionalAnswers[q]);
-    });
+        positiveQuestions.forEach(q => {
+          if (emotionalAnswers[q])
+            positiveScore += parseInt(emotionalAnswers[q]);
+        });
 
-    negativeQuestions.forEach(q => {
-      if (emotionalAnswers[q]) negativeScore += parseInt(emotionalAnswers[q]);
-    });
+        negativeQuestions.forEach(q => {
+          if (emotionalAnswers[q])
+            negativeScore += parseInt(emotionalAnswers[q]);
+        });
 
-    const finalScore = positiveScore - negativeScore;
+        const finalScore = positiveScore - negativeScore;
 
-    let message = '';
-    if (finalScore >= 5) {
-      message = '¡Excelente! Tu estado emocional es muy positivo. Sigue así 😊';
-    } else if (finalScore >= 0) {
-      message =
-        'Tu estado emocional está balanceado. Te recomendamos seguir cuidando tu bienestar 💙';
-    } else {
-      message =
-        'Notamos que puedes estar pasando por un momento difícil. Te recomendamos hablar con nuestro equipo de apoyo 🤗';
+        let message = '';
+        if (finalScore >= 5) {
+          message =
+            '¡Excelente! Tu estado emocional es muy positivo. Sigue así 😊';
+        } else if (finalScore >= 0) {
+          message =
+            'Tu estado emocional está balanceado. Te recomendamos seguir cuidando tu bienestar 💙';
+        } else {
+          message =
+            'Notamos que puedes estar pasando por un momento difícil. Te recomendamos hablar con nuestro equipo de apoyo 🤗';
+        }
+
+        // Actualizar estadísticas solo si es la primera vez que completa el cuestionario
+        const isFirstTime = !completedQuestionnaireStats.emotional;
+        if (isFirstTime) {
+          setCompletedQuestionnaireStats(prev => ({
+            ...prev,
+            emotional: true,
+          }));
+          setUserStats(prev => ({
+            ...prev,
+            achievements: prev.achievements + 1,
+            conversations: prev.conversations + 1,
+          }));
+        }
+
+        showNotification(
+          'success',
+          'Cuestionario Completado',
+          message,
+          finalScore
+        );
+        handleQuestionnaireClose();
+
+        // Refrescar datos del dashboard
+        refreshData();
+      } else {
+        showNotification(
+          'error',
+          'Error',
+          'No se pudo enviar el cuestionario. Inténtalo de nuevo.'
+        );
+      }
+    } catch (err) {
+      console.error('Error enviando cuestionario emocional:', err);
+      showNotification(
+        'error',
+        'Error de conexión',
+        'No se pudo conectar con el servidor.'
+      );
     }
-
-    // Actualizar estadísticas solo si es la primera vez que completa el cuestionario
-    const isFirstTime = !completedQuestionnaireStats.emotional;
-    if (isFirstTime) {
-      setCompletedQuestionnaireStats(prev => ({ ...prev, emotional: true }));
-      setUserStats(prev => ({
-        ...prev,
-        achievements: prev.achievements + 1,
-        conversations: prev.conversations + 1,
-      }));
-    }
-
-    showNotification('success', 'Cuestionario Completado', message, finalScore);
-    handleQuestionnaireClose();
   };
 
   // Handlers para cuestionario de tipos de violencia
@@ -678,7 +752,65 @@ const StudentDashboard = () => {
 
   // --- Effects con mejor gestión de dependencias ---
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+
+    if (!token || !userString) {
+      console.log('❌ No token or user data found, redirecting to login');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userString);
+      const userRole = (user.rol || user.Perfil || '').trim();
+
+      // Verificar que el usuario sea estudiante
+      if (
+        userRole.toLowerCase() !== 'estudiante' &&
+        userRole.toLowerCase() !== 'student'
+      ) {
+        console.log(
+          '❌ User is not a student, redirecting to appropriate dashboard'
+        );
+        // Redirigir al dashboard correcto según el rol
+        const getDashboardRoute = rol => {
+          const profileRoutes = {
+            admin: '/dashboard/admin',
+            administrador: '/dashboard/admin',
+            moderador: '/dashboard/moderator',
+            profesor: '/dashboard/teacher',
+            docente: '/dashboard/teacher',
+            padre: '/dashboard/parent',
+            acudiente: '/dashboard/parent',
+          };
+          return profileRoutes[rol.toLowerCase()] || '/dashboard';
+        };
+        navigate(getDashboardRoute(userRole));
+        return;
+      }
+
+      // Verificar que el usuario esté activo
+      const isActive =
+        user.activo === 'SI' ||
+        user.activo === 1 ||
+        user.activo === true ||
+        user.Activo === 'SI';
+      if (!isActive) {
+        console.log('❌ User is inactive');
+        localStorage.clear();
+        navigate('/login');
+        return;
+      }
+
+      console.log('✅ Student authentication validated:', {
+        name: user.nombre || user.Nombre_Completo,
+        role: userRole,
+        active: isActive,
+      });
+    } catch (error) {
+      console.error('❌ Error parsing user data:', error);
+      localStorage.clear();
       navigate('/login');
     }
   }, [navigate]);
@@ -6243,6 +6375,9 @@ const StudentDashboard = () => {
           }
         }
       `}</style>
+
+      {/* Footer institucional */}
+      <Footer />
     </div>
   );
 };

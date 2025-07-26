@@ -1,20 +1,7 @@
-/* =====================
-   VARIABLES Y TONALIDAD CONSISTENTE CON ADMIN DASHBOARD
-   ===================== */
-:root {
-  --color-primary: #1976d2;
-  --color-primary-dark: #1565c0;
-  --color-secondary: #22223b;
-  --color-bg-light: #fafdff;
-  --color-bg-panel: #e3f2fd;
-  --color-bg-white: #fff;
-  --color-success: #388e3c;
-  --color-warning: #fbc02d;
-  --color-danger: #d32f2f;
-  --color-shadow: #1976d210;
-  --color-border: #b3c6d6;
-  --font-main: 'Inter', Arial, sans-serif;
-}
+/* =================================================================
+   STUDENT DASHBOARD - ESTILOS ESPECÍFICOS
+   Las variables globales se importan desde _dashboard-variables.css
+   ================================================================= */
 
 /* =====================
    HEADER COMPARTIDO CON ADMIN
@@ -342,7 +329,11 @@
 
 /* Banner de bienvenida */
 .content-banner-html {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
   color: white;
   border-radius: 12px;
   padding: 20px 24px;
@@ -630,7 +621,7 @@
 .btn-secondary-html:hover {
   background: #f5f5f5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Overlay para settings */
@@ -660,7 +651,7 @@
     flex-direction: column;
     gap: 0;
   }
-  
+
   .left-panel-html {
     min-width: 100%;
     max-width: 100%;
@@ -668,55 +659,53 @@
     border-bottom: 1px solid var(--color-border);
     box-shadow: 0 2px 8px var(--color-shadow);
   }
-  
-
 }
 
 @media (max-width: 768px) {
   .header-main-html {
     padding: 0 20px;
   }
-  
+
   .header-title-html {
     font-size: 1.1rem;
   }
-  
+
   .header-user-name-html {
     display: none;
   }
-  
+
   .right-panel-html {
     padding: 16px;
   }
-  
+
   .content-banner-html h1 {
     font-size: 1.5rem;
   }
-  
+
   .user-actions-block {
     flex-direction: column;
   }
-  
+
   .action-btn-html {
     width: 100%;
     text-align: center;
   }
-  
+
   .support-banner-html {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .btn-secondary-html {
     width: 100%;
     text-align: center;
   }
-  
+
   .menus-html {
     flex-direction: column;
   }
-  
+
   .menus-html button {
     width: 100%;
   }
@@ -727,35 +716,35 @@
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  
+
   .stat-card-html {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
   }
-  
+
   .stat-icon-html {
     flex-direction: row;
     align-items: center;
   }
-  
+
   .questionnaire-item-html {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .btn-html {
     width: 100%;
   }
-  
+
   .resource-item-html {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .resource-link-html {
     width: 100%;
     text-align: center;

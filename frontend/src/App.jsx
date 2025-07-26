@@ -17,6 +17,7 @@ import AppEnfoqueEducativo from './pages/AppEnfoqueEducativo';
 import AppEnfoqueEmpresarial from './pages/AppEnfoqueEmpresarial';
 import Capacitaciones from './pages/Capacitaciones';
 import Contacto from './pages/Contacto';
+import Noticias from './pages/Noticias';
 import DesarrolloBackend from './pages/DesarrolloBackend';
 import DisenodeExperiencia from './pages/DiseñodeExperiencia';
 import EstudiosyAnalisis from './pages/EstudiosyAnalisis';
@@ -35,6 +36,7 @@ import TeacherDashboard from './pages/dashboards/TeacherDashboard';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import ParentDashboard from './pages/dashboards/ParentDashboard';
 import ModeratorDashboard from './pages/dashboards/ModeratorDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 // Importa tus componentes globales
 import Header from './components/Header';
@@ -50,6 +52,10 @@ function AppContent() {
   const location = useLocation();
   // Oculta el Header en cualquier dashboard
   const hideHeader = location.pathname.startsWith('/dashboard');
+  // Oculta el Footer en dashboards y en la página de login
+  const hideFooter =
+    location.pathname.startsWith('/dashboard') ||
+    location.pathname === '/login';
 
   return (
     <>
@@ -85,6 +91,7 @@ function AppContent() {
           <Route path="/planes" element={<Planes />} />
           {/* Otros */}
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/noticias" element={<Noticias />} />
           <Route path="/login" element={<Login />} />
 
           {/* Dashboards */}
@@ -93,12 +100,18 @@ function AppContent() {
           <Route path="/dashboard/student" element={<StudentDashboard />} />
           <Route path="/dashboard/parent" element={<ParentDashboard />} />
           <Route path="/dashboard/moderator" element={<ModeratorDashboard />} />
+          <Route
+            path="/dashboard/superadmin"
+            element={<SuperAdminDashboard />}
+          />
+          {/* Ruta por defecto para dashboard - redirige a login */}
+          <Route path="/dashboard" element={<Login />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
         {/* Botón de regreso eliminado, se usará otro componente */}
       </main>
-      <Footer />
+      {!hideFooter && <Footer />}
       <div className="particles" id="particles" />
     </>
   );

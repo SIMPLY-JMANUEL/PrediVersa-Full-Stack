@@ -65,7 +65,20 @@ const Contacto = () => {
             <h2 className={styles.sectionTitle}>Información de Contacto</h2>
 
             <div className={styles.contactItem}>
-              <div className={styles.contactIcon}>📧</div>
+              <div className={styles.contactIcon}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z"
+                    fill="#3498db"
+                  />
+                </svg>
+              </div>
               <div className={styles.contactDetails}>
                 <h3>Email</h3>
                 <p>contacto@prediversa.com</p>
@@ -74,7 +87,20 @@ const Contacto = () => {
             </div>
 
             <div className={styles.contactItem}>
-              <div className={styles.contactIcon}>📱</div>
+              <div className={styles.contactIcon}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6.62 10.79C8.06 13.62 10.38 15.94 13.21 17.38L15.41 15.18C15.69 14.9 16.08 14.82 16.43 14.93C17.55 15.3 18.75 15.5 20 15.5C20.55 15.5 21 15.95 21 16.5V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z"
+                    fill="#3498db"
+                  />
+                </svg>
+              </div>
               <div className={styles.contactDetails}>
                 <h3>Teléfono</h3>
                 <p>+57 (1) 234-5678</p>
@@ -83,7 +109,20 @@ const Contacto = () => {
             </div>
 
             <div className={styles.contactItem}>
-              <div className={styles.contactIcon} />
+              <div className={styles.contactIcon}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 6.5V9C15 10.66 13.66 12 12 12S9 10.66 9 12V9L3 7V9C3 11.81 4.35 14.31 6.55 15.93L12 20.5L17.45 15.93C19.65 14.31 21 11.81 21 9Z"
+                    fill="#3498db"
+                  />
+                </svg>
+              </div>
               <div className={styles.contactDetails}>
                 <h3>Horario de Atención</h3>
                 <p>Lunes a Viernes: 8:00 AM - 6:00 PM</p>
@@ -185,7 +224,20 @@ const Contacto = () => {
 
               <div className={styles.formActions}>
                 <button type="submit" className={styles.submitButton}>
-                  📨 Enviar Mensaje
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ marginRight: '8px' }}
+                  >
+                    <path
+                      d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z"
+                      fill="white"
+                    />
+                  </svg>
+                  Enviar Mensaje
                 </button>
               </div>
             </form>

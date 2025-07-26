@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import './Hero.css';
 import '../styles/main.css';
-import fondo11 from '../assets/img/fondo11.png';
+import F2 from '../assets/img/F2.png';
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,98 +15,95 @@ const Hero = () => {
   return (
     <section className="hero-section modern-hero" id="hero">
       {/* FONDO CON IMAGEN OPTIMIZADA */}
-      <div
-        className="bg-image"
-        style={{ backgroundImage: `url(${fondo11})` }}
-      />
-      <div className="hero-video-overlay" />
+      <div className="bg-image" style={{ backgroundImage: `url(${F2})` }} />
 
       {/* Contenido principal */}
       <div className="hero-content-wrapper">
-        <div className="container">
-          <div
-            className={`hero-content ${isVisible ? 'animate-fade-in-up' : ''}`}
-          >
-            {/* Badge de innovación */}
-            <div className="hero-badge">
+        <div
+          className={`hero-content ${isVisible ? 'animate-fade-in-up' : ''}`}
+        >
+          {/* Tarjeta contenedora profesional */}
+          <div className="hero-content-card">
+            {/* Badge de innovación superior */}
+            <div className="hero-innovation-badge">
               <i className="badge-icon fas fa-shield-alt" />
-              Plataforma de Prevención Educativa
+              <span>Solución Tecnológica Empresarial</span>
             </div>
 
             {/* Título principal */}
             <h1 className="hero-title">
-              <span className="title-line-1">Transformamos la</span>
-              <span className="title-line-2">
-                <span className="title-highlight">Educación</span> con
-              </span>
-              <span className="title-line-3">
-                <strong className="brand-name">PrediVersa</strong>
-              </span>
+              Plataforma Inteligente para la
+              <span className="title-highlight"> Prevención Escolar</span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="hero-subtitle">
-              Plataforma inteligente de{' '}
-              <strong>prevención y análisis predictivo</strong>
-              para crear ambientes educativos seguros, libres de violencia y
-              bullying escolar.
-            </p>
+            <h2 className="hero-subtitle">
+              <strong className="brand-name">PrediVersa:</strong> Anticipamos el
+              riesgo, protegemos el futuro
+            </h2>
 
-            {/* Estadísticas clave */}
-            <div className="hero-stats">
-              <div className="stat-item">
-                <div className="stat-number">85%</div>
-                <div className="stat-label">Reducción de Incidentes</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">24/7</div>
-                <div className="stat-label">Monitoreo Continuo</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-number">1000+</div>
-                <div className="stat-label">Estudiantes Protegidos</div>
-              </div>
+            {/* Párrafo introductorio */}
+            <div className="hero-intro">
+              <p className="intro-text">
+                En <strong>PrediVersa</strong> transformamos la forma en que las
+                instituciones educativas enfrentan la violencia escolar, el
+                bullying y los riesgos psicosociales. Nuestra plataforma
+                predictiva analiza datos reales en tiempo real para detectar
+                señales tempranas de riesgo, emitir alertas automáticas y guiar
+                acciones efectivas antes, durante y después de los hechos.
+              </p>
             </div>
 
-            {/* Indicadores de confianza */}
-            <div className="hero-trust-indicators">
-              <div className="trust-item">
-                <i className="fas fa-check-circle" />
-                <span className="trust-text">Tecnología Validada</span>
-              </div>
-              <div className="trust-item">
-                <i className="fas fa-shield-alt" />
-                <span className="trust-text">Datos Protegidos</span>
-              </div>
-              <div className="trust-item">
-                <i className="fas fa-graduation-cap" />
-                <span className="trust-text">Enfoque Educativo</span>
-              </div>
+            {/* Beneficios empresariales */}
+            <div className="hero-benefits">
+              <ul className="benefits-list">
+                <li className="benefit-item">
+                  <i className="fas fa-search" />
+                  <span>Detección temprana de factores de riesgo</span>
+                </li>
+                <li className="benefit-item">
+                  <i className="fas fa-exclamation-triangle" />
+                  <span>Alertas inteligentes con perfil de criticidad</span>
+                </li>
+                <li className="benefit-item">
+                  <i className="fas fa-route" />
+                  <span>Rutas institucionales de atención y seguimiento</span>
+                </li>
+              </ul>
             </div>
 
-            {/* Botones de acción */}
-            <div className="hero-cta-group">
-              <Link to="/login" className="hero-cta-primary">
-                <i className="fas fa-play-circle" />
-                Comenzar Demo
-              </Link>
-              <Link to="/contact" className="hero-cta-secondary">
-                <i className="fas fa-info-circle" />
-                Más Información
-              </Link>
+            {/* Frase de valor institucional */}
+            <div className="hero-value-proposition">
+              <p className="value-text">
+                <strong>
+                  Más que tecnología: somos una herramienta para transformar
+                  culturas escolares.
+                </strong>
+              </p>
+            </div>
+
+            {/* Llamada a la acción */}
+            <div className="hero-cta-section">
+              <h3 className="cta-title">
+                ¿Listo para crear un ambiente educativo más seguro?
+              </h3>
+              <p className="cta-description">
+                Solicita una demo personalizada y descubre cómo PrediVersa puede
+                transformar tu institución.
+              </p>
+              <div className="cta-actions">
+                <button className="primary-cta-button">
+                  <i className="fas fa-play-circle"></i>
+                  Solicitar Demo
+                </button>
+                <button className="secondary-cta-button">
+                  <i className="fas fa-info-circle"></i>
+                  Más Información
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* ACCIONES ADICIONALES */}
-      <div className="hero-additional-info">
-        <p className="hero-external-info">
-          <strong>¿Listo para crear un ambiente educativo más seguro?</strong>
-          <br />
-          Solicita una demo personalizada y descubre cómo PrediVersa puede
-          transformar tu institución.
-        </p>
       </div>
     </section>
   );

@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component<Props, State> {
       };
 
       // Enviar a endpoint de logging
-      fetch('/api/errors', {
+      fetch('http://localhost:5003/api/errors', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -114,6 +114,24 @@ router.get(
   }
 );
 
+// GET /student/questionnaire-history (alias for /historial)
+// Historial de cuestionarios respondidos (alias)
+router.get(
+  '/questionnaire-history',
+  jwtRequired,
+  roleRequired('estudiante'),
+  (req, res) => {
+    const historial = respuestas
+      .filter(r => r.usuario_id == req.user.id)
+      .map(r => ({
+        cuestionario_id: r.cuestionario_id,
+        fecha_respuesta: r.fecha_respuesta,
+        respuestas: r.respuestas,
+      }));
+    sendResponse(res, { data: historial });
+  }
+);
+
 // GET /student/recursos
 // Recursos disponibles para el estudiante
 router.get('/recursos', jwtRequired, roleRequired('estudiante'), (req, res) => {

@@ -1,0 +1,183 @@
+/* =================================================================
+   TEACHER DASHBOARD - ESTILOS INSTITUCIONALES PREDIVERSA
+   ================================================================= */
+
+/* Container principal con tema institucional */
+.dashboard-teacher {
+  min-height: 100vh;
+  background: var(--color-bg-dashboard);
+  background-image: url('../../assets/img/fondo12.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  font-family: var(--font-main);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor de construcción con estilo institucional */
+.construction-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 160px);
+  padding: var(--spacing-xl);
+  flex: 1;
+}
+
+/* Tarjeta principal con diseño institucional */
+.construction-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px var(--color-shadow);
+  padding: var(--spacing-xl);
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  border: 2px solid rgba(66, 192, 249, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.construction-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--prediversa-light-blue),
+    var(--prediversa-medium-blue)
+  );
+}
+
+/* Icono de construcción institucional */
+.construction-icon {
+  font-size: 4rem;
+  color: var(--prediversa-medium-blue);
+  margin-bottom: var(--spacing-lg);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Títulos con estilo institucional */
+.construction-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--prediversa-primary);
+  margin-bottom: var(--spacing-sm);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.construction-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Lista de características con branding institucional */
+.construction-features {
+  background: rgba(66, 192, 249, 0.08);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+  border-left: 4px solid var(--prediversa-light-blue);
+  backdrop-filter: blur(10px);
+}
+
+.construction-features h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--prediversa-medium-blue);
+  margin-bottom: var(--spacing-md);
+}
+
+.construction-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.construction-features li {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  font-size: var(--font-size-md);
+  color: var(--prediversa-primary);
+  transition: all 0.3s ease;
+}
+
+.construction-features li:hover {
+  transform: translateX(5px);
+  color: var(--prediversa-medium-blue);
+}
+
+.construction-features li i {
+  color: var(--prediversa-light-blue);
+  margin-right: var(--spacing-sm);
+  width: 20px;
+}
+
+/* Acciones con estilo institucional */
+.construction-actions {
+  margin-top: var(--spacing-xl);
+}
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--prediversa-light-blue),
+    var(--prediversa-medium-blue)
+  );
+  color: var(--prediversa-white);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  box-shadow: 0 4px 15px rgba(66, 192, 249, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(66, 192, 249, 0.4);
+  background: linear-gradient(
+    135deg,
+    var(--prediversa-medium-blue),
+    var(--prediversa-light-blue)
+  );
+}
+
+.btn-primary i {
+  font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .construction-container {
+    padding: var(--spacing-md);
+  }
+
+  .construction-card {
+    padding: var(--spacing-lg);
+    margin: 10px;
+  }
+
+  .construction-title {
+    font-size: 2rem;
+  }
+
+  .construction-icon {
+    font-size: 3rem;
+  }
+}

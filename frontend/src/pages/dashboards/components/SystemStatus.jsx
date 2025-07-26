@@ -4,7 +4,7 @@ function SystemStatus() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    fetch('/admin/system-status', {
+    fetch('http://localhost:5003/api/admin/system-status', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },

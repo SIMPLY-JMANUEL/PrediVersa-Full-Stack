@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/auth');
-const { executeQuery } = require('../config/database');
 const { sendWelcomeEmail } = require('../utils/emailService');
 
 // Ruta protegida para obtener el perfil del usuario autenticado
@@ -16,16 +15,21 @@ router.get('/', auth, (req, res) => {
       id: req.user.id,
       nombre: req.user.nombre,
       correo: req.user.correo,
-      rol: req.user.rol
-    }
+      rol: req.user.rol,
+    },
   });
 });
 
 // Ruta para obtener datos completos del usuario desde la base de datos
 router.get('/admin/current-user', auth, async (req, res) => {
   try {
-    if (!req.user || (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')) {
-      return res.status(403).json({ msg: 'Acceso denegado. Solo administradores.' });
+    if (
+      !req.user ||
+      (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')
+    ) {
+      return res
+        .status(403)
+        .json({ msg: 'Acceso denegado. Solo administradores.' });
     }
 
     // Buscar en la base de datos por el ID del usuario autenticado
@@ -54,13 +58,15 @@ router.get('/admin/current-user', auth, async (req, res) => {
     `;
 
     const result = await executeQuery(query, { userId: req.user.id });
-    
+
     if (result.recordset.length === 0) {
-      return res.status(404).json({ msg: 'Usuario no encontrado en la base de datos' });
+      return res
+        .status(404)
+        .json({ msg: 'Usuario no encontrado en la base de datos' });
     }
 
     const userData = result.recordset[0];
-    
+
     // Formatear los datos para el frontend
     const formattedUser = {
       id: userData.Id_Usuario,
@@ -80,20 +86,19 @@ router.get('/admin/current-user', auth, async (req, res) => {
       descripcionCondicionEspecial: userData.Descripción_Condicion_Especial,
       contactoEmergencia: userData.Contacto_Emergencia,
       numeroContactoEmergencia: userData.Numero_Contacto_Emergencia,
-      activo: userData.Activo?.trim() === 'SI'
+      activo: userData.Activo?.trim() === 'SI',
     };
 
     res.json({
       success: true,
-      data: formattedUser
+      data: formattedUser,
     });
-
   } catch (error) {
     console.error('Error obteniendo datos del usuario:', error);
     res.status(500).json({
       success: false,
       msg: 'Error interno del servidor',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -101,12 +106,17 @@ router.get('/admin/current-user', auth, async (req, res) => {
 // Ruta para buscar usuarios por identificación (para el admin)
 router.get('/admin/search-user/:identificacion', auth, async (req, res) => {
   try {
-    if (!req.user || (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')) {
-      return res.status(403).json({ msg: 'Acceso denegado. Solo administradores.' });
+    if (
+      !req.user ||
+      (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')
+    ) {
+      return res
+        .status(403)
+        .json({ msg: 'Acceso denegado. Solo administradores.' });
     }
 
     const { identificacion } = req.params;
-    
+
     if (!identificacion) {
       return res.status(400).json({ msg: 'Identificación requerida' });
     }
@@ -127,16 +137,16 @@ router.get('/admin/search-user/:identificacion', auth, async (req, res) => {
     `;
 
     const result = await executeQuery(query, { identificacion });
-    
+
     if (result.recordset.length === 0) {
       return res.status(404).json({
         success: false,
-        msg: 'Usuario no encontrado con esa identificación'
+        msg: 'Usuario no encontrado con esa identificación',
       });
     }
 
     const userData = result.recordset[0];
-    
+
     // Formatear los datos para el frontend
     const formattedUser = {
       id: userData.Id_Usuario,
@@ -161,20 +171,19 @@ router.get('/admin/search-user/:identificacion', auth, async (req, res) => {
       gradoCargo: '',
       institucion: '',
       foto: '',
-      encontrado: true
+      encontrado: true,
     };
 
     res.json({
       success: true,
-      data: formattedUser
+      data: formattedUser,
     });
-
   } catch (error) {
     console.error('Error buscando usuario:', error);
     res.status(500).json({
       success: false,
       msg: 'Error interno del servidor',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -183,8 +192,13 @@ router.get('/admin/search-user/:identificacion', auth, async (req, res) => {
 router.post('/admin/create-user', auth, async (req, res) => {
   try {
     // Verificar que el usuario sea administrador
-    if (!req.user || (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')) {
-      return res.status(403).json({ msg: 'Acceso denegado. Solo administradores.' });
+    if (
+      !req.user ||
+      (req.user.rol !== 'admin' && req.user.rol !== 'Administrador')
+    ) {
+      return res
+        .status(403)
+        .json({ msg: 'Acceso denegado. Solo administradores.' });
     }
 
     const {
@@ -207,26 +221,45 @@ router.post('/admin/create-user', auth, async (req, res) => {
       usuarioActivo, // nombre alternativo
       perfil,
       contrasena,
-      usuario
+      usuario,
     } = req.body;
 
     // Mapear campos del frontend a los nombres esperados
     const finalEps = eps || epsSeguroMedico || 'No especificado';
     const finalContactoEmergencia = contactoEmergencia || 'No especificado';
-    const finalTelefonoFamiliar = telefonoFamiliar || telefono || 'No especificado';
+    const finalTelefonoFamiliar =
+      telefonoFamiliar || telefono || 'No especificado';
     const finalCondicionEspecial = condicionEspecial || 'No Aplica';
     const finalDescripcionCondicion = descripcionCondicion || null;
-    const finalUsuarioActivo = estadoActivo !== undefined ? estadoActivo : (usuarioActivo !== undefined ? usuarioActivo : 'SI');
-    
+    const finalUsuarioActivo =
+      estadoActivo !== undefined
+        ? estadoActivo
+        : usuarioActivo !== undefined
+        ? usuarioActivo
+        : 'SI';
+
     // Convertir el valor del campo activo a "SI" o "NO" para la base de datos
-    const activoValue = finalUsuarioActivo === 'Activo' || finalUsuarioActivo === 'SI' || finalUsuarioActivo === 'Sí' || finalUsuarioActivo === '1' || finalUsuarioActivo === 1 || finalUsuarioActivo === true;
+    const activoValue =
+      finalUsuarioActivo === 'Activo' ||
+      finalUsuarioActivo === 'SI' ||
+      finalUsuarioActivo === 'Sí' ||
+      finalUsuarioActivo === '1' ||
+      finalUsuarioActivo === 1 ||
+      finalUsuarioActivo === true;
     const activoForDB = activoValue ? 'SI' : 'NO';
 
     // Validar campos requeridos
-    if (!nombreCompleto || !numeroDocumento || !correoElectronico || !telefono || !usuario || !perfil) {
+    if (
+      !nombreCompleto ||
+      !numeroDocumento ||
+      !correoElectronico ||
+      !telefono ||
+      !usuario ||
+      !perfil
+    ) {
       return res.status(400).json({
         success: false,
-        msg: 'Faltan campos requeridos: Nombre Completo, Número de Documento, Correo, Teléfono, Usuario y Perfil son obligatorios'
+        msg: 'Faltan campos requeridos: Nombre Completo, Número de Documento, Correo, Teléfono, Usuario y Perfil son obligatorios',
       });
     }
 
@@ -234,7 +267,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
     if (!contrasena || contrasena.length > 10) {
       return res.status(400).json({
         success: false,
-        msg: 'La contraseña es obligatoria y debe tener máximo 10 caracteres'
+        msg: 'La contraseña es obligatoria y debe tener máximo 10 caracteres',
       });
     }
 
@@ -256,22 +289,26 @@ router.post('/admin/create-user', auth, async (req, res) => {
       numeroDocumento,
       correoElectronico,
       telefono,
-      usuario
+      usuario,
     });
 
     if (duplicateCheck.recordset && duplicateCheck.recordset.length > 0) {
       const duplicates = duplicateCheck.recordset[0];
       let duplicateFields = [];
-      
-      if (duplicates.Identificacion === numeroDocumento) duplicateFields.push('Número de Documento');
-      if (duplicates.Correo === correoElectronico) duplicateFields.push('Correo Electrónico');
+
+      if (duplicates.Identificacion === numeroDocumento)
+        duplicateFields.push('Número de Documento');
+      if (duplicates.Correo === correoElectronico)
+        duplicateFields.push('Correo Electrónico');
       if (duplicates.Telefono === telefono) duplicateFields.push('Teléfono');
       if (duplicates.Usuario === usuario) duplicateFields.push('Usuario');
 
       return res.status(400).json({
         success: false,
-        msg: `Ya existe un usuario con los siguientes datos: ${duplicateFields.join(', ')}`,
-        duplicateFields
+        msg: `Ya existe un usuario con los siguientes datos: ${duplicateFields.join(
+          ', '
+        )}`,
+        duplicateFields,
       });
     }
 
@@ -344,7 +381,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
       contrasena: contrasena.padEnd(10, ' '),
       finalContactoEmergencia: finalContactoEmergencia,
       finalTelefonoFamiliar: finalTelefonoFamiliar,
-      activo: activoForDB
+      activo: activoForDB,
     };
 
     await executeQuery(insertQuery, insertParams);
@@ -359,7 +396,7 @@ router.post('/admin/create-user', auth, async (req, res) => {
       telefono,
       direccion,
       contactoEmergencia: finalContactoEmergencia,
-      telefonoFamiliar: finalTelefonoFamiliar
+      telefonoFamiliar: finalTelefonoFamiliar,
     });
 
     let responseMsg = 'Usuario creado exitosamente';
@@ -378,16 +415,15 @@ router.post('/admin/create-user', auth, async (req, res) => {
         nombreCompleto,
         usuario,
         correoElectronico,
-        perfil
-      }
+        perfil,
+      },
     });
-
   } catch (error) {
     console.error('Error creando usuario:', error);
     res.status(500).json({
       success: false,
       msg: 'Error interno del servidor',
-      error: error.message
+      error: error.message,
     });
   }
 });

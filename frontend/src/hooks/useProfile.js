@@ -12,7 +12,7 @@ export default function useProfile() {
       setLoading(false);
       return;
     }
-    fetch('http://localhost:5001/api/profile', {
+    fetch('http://localhost:5003/api/profile', {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

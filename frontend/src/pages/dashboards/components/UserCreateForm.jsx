@@ -7,13 +7,10 @@ const TIPO_DOCUMENTO_OPTIONS = [
   'Registro Civil',
   'Cédula de Extranjería',
   'Permiso Especial de Permanencia',
-  'Permiso por Protección Temporal'
+  'Permiso por Protección Temporal',
 ];
 
-const SEXO_OPTIONS = [
-  'Masculino',
-  'Femenino'
-];
+const SEXO_OPTIONS = ['Masculino', 'Femenino'];
 
 const EPS_OPTIONS = [
   'Coosalud',
@@ -43,13 +40,13 @@ const EPS_OPTIONS = [
   'Asociación Indígena del Cauca EPSI',
   'Anas Wayuu EPSI',
   'Mallamas EPSI',
-  'Pijaos Salud EPSI'
+  'Pijaos Salud EPSI',
 ];
 
 const CONDICION_ESPECIAL_OPTIONS = [
   'No Aplica',
   'Condición Médica',
-  'Condición Sicológica'
+  'Condición Sicológica',
 ];
 
 // Debug: verificar las opciones
@@ -60,18 +57,23 @@ const PERFIL_OPTIONS = [
   'Moderador',
   'Docente',
   'Acudiente',
-  'Estudiante'
+  'Estudiante',
 ];
 
-const ACTIVO_OPTIONS = [
-  'SI',
-  'NO'
-];
+const ACTIVO_OPTIONS = ['SI', 'NO'];
 
-const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, legendStyle }) => {
+const UserCreateForm = ({
+  form,
+  onChange,
+  onSubmit,
+  onCancel,
+  fieldsetStyle,
+  legendStyle,
+}) => {
   // Función para generar contraseña segura
   const generateSecurePassword = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
     let password = '';
     for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -85,46 +87,58 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
     const fakeEvent = {
       target: {
         name: 'contrasena',
-        value: newPassword
-      }
+        value: newPassword,
+      },
     };
     onChange(fakeEvent);
   };
 
   // Manejar el cambio en condición especial
-  const handleCondicionEspecialChange = (e) => {
+  const handleCondicionEspecialChange = e => {
     const { value } = e.target;
     console.log('Condición especial seleccionada:', value); // Debug
     onChange(e);
   };
 
   return (
-    <form className="tab-content-container" style={{ marginTop: 18, marginBottom: 0 }} onSubmit={onSubmit} autoComplete="off">
+    <form
+      className="tab-content-container"
+      style={{ marginTop: 18, marginBottom: 0 }}
+      onSubmit={onSubmit}
+      autoComplete="off"
+    >
       <fieldset style={fieldsetStyle}>
         <legend style={legendStyle}>Datos básicos del usuario</legend>
         <div className="form-grid">
           {/* Nombre Completo - Solo alfabético */}
           <label>
             Nombre Completo *
-            <input 
-              type="text" 
-              name="nombreCompleto" 
-              value={form.nombreCompleto || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="nombreCompleto"
+              value={form.nombreCompleto || ''}
+              onChange={onChange}
               placeholder="Solo letras y espacios"
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo se permiten letras y espacios"
-              required 
+              required
             />
           </label>
 
           {/* Tipo de Documento - Desplegable */}
           <label>
             Tipo de Documento *
-            <select name="tipoDocumento" value={form.tipoDocumento || ''} onChange={onChange} required>
+            <select
+              name="tipoDocumento"
+              value={form.tipoDocumento || ''}
+              onChange={onChange}
+              required
+            >
               <option value="">Seleccione tipo de documento</option>
               {TIPO_DOCUMENTO_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
@@ -132,39 +146,39 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Número de Documento - Numérico 5-15 caracteres */}
           <label>
             Número de Documento *
-            <input 
-              type="text" 
-              name="numeroDocumento" 
-              value={form.numeroDocumento || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="numeroDocumento"
+              value={form.numeroDocumento || ''}
+              onChange={onChange}
               placeholder="Entre 5 y 15 números"
               pattern="\d{5,15}"
               minLength="5"
               maxLength="15"
               title="Solo números, entre 5 y 15 caracteres"
-              required 
+              required
             />
           </label>
 
           {/* Fecha de Nacimiento */}
           <label>
             Fecha de Nacimiento *
-            <input 
-              type="date" 
-              name="fechaNacimiento" 
-              value={form.fechaNacimiento || ''} 
-              onChange={onChange} 
-              required 
+            <input
+              type="date"
+              name="fechaNacimiento"
+              value={form.fechaNacimiento || ''}
+              onChange={onChange}
+              required
             />
           </label>
 
           {/* Edad - Calculado automáticamente */}
           <label>
             Edad
-            <input 
-              type="number" 
-              name="edad" 
-              value={form.edad || ''} 
+            <input
+              type="number"
+              name="edad"
+              value={form.edad || ''}
               readOnly
               placeholder="Se calcula automáticamente"
               style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
@@ -174,10 +188,19 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Sexo - Desplegable */}
           <label>
             Sexo *
-            <select name="sexo" value={form.sexo || ''} onChange={onChange} required>
-              <option value="" disabled>Seleccione sexo</option>
+            <select
+              name="sexo"
+              value={form.sexo || ''}
+              onChange={onChange}
+              required
+            >
+              <option value="" disabled>
+                Seleccione sexo
+              </option>
               {SEXO_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
@@ -185,53 +208,62 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Correo Electrónico */}
           <label>
             Correo Electrónico *
-            <input 
-              type="email" 
-              name="correoElectronico" 
-              value={form.correoElectronico || ''} 
-              onChange={onChange} 
+            <input
+              type="email"
+              name="correoElectronico"
+              value={form.correoElectronico || ''}
+              onChange={onChange}
               placeholder="usuario@ejemplo.com"
-              required 
+              required
             />
           </label>
 
           {/* Teléfono Usuario - 10 caracteres exactos */}
           <label>
             Teléfono Usuario *
-            <input 
-              type="text" 
-              name="telefono" 
-              value={form.telefono || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="telefono"
+              value={form.telefono || ''}
+              onChange={onChange}
               placeholder="Exactamente 10 números"
               pattern="\d{10}"
               minLength="10"
               maxLength="10"
               title="Exactamente 10 números"
-              required 
+              required
             />
           </label>
 
           {/* Dirección Residencia */}
           <label>
             Dirección Residencia *
-            <input 
-              type="text" 
-              name="direccion" 
-              value={form.direccion || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="direccion"
+              value={form.direccion || ''}
+              onChange={onChange}
               placeholder="Dirección completa"
-              required 
+              required
             />
           </label>
 
           {/* EPS o Seguro Médico */}
           <label>
             EPS o Seguro Médico *
-            <select name="epsSeguroMedico" value={form.epsSeguroMedico || ''} onChange={onChange} required>
-              <option value="" disabled>Seleccione EPS</option>
+            <select
+              name="epsSeguroMedico"
+              value={form.epsSeguroMedico || ''}
+              onChange={onChange}
+              required
+            >
+              <option value="" disabled>
+                Seleccione EPS
+              </option>
               {EPS_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
@@ -239,13 +271,15 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Condición Especial */}
           <label>
             Condición Especial *
-            <select 
-              name="condicionEspecial" 
-              value={form.condicionEspecial || ''} 
-              onChange={handleCondicionEspecialChange} 
+            <select
+              name="condicionEspecial"
+              value={form.condicionEspecial || ''}
+              onChange={handleCondicionEspecialChange}
               required
             >
-              <option value="" disabled>Seleccione condición</option>
+              <option value="" disabled>
+                Seleccione condición
+              </option>
               {CONDICION_ESPECIAL_OPTIONS.map((option, index) => (
                 <option key={`condicion-${index}`} value={option}>
                   {option}
@@ -257,10 +291,10 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Descripción Condición - Campo opcional */}
           <label>
             Descripción de la Condición (Opcional)
-            <textarea 
-              name="descripcionCondicion" 
-              value={form.descripcionCondicion || ''} 
-              onChange={onChange} 
+            <textarea
+              name="descripcionCondicion"
+              value={form.descripcionCondicion || ''}
+              onChange={onChange}
               placeholder="Describa la condición específica (opcional)"
               rows="3"
             />
@@ -269,41 +303,48 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Contacto de Emergencia - Solo alfabético */}
           <label>
             Nombre de Familiar/Contacto de Emergencia *
-            <input 
-              type="text" 
-              name="contactoEmergencia" 
-              value={form.contactoEmergencia || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="contactoEmergencia"
+              value={form.contactoEmergencia || ''}
+              onChange={onChange}
               placeholder="Solo letras y espacios"
               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
               title="Solo se permiten letras y espacios"
-              required 
+              required
             />
           </label>
 
           {/* Teléfono Familiar - 10 caracteres exactos */}
           <label>
             Teléfono de Contacto de Emergencia *
-            <input 
-              type="text" 
-              name="telefonoFamiliar" 
-              value={form.telefonoFamiliar || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="telefonoFamiliar"
+              value={form.telefonoFamiliar || ''}
+              onChange={onChange}
               placeholder="Exactamente 10 números"
               pattern="\d{10}"
               minLength="10"
               maxLength="10"
               title="Exactamente 10 números"
-              required 
+              required
             />
           </label>
 
           {/* Estado Activo */}
           <label>
             Estado Activo *
-            <select name="usuarioActivo" value={form.usuarioActivo || 'SI'} onChange={onChange} required>
+            <select
+              name="usuarioActivo"
+              value={form.usuarioActivo || 'SI'}
+              onChange={onChange}
+              required
+            >
               {ACTIVO_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
@@ -311,27 +352,36 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           {/* Usuario (Nombre de usuario único) */}
           <label>
             Usuario *
-            <input 
-              type="text" 
-              name="usuario" 
-              value={form.usuario || ''} 
-              onChange={onChange} 
+            <input
+              type="text"
+              name="usuario"
+              value={form.usuario || ''}
+              onChange={onChange}
               placeholder="Nombre de usuario único"
-              pattern="^[a-zA-Z0-9._-]+$"
+              pattern="^[a-zA-Z0-9._\-]+$"
               title="Solo se permiten letras, números, puntos, guiones y guiones bajos"
               minLength="3"
               maxLength="20"
-              required 
+              required
             />
           </label>
 
           {/* Perfil */}
           <label>
             Perfil *
-            <select name="perfil" value={form.perfil || ''} onChange={onChange} required>
-              <option value="" disabled>Seleccione perfil</option>
+            <select
+              name="perfil"
+              value={form.perfil || ''}
+              onChange={onChange}
+              required
+            >
+              <option value="" disabled>
+                Seleccione perfil
+              </option>
               {PERFIL_OPTIONS.map(option => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
@@ -340,18 +390,18 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           <label>
             Contraseña *
             <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
-              <input 
-                type="text" 
-                name="contrasena" 
-                value={form.contrasena || ''} 
-                onChange={onChange} 
+              <input
+                type="text"
+                name="contrasena"
+                value={form.contrasena || ''}
+                onChange={onChange}
                 placeholder="Contraseña segura"
                 minLength="8"
-                required 
+                required
                 style={{ flex: 1 }}
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleGeneratePassword}
                 style={{
                   padding: '8px 12px',
@@ -361,7 +411,7 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
                   borderRadius: '4px',
                   cursor: 'pointer',
                   fontSize: '12px',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
                 }}
                 title="Generar contraseña segura"
               >
@@ -369,23 +419,24 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
               </button>
             </div>
             <small style={{ color: '#666', fontSize: '0.85em' }}>
-              Mínimo 8 caracteres. Use el botón "Generar" para crear una contraseña segura.
+              Mínimo 8 caracteres. Use el botón "Generar" para crear una
+              contraseña segura.
             </small>
           </label>
         </div>
 
         <div className="tab-btn-row right">
-          <button 
-            className="btn-html" 
-            type="submit" 
+          <button
+            className="btn-html"
+            type="submit"
             style={{ background: 'var(--color-primary)', color: '#fff' }}
           >
             Crear Usuario
           </button>
-          <button 
-            className="btn-html" 
-            type="button" 
-            onClick={onCancel} 
+          <button
+            className="btn-html"
+            type="button"
+            onClick={onCancel}
             style={{ background: '#b0b8d1', color: '#222' }}
           >
             Limpiar Formulario
@@ -456,7 +507,7 @@ const UserCreateForm = ({ form, onChange, onSubmit, onCancel, fieldsetStyle, leg
           .form-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .tab-btn-row {
             flex-direction: column;
           }

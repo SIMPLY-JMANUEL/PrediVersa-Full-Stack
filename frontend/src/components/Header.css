@@ -2,7 +2,7 @@
 /* Header básico con logo alineado a la izquierda y tamaño responsivo */
 .header-basic {
   width: 100%;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid #e9ecef;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   position: fixed;
@@ -20,11 +20,116 @@
   justify-content: space-between;
   padding: 0.5rem 0 0.5rem 0;
 }
+
 .header-basic-actions {
   margin-left: auto;
   display: flex;
   align-items: center;
   padding-right: 1.5rem;
+}
+
+/* MOBILE MENU TOGGLE */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-azul-claro);
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+}
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width: 768px) {
+  .header-basic-content {
+    padding: 0.3rem 0;
+  }
+  
+  .header-main-nav {
+    display: none;
+  }
+  
+  .header-main-nav.mobile-open {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 999;
+  }
+  
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .header-main-menu {
+    flex-direction: column;
+    padding: 1rem 0;
+  }
+  
+  .header-main-item {
+    width: 100%;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .header-basic-actions {
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-basic-content {
+    padding: 0.2rem 0;
+  }
+  
+  .header-basic-logo img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .header-home-btn {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+  
+  .header-basic-actions {
+    padding-right: 0.5rem;
+  }
+}
+
+.header-home-btn {
+  background: transparent !important;
+  color: var(--color-azul-claro) !important;
+  border: 2px solid var(--color-azul-claro) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.375rem !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(74, 178, 227, 0.15) !important;
+  text-decoration: none;
+}
+
+.header-home-btn:hover {
+  background: var(--color-azul-claro) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(74, 178, 227, 0.25) !important;
+}
+
+.header-home-btn i {
+  font-size: 1rem;
 }
 
 .header-login-btn {
@@ -143,7 +248,7 @@
   margin-left: 0;
   padding-left: 0.5rem;
   list-style: none;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(6px);
   border-radius: 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -190,7 +295,7 @@
 /* Estado al hacer scroll */
 .header-container.header-scrolled {
   height: var(--header-height-scrolled);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   border-bottom-color: var(--color-border);
   box-shadow: var(--shadow-md);
 }
@@ -256,7 +361,7 @@
   padding-right: 2.5rem;
   border-right: 2px solid var(--color-border, #e9ecef);
   box-shadow: 2px 0 8px -4px rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   min-height: 100%;
 }
 
@@ -268,7 +373,7 @@
   justify-content: flex-end;
   padding-left: 2.5rem;
   margin-left: 0.5rem;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   min-height: 100%;
 }
 
@@ -756,7 +861,7 @@ body.mobile-menu-open {
 /* Fallback para navegadores sin backdrop-filter */
 @supports not (backdrop-filter: blur(12px)) {
   .header-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
   }
 
   .header-container.header-scrolled {

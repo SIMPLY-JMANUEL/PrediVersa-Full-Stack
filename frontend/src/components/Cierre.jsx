@@ -8,11 +8,6 @@ function Cierre() {
 
   return (
     <section className="cierre-section" id="cierre">
-      {/* FONDO DINÁMICO CON OVERLAY */}
-      <div className="cierre-background">
-        <div className="bg-overlay" />
-      </div>
-
       {/* CONTENEDOR PRINCIPAL */}
       <div className="container-standard">
         <div className="cierre-grid">

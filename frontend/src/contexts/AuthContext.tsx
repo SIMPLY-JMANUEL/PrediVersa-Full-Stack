@@ -127,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:5003/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Refresh token function
   const refreshToken = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/auth/refresh', {
+      const response = await fetch('http://localhost:5003/api/auth/refresh', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${state.token}`,

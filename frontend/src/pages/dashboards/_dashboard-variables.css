@@ -1,0 +1,370 @@
+/* =================================================================
+   SISTEMA DE DISEÑO INSTITUCIONAL PREDIVERSA PARA DASHBOARDS
+   ================================================================= */
+
+:root {
+  /* Paleta de Colores Institucional PrediVersa */
+  --prediversa-primary: #0c1b32;
+  --prediversa-white: #ffffff;
+  --prediversa-light-blue: #42c0f9;
+  --prediversa-medium-blue: #169cd8;
+  --prediversa-dark-blue: #1565c0;
+  --prediversa-input-border: #e1e8f0;
+  --prediversa-font: 'Calibri Light', 'Calibri', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+
+  /* Colores principales - Compatibilidad con sistema existente */
+  --color-primary: var(--prediversa-medium-blue);
+  --color-primary-dark: var(--prediversa-dark-blue);
+  --color-primary-light: #e3f2fd;
+  --color-secondary: var(--prediversa-primary);
+
+  /* Fondos */
+  --color-bg-light: #f8fbff;
+  --color-bg-panel: rgba(66, 192, 249, 0.1);
+  --color-bg-white: var(--prediversa-white);
+  --color-bg-dashboard: var(--prediversa-primary);
+
+  /* Estados */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-error: #dc3545;
+  --color-error-light: #f8d7da;
+
+  /* Elementos visuales */
+  --color-shadow: rgba(12, 27, 50, 0.15);
+  --color-border: var(--prediversa-input-border);
+  --color-border-subtle: #e0e0e0;
+
+  /* Superficies y texto */
+  --color-surface: var(--prediversa-white);
+  --color-text-primary: var(--prediversa-primary);
+  --color-text-secondary: #6c757d;
+
+  /* Tipografía institucional */
+  --font-main: var(--prediversa-font);
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+
+  /* Espaciado */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Bordes */
+  --border-radius: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+} /* =================================================================
+   ESTILOS BASE INSTITUCIONALES COMPARTIDOS
+   ================================================================= */
+
+/* CSS Reset específico para evitar conflictos */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Contenedor principal del dashboard - expansión completa con prioridad */
+.dashboard-container {
+  width: 100vw !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Header institucional modernizado - ancho completo */
+.header-main-html {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  margin: 0;
+  border-radius: 0 0 20px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px var(--color-shadow);
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
+  font-family: var(--font-main);
+  border-bottom: 3px solid var(--prediversa-light-blue);
+}
+
+.header-logo-title-html {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-logo-img-html {
+  height: 50px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.header-title-html {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--prediversa-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header-user-actions-html {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-user-name-html {
+  font-weight: var(--font-weight-semibold);
+  color: var(--prediversa-primary);
+  font-size: var(--font-size-md);
+  display: flex;
+  align-items: center;
+  background: rgba(66, 192, 249, 0.1);
+  padding: 8px 16px;
+  border-radius: 25px;
+  border: 1px solid rgba(66, 192, 249, 0.3);
+}
+
+.header-btn-html {
+  background: var(--prediversa-light-blue);
+  border: none;
+  color: var(--prediversa-white);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(66, 192, 249, 0.3);
+}
+
+.header-btn-html:hover {
+  background: var(--prediversa-medium-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 192, 249, 0.4);
+}
+
+/* Compensación para el contenido bajo header fijo - expansión completa */
+.dashboard-content-html,
+.teacher-dashboard-html,
+.admin-dashboard-html,
+.parent-dashboard-html,
+.moderator-dashboard-html,
+.student-dashboard-html {
+  padding-top: 90px;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+}
+
+/* Contenedor principal del dashboard - expansión completa */
+.dashboard-container {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Headers con espaciado consistente de 3cm */
+.header-main-html,
+.dashboard-header {
+  padding-left: 3cm !important;
+  padding-right: 3cm !important;
+}
+
+/* Contenido principal con overlay para legibilidad - forzar posición derecha */
+.dashboard-main {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px var(--color-shadow) !important;
+  border: 2px solid rgba(66, 192, 249, 0.3) !important;
+  min-height: calc(100vh - 120px) !important;
+  padding: 2rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  grid-column: 2 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+}
+
+/* Sidebar institucional - forzar posición izquierda */
+.dashboard-sidebar {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px var(--color-shadow) !important;
+  border: 2px solid rgba(66, 192, 249, 0.3) !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  grid-column: 1 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+}
+
+/* Grid específico para AdminDashboard - forzar layout correcto */
+.dashboard-grid {
+  display: grid !important;
+  grid-template-columns: 350px minmax(0, 1fr) !important;
+  gap: 3cm !important;
+  width: 100vw !important;
+  min-height: calc(100vh - 90px) !important;
+  margin: 0 !important;
+  padding: 90px 3cm 1rem 3cm !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+/* Responsividad para el grid */
+@media (max-width: 1400px) {
+  .dashboard-grid {
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 2.5cm;
+    padding: 0 2.5cm 1rem 2.5cm;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 2cm;
+    padding: 0 2cm 1rem 2cm;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .dashboard-main,
+  .dashboard-sidebar {
+    grid-column: 1;
+  }
+}
+
+/* ===== REGLAS ESPECÍFICAS PARA ADMIN DASHBOARD ===== */
+/* Mayor especificidad para sobrescribir otros estilos */
+
+.dashboard-admin.dashboard-container {
+  width: 100vw !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+  background: var(--color-bg-institutional) !important;
+}
+
+.dashboard-admin .dashboard-grid {
+  display: grid !important;
+  grid-template-columns: 350px minmax(0, 1fr) !important;
+  gap: 3cm !important;
+  width: 100vw !important;
+  min-height: calc(100vh - 90px) !important;
+  margin: 0 !important;
+  padding: 90px 3cm 1rem 3cm !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  max-width: none !important;
+}
+
+.dashboard-admin .dashboard-main {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px var(--color-shadow) !important;
+  border: 2px solid rgba(66, 192, 249, 0.3) !important;
+  min-height: calc(100vh - 120px) !important;
+  padding: 2rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  grid-column: 2 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+}
+
+.dashboard-admin .dashboard-sidebar {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px var(--color-shadow) !important;
+  border: 2px solid rgba(66, 192, 249, 0.3) !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  grid-column: 1 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+}
+
+/* Compensación para el contenido bajo header fijo */
+.dashboard-content-html,
+.teacher-dashboard-html,
+.admin-dashboard-html,
+.parent-dashboard-html,
+.moderator-dashboard-html,
+.student-dashboard-html {
+  padding-top: 80px;
+}
+
+/* Responsive design */
+@media (max-width: 700px) {
+  .header-main-html {
+    padding: 0 12px;
+    min-height: 54px;
+  }
+
+  .header-logo-img-html {
+    height: 32px;
+  }
+
+  .header-title-html {
+    font-size: var(--font-size-md);
+  }
+
+  .header-user-name-html {
+    font-size: 0.95rem;
+  }
+}

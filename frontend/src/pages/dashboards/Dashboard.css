@@ -17,7 +17,11 @@
   font-weight: 700;
   color: var(--color-texto);
   margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-azul-claro), var(--color-azul-oscuro));
+  background: linear-gradient(
+    135deg,
+    var(--color-azul-claro),
+    var(--color-azul-oscuro)
+  );
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -33,6 +37,8 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--spacing-xl);
   margin-top: var(--spacing-xxl);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-card {
@@ -71,16 +77,16 @@
   .dashboard {
     padding: var(--spacing-lg);
   }
-  
+
   .dashboard-header h1 {
     font-size: 2rem;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-  
+
   .dashboard-card {
     padding: var(--spacing-lg);
   }

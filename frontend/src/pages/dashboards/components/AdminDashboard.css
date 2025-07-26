@@ -1,18 +1,7 @@
-/* Variables globales para colores y fuentes */
-:root {
-  --color-primary: #1976d2;
-  --color-primary-dark: #1565c0;
-  --color-secondary: #22223b;
-  --color-bg-light: #fafdff;
-  --color-bg-panel: #e3f2fd;
-  --color-bg-white: #fff;
-  --color-success: #388e3c;
-  --color-warning: #fbc02d;
-  --color-danger: #d32f2f;
-  --color-shadow: #1976d210;
-  --color-border: #b3c6d6;
-  --font-main: 'Inter', Arial, sans-serif;
-}
+/* =================================================================
+   ADMIN DASHBOARD COMPONENTS - ESTILOS ESPECÍFICOS
+   Las variables globales se importan desde ../_dashboard-variables.css
+   ================================================================= */
 
 /* --- Usuario encontrado: estilos consistentes y modernos --- */
 .user-found-info {
@@ -259,7 +248,11 @@
 
 /* Animación para estadísticas actualizadas */
 .stat-animated {
-  background: linear-gradient(90deg, rgba(25, 118, 210, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(25, 118, 210, 0.1) 0%,
+    rgba(25, 118, 210, 0.05) 100%
+  );
   border-radius: 8px;
   padding: 8px 12px;
   margin: -4px -6px;

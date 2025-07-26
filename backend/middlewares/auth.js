@@ -6,7 +6,10 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ msg: 'No hay token, acceso denegado' });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'prediversa_secret_2024'
+    );
     req.user = decoded.user;
     next();
   } catch (error) {

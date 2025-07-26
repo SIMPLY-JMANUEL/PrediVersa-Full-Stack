@@ -1,108 +1,119 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Start Backend",
-			"type": "shell",
-			"command": "npm",
-			"args": ["start"],
-			"options": {
-				"cwd": "${workspaceFolder}/backend"
-			},
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "new",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"label": "Start Frontend",
-			"type": "shell",
-			"command": "npm",
-			"args": ["start"],
-			"options": {
-				"cwd": "${workspaceFolder}/frontend"
-			},
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "new",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"label": "Start API Gateway",
-			"type": "shell",
-			"command": "npm",
-			"args": ["start"],
-			"options": {
-				"cwd": "${workspaceFolder}/api-gateway"
-			},
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [],
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "new",
-				"showReuseMessage": true,
-				"clear": false
-			}
-		},
-		{
-			"label": "Test Backend",
-			"type": "shell",
-			"command": "npm",
-			"args": ["test"],
-			"options": {
-				"cwd": "${workspaceFolder}/backend"
-			},
-			"group": "test",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "new"
-			}
-		},
-		{
-			"label": "Test Frontend",
-			"type": "shell",
-			"command": "npm",
-			"args": ["test"],
-			"options": {
-				"cwd": "${workspaceFolder}/frontend"
-			},
-			"group": "test",
-			"presentation": {
-				"echo": true,
-				"reveal": "always",
-				"focus": false,
-				"panel": "new"
-			}
-		},
-		{
-			"label": "Start All Services (Power Cell)",
-			"dependsOrder": "parallel",
-			"dependsOn": [
-				"Start Backend",
-				"Start Frontend",
-				"Start API Gateway"
-			],
-			"group": "build",
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Start Backend Direct",
+      "type": "shell",
+      "command": "node",
+      "args": ["server.js"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend",
+        "env": {
+          "PORT": "5003"
+        }
+      },
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Start API Gateway",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/api-gateway"
+      },
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Test Backend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["test"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Test Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["test"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Start All Services (Power Cell)",
+      "dependsOrder": "parallel",
+      "dependsOn": ["Start Backend", "Start Frontend", "Start API Gateway"],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
 }

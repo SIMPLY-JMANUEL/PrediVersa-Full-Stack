@@ -69,13 +69,16 @@ const Faq = () => {
               <button
                 className="faq-question"
                 onClick={() => handleToggle(faq.id)}
+                aria-expanded={openItems[faq.id] || false}
               >
                 <h3>{faq.pregunta}</h3>
-                <span className="faq-toggle">+</span>
+                <span className="faq-toggle">
+                  {openItems[faq.id] ? '−' : '+'}
+                </span>
               </button>
 
               {openItems[faq.id] && (
-                <div className="faq-answer">
+                <div className="faq-answer open">
                   <p>{faq.respuesta}</p>
                 </div>
               )}

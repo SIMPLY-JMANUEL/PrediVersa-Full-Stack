@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
     try {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
-      
+
       if (!token || !userStr) {
         setHasAccess(false);
         setLoading(false);
@@ -60,31 +60,31 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
       const cached = routeCache.get(cacheKey);
       const now = Date.now();
 
-      if (cached && (now - cached.timestamp < CACHE_DURATION)) {
+      if (cached && now - cached.timestamp < CACHE_DURATION) {
         setHasAccess(cached.hasAccess);
         setLoading(false);
         return;
       }
 
       // Si no está en cache o expiró, consultar backend
-      const response = await fetch(`http://localhost:5001/api/auth/verify-route/${requiredRoute}`, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await fetch(`/api/auth/verify-route/${requiredRoute}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
         const accessGranted = data.hasAccess;
-        
+
         // Guardar en cache
         routeCache.set(cacheKey, {
           hasAccess: accessGranted,
           timestamp: now,
-          userRole: data.userRole
+          userRole: data.userRole,
         });
-        
+
         setHasAccess(accessGranted);
       } else {
         setHasAccess(false);
@@ -140,17 +140,17 @@ const ProtectedRoute = ({ children, requiredRoute, requiredRole }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
           <p className="mt-2 text-gray-600">Verificando permisos...</p>
         </div>
       </div>
     );
   }
-  
+
   if (!hasAccess) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
