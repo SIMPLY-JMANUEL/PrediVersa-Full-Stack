@@ -750,3 +750,84 @@
     text-align: center;
   }
 }
+
+/* =============     CÓDIGO RESPONSIVO     ============= */
+
+/* --- Estilos base para el nuevo grid del sidebar (Escritorio y Móvil) --- */
+.sidebar-main-widgets {
+  display: grid;
+  grid-template-columns: 1fr; /* Por defecto, una columna en escritorio */
+  gap: 18px;
+  padding: 0 18px;
+}
+
+/* --- SOLUCIÓN ESPECÍFICA PARA TABLETS --- */
+/* Este estilo se aplica SOLO a pantallas entre 769px y 1024px de ancho */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .dashboard-sidebar {
+    min-width: 500px !important; 
+    max-width: 600px !important;
+  }
+
+  .sidebar-main-widgets {
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas iguales */
+    gap: 16px;
+    padding: 0 16px 18px 16px;
+  }
+
+  .sidebar-main-widgets .stats-container {
+    grid-column: 1 / -1; /* Ocupa desde la primera a la última columna */
+  }
+
+  .user-info-container, 
+  .system-status-container, 
+  .stats-container {
+     height: 100%;
+     display: flex;
+     flex-direction: column;
+  }
+}
+
+/* --- SOLUCIÓN GENERAL PARA MÓVILES --- */
+/* Se activa en pantallas de 768px de ancho o menos */
+@media (max-width: 768px) {
+  /* Apila las columnas principales verticalmente */
+  .main-html {
+    flex-direction: column !important;
+    height: auto !important;
+    gap: 0 !important;
+  }
+
+  .dashboard-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 2px solid #b3c6d6;
+    box-shadow: none !important;
+    padding-bottom: 24px;
+    gap: 12px;
+  }
+  
+  .sidebar-main-widgets {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+
+  .right-panel-html {
+    width: 100% !important;
+    padding: 12px 16px !important;
+  }
+
+  .header-main-html {
+    padding: 0 16px !important;
+  }
+
+  .header-title-html,
+  .header-user-name-html {
+    display: none;
+  }
+}
+
