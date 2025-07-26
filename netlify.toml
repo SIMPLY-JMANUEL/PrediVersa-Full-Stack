@@ -7,4 +7,5 @@
 
 [build.environment]
 NODE_VERSION = "20"
+NODE_OPTIONS = "--openssl-legacy-provider"
   PNPM_HOME = "/opt/buildhome/.pnpm"
