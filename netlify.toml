@@ -1,2 +1,8 @@
+
+[build]
+  command = "pnpm --filter frontend... run build"
+  publish = "frontend/build"
+
 [build.environment]
-  NODE_VERSION = "16"
+  NODE_VERSION = "18"
+  PNPM_HOME = "/opt/buildhome/.pnpm"
