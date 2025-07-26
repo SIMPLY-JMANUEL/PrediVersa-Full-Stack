@@ -1,0 +1,2 @@
+[build.environment]
+PATH = "$HOME/.pnpm:$PATH"

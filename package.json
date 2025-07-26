@@ -20,7 +20,7 @@
     "test": "npm run test:frontend && npm run test:backend",
     "test:frontend": "cd frontend && npm test",
     "test:backend": "cd backend && npm test",
-    "build": "cd frontend && npm run build",
+    "build": "pnpm approve-builds && cd frontend && npm run build",
     "clean": "npm run clean:frontend && npm run clean:backend && npm run clean:gateway",
     "clean:frontend": "cd frontend && rm -rf node_modules package-lock.json",
     "clean:backend": "cd backend && rm -rf node_modules package-lock.json",
