@@ -764,9 +764,8 @@
 /* --- SOLUCIÓN ESPECÍFICA PARA TABLETS --- */
 /* Este estilo se aplica SOLO a pantallas entre 769px y 1024px de ancho */
 @media (min-width: 769px) and (max-width: 1024px) {
-
   .dashboard-sidebar {
-    min-width: 500px !important; 
+    min-width: 500px !important;
     max-width: 600px !important;
   }
 
@@ -780,12 +779,12 @@
     grid-column: 1 / -1; /* Ocupa desde la primera a la última columna */
   }
 
-  .user-info-container, 
-  .system-status-container, 
+  .user-info-container,
+  .system-status-container,
   .stats-container {
-     height: 100%;
-     display: flex;
-     flex-direction: column;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -810,7 +809,7 @@
     padding-bottom: 24px;
     gap: 12px;
   }
-  
+
   .sidebar-main-widgets {
     grid-template-columns: 1fr;
     padding: 0 16px;
@@ -830,4 +829,3 @@
     display: none;
   }
 }
-
