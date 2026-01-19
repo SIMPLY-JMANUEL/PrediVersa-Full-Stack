@@ -1,0 +1,18 @@
+Id_Usuario,Nombre_Completo,Tipo_Documento,Identificacion,Telefono,Correo,Direccion,Usuario,Fecha_Nacimiento,Edad,Sexo,EPS,Perfil,Condicion_Especial,Descripción_Condicion_Especial,Contrasena,Contacto_Emergencia,Numero_Contacto_Emergencia,Activo,Foto
+----------,---------------,--------------,--------------,--------,------,---------,-------,----------------,----,----,---,------,------------------,------------------------------,----------,-------------------,--------------------------,------,----
+1,Administrador,Cédula de Ciudadanía,987654321,3001234567,hals_93@hotmail.es,Calle Falsa 123,Admin,2000-06-24,25,Masculino,Famisanar,Administrador,No Aplica,NULL,123456789 ,Prueba,7777777777,SI,NULL
+2,Moder,Cédula de Ciudadanía,222222222222222,NULL,Prueba@hotmail.com,Calle 5 33333,Moder,2003-03-03,22,Femenino,EPM (Empresas Públicas de Medellín),Moderador,No Aplica,NULL,123456789 ,Nombre Persona,9999999999,SI,NULL
+3,Usuario,NULL,999999999,NULL,Prueba2@gmail.com,NULL,User,NULL,NULL,NULL,NULL,Estudiante,NULL,NULL,123456789 ,NULL,NULL,SI,NULL
+4,Usuario Prueba,Cédula de Ciudadanía,12345678,NULL,test@test.com,Dirección de prueba,testuser,1990-01-01,33,Masculino,EPS Prueba,Estudiante,NULL,NULL,test123456,1234567890,0987654321,SI,NULL
+5,Test Usuario Seis,Cédula de Ciudadanía,66666666,NULL,test6@test.com,Dirección de prueba,testuser6,1990-01-01,35,Masculino,Salud Mía,Administrador,No Aplica,NULL,test123   ,Persona,3007777777,SI,NULL
+6,Docente,Cédula de Ciudadanía,111111111111111,NULL,docentepred@gmail.com,Calle docente 123,Docente,1998-12-14,26,Masculino,Sura,Docente,NULL,NULL,123456789 ,3333333333,8888888888,SI,NULL
+7,Prueba Formulario,Cédula de Ciudadanía,444444444444444,NULL,pruebaform@prediversa.com,Calle prueba 123,PruebaF,2004-07-13,21,Femenino,Salud Mía,Acudiente,NULL,NULL,123456789 ,2222222222,0000000000,SI,NULL
+8,Usuario Test Corrección,Tarjeta de Identidad,9999999999,3001111111,test.fix@gmail.com,Calle Fix 123,TestFix,1990-01-01,35,Masculino,Salud Total,Estudiante,CondiciÃ³n MÃ©dica,NULL,123456789 ,Familiar Test,3009876543,SI,NULL
+9,Administrados,Tarjeta de Identidad,988377366366355,7635244263,prueba3@gmail.com,Calle Admin 2,Admin2,2000-06-03,25,Femenino,Compensar,Administrador,Condición Médica,Prueba médica,987654321 ,Nombre persona,8277645526,NO,NULL
+10,Prueba correo,Cédula de Ciudadanía,936462799384766,8376525424,haroluna@gmail.com,Calle prueba 321,User2,1997-05-09,28,Masculino,Salud Mía,Estudiante,Condición Sicológica,condicion 2,123456789 ,Otro contacto,8764252738,SI,NULL
+11,Mderados,Tarjeta de Identidad,653222554333222,9874663555,jdhdgvtsys@prediversa.com,Calle falsa 2,Moder2,2003-04-06,22,Masculino,Famisanar,Moderador,No Aplica,NULL,0987654321,jdgfyaauujJ,8376362552,SI,NULL
+12,Otro Usuario,Tarjeta de Identidad,038773666888383,8664535424,otroprueba@prediversa.com,Otra calle,User3,2005-06-15,20,Masculino,Famisanar,Acudiente,No Aplica,NULL,0987654321,emergencia ,3847651567,SI,NULL
+13,Prueba xyz,Cédula de Ciudadanía,999999999999999,9999999999,papadevioletta@gmail.com,Carrera prueba 123,JoseM,1997-06-17,28,Masculino,Salud Mía,Administrador,No Aplica,NULL,987654321 ,Prueba contacto,8888888888,SI,NULL
+14,Prueba profe,Cédula de Ciudadanía,837462525273737,8474656883,juliana.fajardo92@gmail.com,Prueba dirección,Profe92,2003-07-01,22,Femenino,Capresoca,Administrador,No Aplica,NULL,p6Mj$EMp  ,Contacto emergencia,8476594984,SI,NULL
+
+(14 rows affected)

@@ -5,7 +5,7 @@ const executeSqlCmd = query => {
   return new Promise((resolve, reject) => {
     const sqlcmd = spawn('sqlcmd', [
       '-S',
-      'localhost',
+      'localhost\\PREDIVERSA',
       '-E', // Windows Authentication
       '-d',
       'PrediVersa',
@@ -46,18 +46,17 @@ const getUserByCredentialsDirect = async (identifier, password) => {
         Id_Usuario,
         Nombre_Completo,
         Correo,
-        Usuario,
-        Perfil,
-        Activo,
+        RTRIM(Usuario) as Usuario,
+        RTRIM(Perfil) as Perfil,
+        RTRIM(Activo) as Activo,
         Telefono,
         Edad,
         Fecha_Nacimiento,
         Tipo_Documento,
         Identificacion
       FROM usuarios 
-      WHERE (Correo = '${identifier}' OR Usuario = '${identifier}') 
-        AND Contrasena = '${password}'
-        AND Activo = 1
+      WHERE (RTRIM(Correo) = '${identifier}' OR RTRIM(Usuario) = '${identifier}') 
+        AND RTRIM(Contrasena) = '${password}'
     `;
 
     const result = await executeSqlCmd(query);
@@ -81,7 +80,7 @@ const getUserByCredentialsDirect = async (identifier, password) => {
         correo: (userData[2] || '').trim(),
         usuario: (userData[3] || '').trim(),
         rol: (userData[4] || '').trim(),
-        activo: parseInt(userData[5]) || 0,
+        activo: (userData[5] || '').trim(), // Mantener como string para 'SI'
         telefono: (userData[6] || '').trim(),
         edad: parseInt(userData[7]) || 0,
         fechaNacimiento: (userData[8] || '').trim(),

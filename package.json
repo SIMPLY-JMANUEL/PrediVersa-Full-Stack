@@ -27,6 +27,8 @@
     "clean:gateway": "cd api-gateway && rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
+    "@aws-sdk/client-lightsail": "^3.971.0",
+    "aws-sdk": "^2.1693.0",
     "concurrently": "^7.6.0"
   },
   "repository": {

@@ -2,18 +2,16 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const { getUserByCredentials, getAllUsers } = require('../models/UserSQL');
-const {
-  getUserByCredentialsDirect,
-  getAllUsersDirect,
-} = require('../models/UserDirectSQL');
+
+// Usar adaptador de base de datos (funciona con MySQL o SQL Server)
+const db = require('../db-adapter');
 
 // @route   POST /api/auth/login
-// @desc    Autenticar usuario y obtener token con SQL Server
+// @desc    Autenticar usuario y obtener token
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    console.log('🔍 Login route hit - SQL Server Integration');
+    console.log(`🔍 Login route hit - ${db.dialect === 'mysql' ? 'AWS RDS MySQL' : 'SQL Server Local'}`);
     console.log('📦 Request body:', req.body);
 
     const { usuario, correoElectronico, correo, contraseña, password } =
@@ -32,9 +30,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Buscar usuario en SQL Server usando método directo
-    console.log('🔍 Searching user in SQL Server with direct method...');
-    const user = await getUserByCredentialsDirect(identifier, pwd);
+    // Buscar usuario en la base de datos
+    console.log(`🔍 Searching user in ${db.dialect}...`);
+    const user = await db.User.getUserByCredentials(identifier, pwd);
 
     if (!user) {
       console.log('❌ Invalid credentials');
@@ -44,17 +42,19 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    console.log('🔍 User found in SQL Server:', {
-      id: user.id,
-      usuario: user.usuario,
-      correo: user.correo,
+    console.log('🔍 User found:', {
+      id: user.Id_Usuario || user.id,
+      usuario: user.Usuario || user.usuario,
+      correo: user.Correo || user.correo,
       rol: user.rol,
-      activo: user.activo,
+      perfil: user.Perfil || user.rol || user.perfil,
+      activo: user.Activo || user.activo,
     });
 
     // Verificar que el usuario esté activo
-    if (user.activo !== 1 && user.activo !== true && user.activo !== '1') {
-      console.log('❌ User inactive');
+    const activoValue = String(user.Activo || user.activo).trim().toUpperCase();
+    if (![1, '1', 'TRUE', 'SI'].includes(activoValue) && user.activo !== true) {
+      console.log('❌ User inactive, activo value:', activoValue);
       return res.status(403).json({
         success: false,
         msg: 'Usuario inactivo. Contacta al administrador.',
@@ -64,12 +64,12 @@ router.post('/login', async (req, res) => {
     // Crear token JWT
     const payload = {
       user: {
-        id: user.id,
-        nombre: (user.nombre || '').trim(),
-        correo: (user.correo || '').trim(),
-        usuario: (user.usuario || '').trim(),
-        rol: (user.rol || '').trim(),
-        activo: user.activo,
+        id: user.Id_Usuario || user.id,
+        nombre: (user.Nombre_Completo || user.nombre || '').trim(),
+        correo: (user.Correo || user.correo || '').trim(),
+        usuario: (user.Usuario || user.usuario || '').trim(),
+        rol: (user.Perfil || user.rol || '').trim(),
+        activo: user.Activo || user.activo,
       },
     };
 
@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    console.log('✅ Login successful with SQL Server, token generated');
+    console.log(`✅ Login successful with ${db.dialect}, token generated`);
 
     res.json({
       success: true,
@@ -87,7 +87,7 @@ router.post('/login', async (req, res) => {
       user: payload.user,
     });
   } catch (error) {
-    console.error('❌ Error en login SQL Server:', error);
+    console.error(`❌ Error en login (${db.dialect}):`, error);
     res.status(500).json({
       success: false,
       msg: 'Error del servidor',
