@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 
-// Usar adaptador de base de datos (funciona con MySQL o SQL Server)
+// Usar adaptador de base de datos (AWS RDS MySQL)
 const db = require('../db-adapter');
 
 // @route   POST /api/auth/login
@@ -11,7 +11,7 @@ const db = require('../db-adapter');
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    console.log(`🔍 Login route hit - ${db.dialect === 'mysql' ? 'AWS RDS MySQL' : 'SQL Server Local'}`);
+    console.log('🔍 Login route hit - AWS RDS MySQL');
     console.log('📦 Request body:', req.body);
 
     const { usuario, correoElectronico, correo, contraseña, password } =
@@ -100,7 +100,7 @@ router.post('/login', async (req, res) => {
 // @access  Private
 router.get('/users', async (req, res) => {
   try {
-    console.log('🔍 Getting users from SQL Server with direct method...');
+    console.log('🔍 Getting users from AWS RDS MySQL...');
     const users = await getAllUsersDirect();
 
     res.json({

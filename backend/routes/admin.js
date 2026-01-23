@@ -81,7 +81,7 @@ router.get('/alerts', (req, res) => {
   });
 });
 
-// GET /api/admin/users - Obtener usuarios desde SQL Server
+// GET /api/admin/users - Obtener usuarios desde AWS RDS MySQL
 router.get('/users', async (req, res) => {
   try {
     const users = await getAllUsers();
@@ -96,7 +96,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// POST /api/admin/users - Crear usuario en SQL Server
+// POST /api/admin/users - Crear usuario en AWS RDS MySQL
 router.post('/users', async (req, res) => {
   try {
     const { nombre, correo, usuario, password, rol, telefono, edad } = req.body;
