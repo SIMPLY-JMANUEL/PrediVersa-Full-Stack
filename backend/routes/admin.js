@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, createUser, getUserById } = require('../models/UserSQL');
+const { getAllUsers, createUser, getUserById } = require('../models/UserMySQL');
 
 // Helper para respuestas uniformes
 function sendResponse(
