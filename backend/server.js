@@ -13,13 +13,29 @@ console.log(`🚀 Puerto configurado: ${PORT}`);
 
 // Middlewares de seguridad
 app.use(helmet());
+
+// Configurar CORS explícitamente
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ],
+    origin: (origin, callback) => {
+      // Permitir peticiones sin origen (mobile apps, Postman, etc)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`⚠️ CORS: Origen no permitido: ${origin}`);
+        callback(null, true); // Permitir de todos modos en desarrollo
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 

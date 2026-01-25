@@ -217,7 +217,7 @@ function AdminDashboard() {
     }
   };
 
-  // Función para buscar usuarios (simulada - adaptar a tu backend)
+  // Función para buscar usuarios
   const handleUserSearch = async (searchDocument = '', searchName = '') => {
     const docToSearch = searchDocument || userSearch;
     const nameToSearch = searchName || nameSearch;
@@ -230,63 +230,36 @@ function AdminDashboard() {
     try {
       setLoadingSearch(true);
 
-      // Simular búsqueda con usuarios de ejemplo
-      const mockUsers = [
-        {
-          Id_Usuario: 1,
-          Nombre_Completo: 'Juan Pérez García',
-          Tipo_Documento: 'Cédula de Ciudadanía',
-          Identificacion: '12345678',
-          Correo: 'juan.perez@ejemplo.com',
-          Numero_Contacto_Emergencia: '3001234567',
-          Perfil: 'Estudiante',
-          Activo: 'SI',
-          Fecha_Nacimiento: '1990-01-15',
-          Edad: 34,
-          Sexo: 'Masculino',
-          Direccion: 'Calle 123 #45-67',
-          EPS: 'Sura',
-          Condicion_Especial: 'No Aplica',
-          Contacto_Emergencia: 'María García',
-          Usuario: 'juan.perez',
-        },
-        {
-          Id_Usuario: 2,
-          Nombre_Completo: 'Ana María López',
-          Tipo_Documento: 'Cédula de Ciudadanía',
-          Identificacion: '87654321',
-          Correo: 'ana.lopez@ejemplo.com',
-          Numero_Contacto_Emergencia: '3009876543',
-          Perfil: 'Profesor',
-          Activo: 'SI',
-          Fecha_Nacimiento: '1985-05-20',
-          Edad: 39,
-          Sexo: 'Femenino',
-          Direccion: 'Carrera 98 #76-54',
-          EPS: 'Nueva EPS',
-          Condicion_Especial: 'No Aplica',
-          Contacto_Emergencia: 'Carlos López',
-          Usuario: 'ana.lopez',
-        },
-      ];
+      // Construir parámetros de búsqueda
+      const params = new URLSearchParams();
+      if (docToSearch.trim()) {
+        params.append('documento', docToSearch.trim());
+      }
+      if (nameToSearch.trim()) {
+        params.append('nombre', nameToSearch.trim());
+      }
 
-      // Filtrar resultados basados en los criterios de búsqueda
-      const filtered = mockUsers.filter(
-        user =>
-          (!docToSearch || user.Identificacion.includes(docToSearch)) &&
-          (!nameToSearch ||
-            user.Nombre_Completo.toLowerCase().includes(
-              nameToSearch.toLowerCase()
-            ))
-      );
+      // Realizar búsqueda en la base de datos
+      const response = await axios.get(`/api/admin/search-users?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
-      setSearchResults(filtered);
-      if (filtered.length === 0) {
-        alert('No se encontraron usuarios con los criterios especificados');
+      if (response.data.success && response.data.data) {
+        setSearchResults(response.data.data);
+        if (response.data.data.length === 0) {
+          alert('No se encontraron usuarios con los criterios especificados');
+        }
+      } else {
+        alert('Error en la búsqueda: ' + (response.data.msg || 'Error desconocido'));
+        setSearchResults([]);
       }
     } catch (error) {
       console.error('Error searching users:', error);
-      alert('Error de conexión. Intente nuevamente.');
+      const errorMsg = error.response?.data?.msg || error.message || 'Error de conexión. Intente nuevamente.';
+      alert('❌ ' + errorMsg);
+      setSearchResults([]);
     } finally {
       setLoadingSearch(false);
     }
@@ -350,15 +323,54 @@ function AdminDashboard() {
     }
 
     try {
-      // Simular actualización exitosa
-      alert('Usuario actualizado correctamente');
-      setShowUserEditor(false);
-      setSelectedUser(null);
-      // Refrescar resultados de búsqueda
-      handleUserSearch();
+      // Preparar datos para enviar al backend
+      const payload = {
+        nombreCompleto: userForm.nombreCompleto,
+        tipoDocumento: userForm.tipoDocumento,
+        numeroDocumento: userForm.numeroDocumento,
+        fechaNacimiento: userForm.fechaNacimiento,
+        edad: userForm.edad,
+        sexo: userForm.sexo,
+        correoElectronico: userForm.correoElectronico,
+        direccion: userForm.direccion,
+        epsSeguroMedico: userForm.epsSeguroMedico,
+        condicionEspecial: userForm.condicionEspecial,
+        contactoEmergencia: userForm.contactoEmergencia,
+        telefonoFamiliar: userForm.telefonoFamiliar,
+        perfil: userForm.perfil,
+        usuario: userForm.usuario,
+        usuarioActivo: userForm.usuarioActivo,
+        contrasena: userForm.contrasena || undefined, // Opcional
+      };
+
+      console.log('📝 Actualizando usuario con ID:', selectedUser.Id_Usuario);
+      console.log('📦 Payload:', payload);
+
+      // Realizar actualización en la base de datos
+      const response = await axios.put(
+        `/api/admin/users/${selectedUser.Id_Usuario}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert('✅ Usuario actualizado correctamente');
+        setShowUserEditor(false);
+        setSelectedUser(null);
+        // Refrescar resultados de búsqueda
+        await handleUserSearch();
+      } else {
+        alert('❌ Error: ' + (response.data.msg || 'Error desconocido'));
+      }
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Error al actualizar usuario');
+      const errorMsg = error.response?.data?.msg || error.message || 'Error al actualizar usuario';
+      alert('❌ ' + errorMsg);
     }
   };
 
@@ -437,10 +449,12 @@ function AdminDashboard() {
       // Validaciones básicas
       if (
         !userForm.nombreCompleto ||
+        !userForm.tipoDocumento ||
         !userForm.numeroDocumento ||
         !userForm.correoElectronico ||
         !userForm.usuario ||
-        !userForm.perfil
+        !userForm.perfil ||
+        !userForm.contrasena
       ) {
         alert(
           'Por favor, complete todos los campos obligatorios marcados con *'
@@ -448,27 +462,36 @@ function AdminDashboard() {
         return;
       }
 
-      console.log('📝 Enviando usuario a SQL Server...', userForm);
+      const payload = {
+        nombre: userForm.nombreCompleto,
+        correo: userForm.correoElectronico,
+        usuario: userForm.usuario,
+        password: userForm.contrasena || userForm.numeroDocumento,
+        rol: userForm.perfil,
+        telefono: userForm.telefono || '',
+        edad: userForm.edad || null,
+        tipoDocumento: userForm.tipoDocumento || '',
+        numeroDocumento: userForm.numeroDocumento || '',
+        direccion: userForm.direccion || '',
+        fechaNacimiento: userForm.fechaNacimiento || null,
+        sexo: userForm.sexo || '',
+        eps: userForm.epsSeguroMedico || '',
+        condicionEspecial: userForm.condicionEspecial || '',
+        descripcionCondicion: userForm.descripcionCondicion || '',
+        contactoEmergencia: userForm.contactoEmergencia || '',
+        numeroContactoEmergencia: userForm.telefonoFamiliar || '',
+        activo: userForm.usuarioActivo || 'SI',
+      };
+
+      console.log('📝 Enviando usuario a SQL Server...', payload);
 
       // Llamada real a la API de SQL Server
-      const response = await axios.post(
-        '/api/admin/users',
-        {
-          nombre: userForm.nombreCompleto,
-          correo: userForm.correoElectronico,
-          usuario: userForm.usuario,
-          password: userForm.numeroDocumento, // Usar documento como contraseña temporal
-          rol: userForm.perfil,
-          telefono: userForm.telefono || '',
-          edad: userForm.edad || null,
+      const response = await axios.post('/api/admin/users', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
+      });
 
       if (response.data.success) {
         alert(
@@ -2350,117 +2373,265 @@ function AdminDashboard() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: 20,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: 16,
+                  marginBottom: 20,
                 }}
               >
-                {/* Campos básicos del formulario de edición */}
+                {/* Nombre Completo */}
                 <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: 6,
-                      fontWeight: 500,
-                      color: '#333',
-                    }}
-                  >
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
                     Nombre Completo *
                   </label>
                   <input
                     type="text"
                     value={userForm.nombreCompleto}
-                    onChange={e =>
-                      setUserForm({
-                        ...userForm,
-                        nombreCompleto: e.target.value,
-                      })
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: 8,
-                      fontSize: '1em',
-                      boxSizing: 'border-box',
-                    }}
+                    onChange={e => setUserForm({ ...userForm, nombreCompleto: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
                     required
                   />
                 </div>
+
+                {/* Tipo de Documento */}
                 <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: 6,
-                      fontWeight: 500,
-                      color: '#333',
-                    }}
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Tipo de Documento *
+                  </label>
+                  <select
+                    value={userForm.tipoDocumento}
+                    onChange={e => setUserForm({ ...userForm, tipoDocumento: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
                   >
+                    <option value="">Seleccionar</option>
+                    <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+                    <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                    <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                  </select>
+                </div>
+
+                {/* Número de Documento */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Número de Documento *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.numeroDocumento}
+                    onChange={e => setUserForm({ ...userForm, numeroDocumento: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* Fecha de Nacimiento */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Fecha de Nacimiento *
+                  </label>
+                  <input
+                    type="date"
+                    value={userForm.fechaNacimiento}
+                    onChange={e => setUserForm({ ...userForm, fechaNacimiento: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* Edad */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Edad
+                  </label>
+                  <input
+                    type="number"
+                    value={userForm.edad}
+                    onChange={e => setUserForm({ ...userForm, edad: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    disabled
+                  />
+                </div>
+
+                {/* Sexo */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Sexo *
+                  </label>
+                  <select
+                    value={userForm.sexo}
+                    onChange={e => setUserForm({ ...userForm, sexo: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+
+                {/* Correo Electrónico */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
                     Correo Electrónico *
                   </label>
                   <input
                     type="email"
                     value={userForm.correoElectronico}
-                    onChange={e =>
-                      setUserForm({
-                        ...userForm,
-                        correoElectronico: e.target.value,
-                      })
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: 8,
-                      fontSize: '1em',
-                      boxSizing: 'border-box',
-                    }}
+                    onChange={e => setUserForm({ ...userForm, correoElectronico: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
                     required
                   />
                 </div>
+
+                {/* Dirección */}
                 <div>
-                  <label
-                    style={{
-                      display: 'block',
-                      marginBottom: 6,
-                      fontWeight: 500,
-                      color: '#333',
-                    }}
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Dirección *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.direccion}
+                    onChange={e => setUserForm({ ...userForm, direccion: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* EPS/Seguro */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    EPS/Seguro Médico *
+                  </label>
+                  <select
+                    value={userForm.epsSeguroMedico}
+                    onChange={e => setUserForm({ ...userForm, epsSeguroMedico: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
                   >
+                    <option value="">Seleccionar EPS</option>
+                    <option value="Sura">Sura</option>
+                    <option value="Nueva EPS">Nueva EPS</option>
+                    <option value="Sanitas">Sanitas</option>
+                    <option value="Coomeva">Coomeva</option>
+                    <option value="Famisanar">Famisanar</option>
+                    <option value="Salud Total">Salud Total</option>
+                  </select>
+                </div>
+
+                {/* Condición Especial */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Condición Especial *
+                  </label>
+                  <select
+                    value={userForm.condicionEspecial}
+                    onChange={e => setUserForm({ ...userForm, condicionEspecial: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="No Aplica">No Aplica</option>
+                    <option value="Condición Médica">Condición Médica</option>
+                    <option value="Condición Sicológica">Condición Sicológica</option>
+                  </select>
+                </div>
+
+                {/* Contacto de Emergencia */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Contacto de Emergencia *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.contactoEmergencia}
+                    onChange={e => setUserForm({ ...userForm, contactoEmergencia: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* Teléfono Familiar */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Teléfono Familiar *
+                  </label>
+                  <input
+                    type="tel"
+                    value={userForm.telefonoFamiliar}
+                    onChange={e => setUserForm({ ...userForm, telefonoFamiliar: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* Perfil */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
                     Perfil *
                   </label>
                   <select
                     value={userForm.perfil}
-                    onChange={e =>
-                      setUserForm({ ...userForm, perfil: e.target.value })
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: 8,
-                      fontSize: '1em',
-                      boxSizing: 'border-box',
-                    }}
+                    onChange={e => setUserForm({ ...userForm, perfil: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
                     required
                   >
                     <option value="">Seleccionar perfil</option>
-                    {PERFIL_OPTIONS.map(perfil => (
-                      <option key={perfil} value={perfil}>
-                        {perfil}
-                      </option>
-                    ))}
+                    <option value="Administrador">Administrador</option>
+                    <option value="Moderador">Moderador</option>
+                    <option value="Docente">Docente</option>
+                    <option value="Acudiente">Acudiente</option>
+                    <option value="Estudiante">Estudiante</option>
                   </select>
+                </div>
+
+                {/* Usuario */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Usuario *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.usuario}
+                    onChange={e => setUserForm({ ...userForm, usuario: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  />
+                </div>
+
+                {/* Estado Activo */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Estado *
+                  </label>
+                  <select
+                    value={userForm.usuarioActivo}
+                    onChange={e => setUserForm({ ...userForm, usuarioActivo: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    required
+                  >
+                    <option value="SI">Activo</option>
+                    <option value="NO">Inactivo</option>
+                  </select>
+                </div>
+
+                {/* Contraseña (opcional) */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#333' }}>
+                    Contraseña (dejar vacío para no cambiar)
+                  </label>
+                  <input
+                    type="password"
+                    value={userForm.contrasena}
+                    onChange={e => setUserForm({ ...userForm, contrasena: e.target.value })}
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: 6, fontSize: '0.9em' }}
+                    placeholder="●●●●●●●●"
+                  />
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  marginTop: 24,
-                  justifyContent: 'flex-end',
-                }}
-              >
+              <div style={{ display: 'flex', gap: 12, marginTop: 24, justifyContent: 'flex-end' }}>
                 <button
                   type="button"
                   onClick={() => setShowUserEditor(false)}
@@ -2479,8 +2650,7 @@ function AdminDashboard() {
                 <button
                   type="submit"
                   style={{
-                    background:
-                      'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
+                    background: 'linear-gradient(90deg, #2196f3 60%, #42a5f5 100%)',
                     color: '#fff',
                     border: 'none',
                     borderRadius: 8,

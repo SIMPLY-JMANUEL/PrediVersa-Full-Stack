@@ -43,6 +43,31 @@ class User {
     }
   }
 
+  // Buscar usuarios por documento o nombre
+  static async searchUsers(documento, nombre) {
+    try {
+      let sql = 'SELECT * FROM Usuarios WHERE Activo = "SI"';
+      const params = [];
+
+      if (documento) {
+        sql += ' AND (Identificacion LIKE ? OR Usuario LIKE ?)';
+        params.push(`%${documento}%`, `%${documento}%`);
+      }
+
+      if (nombre) {
+        sql += ' AND Nombre_Completo LIKE ?';
+        params.push(`%${nombre}%`);
+      }
+
+      sql += ' ORDER BY Id_Usuario DESC LIMIT 100';
+
+      return await query(sql, params);
+    } catch (error) {
+      console.error('Error en searchUsers:', error);
+      throw error;
+    }
+  }
+
   // Obtener todos los usuarios
   static async getAllUsers() {
     try {

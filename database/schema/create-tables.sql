@@ -224,6 +224,92 @@ GO
 PRINT '✅ Función fn_estadisticas_usuarios creada';
 
 -- ========================================
+-- TABLA: Alertas
+-- ========================================
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Alertas')
+BEGIN
+    CREATE TABLE Alertas (
+        Id_Alerta INT IDENTITY(1,1) PRIMARY KEY,
+        Numero_Alerta AS 'ALR-' + RIGHT('000000' + CAST(Id_Alerta AS VARCHAR(6)), 6) PERSISTED,
+        
+        -- Información básica
+        Tipo_Alerta NVARCHAR(100) NOT NULL,
+        Fecha_Hora_Incidente DATETIME NOT NULL,
+        Ubicacion NVARCHAR(255) NOT NULL,
+        Requiere_Atencion_Inmediata NVARCHAR(10) NOT NULL,
+        Es_Reiterativo NVARCHAR(10) NOT NULL,
+        Canal_Reporte NVARCHAR(50) NOT NULL,
+        
+        -- Datos del reportado
+        Nombre_Estudiante NVARCHAR(255) NULL,
+        Identificacion_Estudiante NVARCHAR(50) NULL,
+        Curso_Grado NVARCHAR(50) NULL,
+        Edad_Reportado INT NULL,
+        Tipo_Reportado NVARCHAR(100) NULL,
+        
+        -- Datos del reportante
+        Nombre_Reportante NVARCHAR(255) NOT NULL,
+        Identificacion_Reportante NVARCHAR(50) NOT NULL,
+        Relacion_Reportado NVARCHAR(100) NULL,
+        Telefono_Reportante NVARCHAR(20) NULL,
+        Email_Reportante NVARCHAR(255) NULL,
+        
+        -- Contenido del reporte
+        Categoria_Incidente NVARCHAR(100) NOT NULL,
+        Descripcion_Detallada NVARCHAR(MAX) NOT NULL,
+        Evidencias NVARCHAR(MAX) NULL,
+        Testigos NVARCHAR(MAX) NULL,
+        Contexto_Previo NVARCHAR(MAX) NULL,
+        
+        -- Gestión institucional
+        Estado_Alerta NVARCHAR(50) NOT NULL,
+        Prioridad NVARCHAR(50) NOT NULL,
+        Coordinador_Asignado NVARCHAR(100) NULL,
+        Observaciones_Preliminares NVARCHAR(MAX) NULL,
+        
+        -- Legalidad y privacidad
+        Consentimiento_Informado BIT NOT NULL,
+        Proteccion_Datos BIT NOT NULL,
+        Cumplimiento_Normativo BIT NOT NULL,
+        
+        -- Metadatos
+        Fecha_Registro DATETIME NOT NULL DEFAULT GETDATE(),
+        Fecha_Actualizacion DATETIME NULL,
+        Usuario_Id INT NULL,
+        
+        CONSTRAINT FK_Alertas_Usuario FOREIGN KEY (Usuario_Id) 
+        REFERENCES usuarios(Id_Usuario) ON DELETE SET NULL
+    );
+    
+    PRINT '✅ Tabla Alertas creada exitosamente';
+END
+ELSE
+BEGIN
+    PRINT '⚠️ Tabla Alertas ya existe';
+END
+GO
+
+-- Índices para Alertas
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Alertas_Estado')
+BEGIN
+    CREATE INDEX IX_Alertas_Estado ON Alertas(Estado_Alerta);
+END
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Alertas_Prioridad')
+BEGIN
+    CREATE INDEX IX_Alertas_Prioridad ON Alertas(Prioridad);
+END
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Alertas_Fecha')
+BEGIN
+    CREATE INDEX IX_Alertas_Fecha ON Alertas(Fecha_Registro);
+END
+
+PRINT '✅ Índices de Alertas creados';
+GO
+
+-- ========================================
 -- PROCEDIMIENTOS ALMACENADOS
 -- ========================================
 

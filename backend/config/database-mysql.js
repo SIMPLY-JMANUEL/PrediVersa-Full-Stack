@@ -43,9 +43,23 @@ async function testConnection() {
   }
 }
 
+// Función para ejecutar queries (similar a SQL Server pero para MySQL)
+async function executeQuery(sql, params) {
+  try {
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query(sql, Object.values(params || {}));
+    connection.release();
+    return { recordset: rows };
+  } catch (error) {
+    console.error('Error executing query:', sql, error);
+    throw error;
+  }
+}
+
 module.exports = {
   pool,
   query,
   querySingle,
+  executeQuery,
   testConnection
 };

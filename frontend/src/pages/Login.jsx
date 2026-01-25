@@ -90,8 +90,8 @@ function Login() {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          correo: username.trim(), // Cambiado de correoElectronico a correo para coincidir con el backend
-          contraseña: password || '', // Permitir contraseña vacía para admin master
+          usuario: username.trim(), // Enviar como usuario (nombre de usuario), no como correo
+          password: password || '', // Usar password en lugar de contraseña
         }),
       });
 

@@ -39,38 +39,31 @@ async function searchUsers(req, res) {
         Perfil,
         Usuario,
         Contrasena
-      FROM Dbo.Usuarios
+      FROM usuarios
       WHERE 1=1
     `;
 
-    const params = {};
+    const params = [];
 
     if (documento) {
-      query += ' AND Identificacion LIKE @documento';
-      params.documento = `%${documento}%`;
+      query += ' AND Identificacion LIKE ?';
+      params.push(`%${documento}%`);
     }
 
     if (nombre) {
-      query += ' AND Nombre_Completo LIKE @nombre';
-      params.nombre = `%${nombre}%`;
+      query += ' AND Nombre_Completo LIKE ?';
+      params.push(`%${nombre}%`);
     }
 
     query += ' ORDER BY Id_Usuario DESC';
 
+    const { executeQuery } = require('../config/database');
     const result = await executeQuery(query, params);
-
-    // Convertir campos varbinary a string
-    const users = result.recordset.map(user => {
-      if (user.Condicion_Especial && Buffer.isBuffer(user.Condicion_Especial)) {
-        user.Condicion_Especial = user.Condicion_Especial.toString('utf8');
-      }
-      return user;
-    });
 
     res.json({
       success: true,
-      data: users,
-      msg: `Se encontraron ${users.length} usuarios`
+      data: result.recordset || result,
+      msg: `Se encontraron ${(result.recordset || result).length} usuarios`
     });
 
   } catch (error) {

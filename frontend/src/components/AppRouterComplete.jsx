@@ -72,7 +72,23 @@ const AppRouterComplete = () => {
               }
             />
             <Route
+              path="/dashboard/admin"
+              element={
+                <ProtectedRoute requiredRole="Administrador">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/Moderador"
+              element={
+                <ProtectedRoute requiredRole="Moderador">
+                  <ModeratorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/moderador"
               element={
                 <ProtectedRoute requiredRole="Moderador">
                   <ModeratorDashboard />
@@ -88,6 +104,14 @@ const AppRouterComplete = () => {
               }
             />
             <Route
+              path="/dashboard/estudiante"
+              element={
+                <ProtectedRoute requiredRole="Estudiante">
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/Acudiente"
               element={
                 <ProtectedRoute requiredRole="Acudiente">
@@ -96,7 +120,23 @@ const AppRouterComplete = () => {
               }
             />
             <Route
+              path="/dashboard/acudiente"
+              element={
+                <ProtectedRoute requiredRole="Acudiente">
+                  <AttendantDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/Docente"
+              element={
+                <ProtectedRoute requiredRole="Docente">
+                  <TeacherDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/docente"
               element={
                 <ProtectedRoute requiredRole="Docente">
                   <TeacherDashboard />
