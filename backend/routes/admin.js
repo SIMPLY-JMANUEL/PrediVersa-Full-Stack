@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { getAllUsers, createUser, getUserById, searchUsers } = require('../models/UserMySQL');
 const Alerta = require('../models/AlertaMySQL');
+const verify = require('../middlewares/auth');
+const RemisionMySQL = require('../models/RemisionMySQL');
 
 // Helper para respuestas uniformes
 function sendResponse(
@@ -85,6 +87,7 @@ router.get('/system-alerts', (req, res) => {
 // GET /api/admin/users - Obtener usuarios desde AWS RDS MySQL
 router.get('/users', async (req, res) => {
   try {
+    console.log('📥 Crear reporte - body:', { body: req.body });
     const users = await getAllUsers();
     sendResponse(res, { data: users });
   } catch (error) {
@@ -507,6 +510,493 @@ router.delete('/alerts/:id', async (req, res) => {
     sendResponse(res, {
       success: false,
       msg: 'Error al eliminar alerta: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// ==========================================
+// RUTAS DE GENERACIÓN DE REPORTES
+// ==========================================
+
+// Helper: genera número de incidente único
+function generateIncidentNumber() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const stamp = now.getTime().toString().slice(-6);
+  const rand = Math.floor(Math.random() * 900 + 100); // 3 dígitos
+  return `INC-${year}${month}${day}-${stamp}${rand}`;
+}
+
+// POST - Crear un nuevo reporte (autogenera número y reintenta si hay duplicado)
+router.post('/reportes', verify, async (req, res) => {
+  try {
+    const {
+      numeroIncidente,
+      fechaIngreso,
+      estadoAlerta,
+      tipoAlerta,
+      nivelGravedad,
+      atencionInmediata,
+      institucionSede,
+      nombreEstudiante,
+      gradoGrupo,
+      lugarSuceso,
+      fechaHoraSuceso,
+      nombreCompleto,
+      tipoDocumento,
+      numeroDocumento,
+      fechaNacimiento,
+      edad,
+      sexoGenero,
+      estadoCivil,
+      correoElectronico,
+      telefonoContacto,
+      direccionResidencia,
+      responsableAsignado,
+      descripcionDetallada,
+      medidasTomadas,
+      contactoFamiliar,
+      nombreFamiliar,
+      telefonoFamiliar,
+      archivosAdjuntos,
+      observacionesAdicionales
+    } = req.body;
+
+    // Validaciones básicas
+    if (!fechaIngreso || !estadoAlerta || !tipoAlerta) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Campos requeridos: fechaIngreso, estadoAlerta, tipoAlerta',
+        status: 400,
+      });
+    }
+
+    if (!nombreCompleto || !descripcionDetallada) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Campos requeridos: nombreCompleto, descripcionDetallada',
+        status: 400,
+      });
+    }
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+
+    const baseData = {
+      fechaIngreso,
+      estadoAlerta,
+      tipoAlerta,
+      nivelGravedad,
+      atencionInmediata,
+      institucionSede,
+      nombreEstudiante,
+      gradoGrupo,
+      lugarSuceso,
+      fechaHoraSuceso,
+      nombreCompleto,
+      tipoDocumento,
+      numeroDocumento,
+      fechaNacimiento,
+      edad,
+      sexoGenero,
+      estadoCivil,
+      correoElectronico,
+      telefonoContacto,
+      direccionResidencia,
+      responsableAsignado,
+      descripcionDetallada,
+      medidasTomadas,
+      contactoFamiliar,
+      nombreFamiliar,
+      telefonoFamiliar,
+      archivosAdjuntos,
+      observacionesAdicionales,
+      usuarioId: req.user?.id || req.user?.Id_Usuario || null
+    };
+
+    let attempts = 0;
+    let lastError = null;
+    let finalNumero = numeroIncidente && numeroIncidente.trim() ? numeroIncidente.trim() : generateIncidentNumber();
+    console.log('🔢 Numero incidente inicial:', finalNumero);
+
+    while (attempts < 3) {
+      try {
+        const resultado = await GeneracionReportesMySQL.createReporte({
+          ...baseData,
+          numeroIncidente: finalNumero,
+        });
+
+        return sendResponse(res, {
+          success: true,
+          msg: 'Reporte creado exitosamente',
+          data: {
+            id: resultado.id,
+            numeroIncidente: resultado.numeroIncidente,
+          },
+          status: 201,
+        });
+      } catch (err) {
+        lastError = err;
+        console.error('❌ Error intento creación:', { intento: attempts + 1, code: err.code, sqlState: err.sqlState, message: err.message });
+        if ((err.code === 'ER_DUP_ENTRY' || err.sqlState === '23000') && attempts < 2) {
+          finalNumero = generateIncidentNumber();
+          attempts += 1;
+          continue;
+        }
+        break;
+      }
+    }
+
+    if (lastError && (lastError.code === 'ER_DUP_ENTRY' || lastError.sqlState === '23000')) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'No se pudo generar un número único tras varios intentos. Intenta de nuevo.',
+        status: 409,
+      });
+    }
+
+    throw lastError || new Error('Error desconocido al crear reporte');
+  } catch (error) {
+    console.error('Error creando reporte:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al crear reporte: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// GET - Obtener todos los reportes
+router.get('/reportes', verify, async (req, res) => {
+  try {
+    const { estado, tipo, fechaDesde, fechaHasta, limit = 50, offset = 0 } = req.query;
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+
+    const filtros = {};
+    if (estado) filtros.estadoAlerta = estado;
+    if (tipo) filtros.tipoAlerta = tipo;
+    if (fechaDesde && fechaHasta) {
+      filtros.fechaDesde = fechaDesde;
+      filtros.fechaHasta = fechaHasta;
+    }
+
+    const reportes = await GeneracionReportesMySQL.getAllReportes(filtros, parseInt(limit), parseInt(offset));
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Reportes obtenidos exitosamente',
+      data: reportes,
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error obteniendo reportes:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener reportes: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// GET - Obtener un reporte específico
+router.get('/reportes/:id', verify, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'ID de reporte requerido',
+        status: 400,
+      });
+    }
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+    const reporte = await GeneracionReportesMySQL.getReporteById(id);
+
+    if (!reporte) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Reporte no encontrado',
+        status: 404,
+      });
+    }
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Reporte obtenido exitosamente',
+      data: reporte,
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error obteniendo reporte:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener reporte: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// PUT - Actualizar un reporte
+router.put('/reportes/:id', verify, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reporteData = req.body;
+
+    if (!id) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'ID de reporte requerido',
+        status: 400,
+      });
+    }
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+
+    // Verificar que el reporte existe
+    const reporte = await GeneracionReportesMySQL.getReporteById(id);
+    if (!reporte) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Reporte no encontrado',
+        status: 404,
+      });
+    }
+
+    await GeneracionReportesMySQL.updateReporte(id, reporteData);
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Reporte actualizado exitosamente',
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error actualizando reporte:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al actualizar reporte: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// DELETE - Eliminar un reporte
+router.delete('/reportes/:id', verify, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'ID de reporte requerido',
+        status: 400,
+      });
+    }
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+
+    // Verificar que el reporte existe
+    const reporte = await GeneracionReportesMySQL.getReporteById(id);
+    if (!reporte) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Reporte no encontrado',
+        status: 404,
+      });
+    }
+
+    await GeneracionReportesMySQL.deleteReporte(id);
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Reporte eliminado exitosamente',
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error eliminando reporte:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al eliminar reporte: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// GET - Obtener estadísticas de reportes
+router.get('/reportes-stats/estadisticas', verify, async (req, res) => {
+  try {
+    const { fechaDesde, fechaHasta } = req.query;
+
+    const GeneracionReportesMySQL = require('../models/GeneracionReportesMySQL');
+
+    const filtros = {};
+    if (fechaDesde && fechaHasta) {
+      filtros.fechaDesde = fechaDesde;
+      filtros.fechaHasta = fechaHasta;
+    }
+
+    const stats = await GeneracionReportesMySQL.getEstadisticas(filtros);
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Estadísticas obtenidas exitosamente',
+      data: stats,
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error obteniendo estadísticas:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener estadísticas: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// ==========================================
+// RUTAS DE REMISIONES DE ATENCIÓN
+// ==========================================
+
+// POST - Crear una nueva remisión
+router.post('/remisiones', verify, async (req, res) => {
+  try {
+    const {
+      idAlerta,
+      numeroAlertaVinculada,
+      tipoAlerta,
+      nombreEstudiante,
+      edad,
+      gradoCargo,
+      institucionSede,
+      descripcionBreve,
+      estadoActualAlerta,
+      fechaRemision,
+      motivoRemision,
+      areaDestino,
+      entidadReceptora,
+      profesionalAsignado,
+      estadoRemision,
+      comentariosRemitente,
+      archivoAdjunto,
+      notificoAcudiente,
+      fechaHoraCita,
+      observacionesSeguimiento
+    } = req.body;
+
+    if (!fechaRemision || !areaDestino || !estadoRemision) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Campos requeridos: fechaRemision, areaDestino, estadoRemision',
+        status: 400,
+      });
+    }
+
+    const payload = {
+      idAlerta,
+      numeroAlertaVinculada,
+      tipoAlerta,
+      nombreEstudiante,
+      edad,
+      gradoCargo,
+      institucionSede,
+      descripcionBreve,
+      estadoActualAlerta,
+      fechaRemision,
+      motivoRemision,
+      areaDestino,
+      entidadReceptora,
+      profesionalAsignado,
+      estadoRemision,
+      comentariosRemitente,
+      archivoAdjunto,
+      notificoAcudiente,
+      fechaHoraCita,
+      observacionesSeguimiento,
+      usuarioId: req.user?.id || req.user?.Id_Usuario || null,
+    };
+
+    const resultado = await RemisionMySQL.createRemision(payload);
+
+    return sendResponse(res, {
+      success: true,
+      msg: 'Remisión creada exitosamente',
+      data: { id: resultado.id },
+      status: 201,
+    });
+  } catch (error) {
+    console.error('Error creando remisión:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al crear remisión: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// GET - Listar remisiones con filtros
+router.get('/remisiones', verify, async (req, res) => {
+  try {
+    const { estadoRemision, areaDestino, idAlerta, limit = 50, offset = 0 } = req.query;
+
+    const filtros = {};
+    if (estadoRemision) filtros.estadoRemision = estadoRemision;
+    if (areaDestino) filtros.areaDestino = areaDestino;
+    if (idAlerta) filtros.idAlerta = idAlerta;
+
+    const remisiones = await RemisionMySQL.getAllRemisiones(filtros, parseInt(limit), parseInt(offset));
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Remisiones obtenidas exitosamente',
+      data: remisiones,
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error obteniendo remisiones:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener remisiones: ' + error.message,
+      status: 500,
+    });
+  }
+});
+
+// GET - Obtener remisión por ID
+router.get('/remisiones/:id', verify, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'ID de remisión requerido',
+        status: 400,
+      });
+    }
+
+    const remision = await RemisionMySQL.getRemisionById(id);
+    if (!remision) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'Remisión no encontrada',
+        status: 404,
+      });
+    }
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Remisión obtenida exitosamente',
+      data: remision,
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error obteniendo remisión:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener remisión: ' + error.message,
       status: 500,
     });
   }

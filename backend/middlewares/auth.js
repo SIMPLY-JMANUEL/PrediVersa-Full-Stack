@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'prediversa_secret_2024'
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES'
     );
     req.user = decoded.user;
     next();

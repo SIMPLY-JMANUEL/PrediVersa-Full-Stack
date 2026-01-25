@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -69,6 +70,43 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     observacionesAdicionales: ''
   });
 
+  const [statusType, setStatusType] = useState(''); // 'success' | 'error'
+  const [statusMsg, setStatusMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [recentReports, setRecentReports] = useState([]);
+  const [filters, setFilters] = useState({ estado: '', tipo: '' });
+
+  const bannerStyle = (type) => ({
+    padding: '10px 12px',
+    borderRadius: 6,
+    marginBottom: 12,
+    color: type === 'success' ? '#155724' : '#721c24',
+    background: type === 'success' ? '#d4edda' : '#f8d7da',
+    border: `1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+  });
+
+  const fetchRecentReports = async (limit = 5, opts = {}) => {
+    try {
+      const token = localStorage.getItem('token');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const estado = opts.estado ?? filters.estado;
+      const tipo = opts.tipo ?? filters.tipo;
+      const qs = new URLSearchParams();
+      qs.set('limit', String(limit));
+      if (estado) qs.set('estado', estado);
+      if (tipo) qs.set('tipo', tipo);
+      const resp = await axios.get(`/api/admin/reportes?${qs.toString()}`, config);
+      if (resp.data?.success) setRecentReports(resp.data.data || []);
+    } catch (err) {
+      // Silencioso para no interrumpir el flujo
+      console.warn('No se pudieron cargar los últimos reportes:', err?.response?.data?.msg || err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentReports();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData(prev => ({
@@ -82,8 +120,8 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `INC-${year}${month}${day}-${random}`;
+    const timestamp = now.getTime().toString().slice(-6);
+    return `INC-${year}${month}${day}-${timestamp}`;
   };
 
   const handleGenerateNumber = () => {
@@ -93,10 +131,85 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Reporte registrado exitosamente');
-    console.log('Datos del reporte:', formData);
+
+    // Validaciones básicas
+    if (!formData.fechaIngreso || !formData.estadoAlerta || !formData.tipoAlerta) {
+      alert('Por favor completa los campos requeridos del incidente');
+      return;
+    }
+
+    if (!formData.nombreCompleto || !formData.descripcionDetallada) {
+      alert('Por favor completa Nombre Completo y Descripción Detallada');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setStatusType('');
+      setStatusMsg('');
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      // Enviamos sin numeroIncidente para que el backend lo genere
+      const payload = { ...formData, numeroIncidente: '' };
+      const response = await axios.post('/api/admin/reportes', payload, config);
+
+      if (response.data.success) {
+        setStatusType('success');
+        setStatusMsg(`Reporte creado exitosamente. Número: ${response.data.data.numeroIncidente}`);
+        // Reiniciar formulario
+        setFormData({
+          numeroIncidente: '',
+          fechaIngreso: new Date().toISOString().split('T')[0],
+          estadoAlerta: '',
+          tipoAlerta: '',
+          nivelGravedad: '',
+          atencionInmediata: '',
+          institucionSede: '',
+          nombreEstudiante: '',
+          gradoGrupo: '',
+          lugarSuceso: '',
+          fechaHoraSuceso: '',
+          nombreCompleto: '',
+          tipoDocumento: '',
+          numeroDocumento: '',
+          fechaNacimiento: '',
+          edad: '',
+          sexoGenero: '',
+          estadoCivil: '',
+          correoElectronico: '',
+          telefonoContacto: '',
+          direccionResidencia: '',
+          responsableAsignado: '',
+          descripcionDetallada: '',
+          medidasTomadas: '',
+          contactoFamiliar: '',
+          nombreFamiliar: '',
+          telefonoFamiliar: '',
+          archivosAdjuntos: [],
+          observacionesAdicionales: ''
+        });
+        fetchRecentReports();
+      } else {
+        setStatusType('error');
+        setStatusMsg(response.data.msg || 'Error desconocido');
+      }
+    } catch (error) {
+      console.error('Error enviando reporte:', error);
+      const msg = error.response?.data?.msg || error.message;
+      setStatusType('error');
+      setStatusMsg(msg.includes('409') ? 'Número duplicado, intenta nuevamente.' : msg);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleExportPDF = () => {
@@ -113,6 +226,11 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
 
   return (
     <form className="tab-content-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, gap: 18 }} onSubmit={handleSubmit}>
+      {statusMsg && (
+        <div style={bannerStyle(statusType)}>
+          {statusMsg}
+        </div>
+      )}
       
       {/* 1. Información del incidente */}
       <fieldset style={fieldsetStyle}>
@@ -125,8 +243,8 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="numeroIncidente" 
               value={formData.numeroIncidente}
-              onChange={handleInputChange}
-              placeholder="Número de incidente / código de caso"
+              readOnly
+              placeholder="Se generará automáticamente al guardar"
               style={{ 
                 flex: 1, 
                 padding: '8px 12px', 
@@ -134,31 +252,10 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
                 borderRadius: 4,
                 minWidth: 0,
                 height: '36px',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                background: '#f8f8f8'
               }}
             />
-            <button 
-              type="button" 
-              onClick={handleGenerateNumber}
-              style={{ 
-                padding: '0', 
-                background: '#4caf50', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: 4,
-                cursor: 'pointer',
-                fontSize: '0.85em',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '36px',
-                height: '36px',
-                flexShrink: 0
-              }}
-              title="Generar código automático"
-            >
-              <i className="fas fa-sync-alt"></i>
-            </button>
           </div>
           
           <label style={{...labelStyle, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -663,6 +760,89 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
         >
           <i className="fas fa-paper-plane"></i>
           Enviar a Entidad Externa
+        </button>
+      </div>
+      {/* Ultimos reportes */}
+      <fieldset style={{ ...fieldsetStyle, marginTop: 8 }}>
+        <legend style={legendStyle}>Últimos reportes</legend>
+        {/* Filtros rápidos */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 12, alignItems: 'center' }}>
+          <div style={{ flex: '0 0 220px' }}>
+            <label style={labelStyle}>Estado</label>
+            <select
+              name="estado"
+              value={filters.estado}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFilters((prev) => ({ ...prev, estado: v }));
+                fetchRecentReports(5, { estado: v });
+              }}
+              style={{ ...inputStyle, height: 36 }}
+            >
+              <option value="">Todos</option>
+              <option value="Abierto">Abierto</option>
+              <option value="En Proceso">En Proceso</option>
+              <option value="Cerrado">Cerrado</option>
+            </select>
+          </div>
+          <div style={{ flex: '0 0 220px' }}>
+            <label style={labelStyle}>Tipo</label>
+            <select
+              name="tipo"
+              value={filters.tipo}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFilters((prev) => ({ ...prev, tipo: v }));
+                fetchRecentReports(5, { tipo: v });
+              }}
+              style={{ ...inputStyle, height: 36 }}
+            >
+              <option value="">Todos</option>
+              <option value="Bullying">Bullying</option>
+              <option value="Acoso">Acoso</option>
+              <option value="Violencia">Violencia</option>
+              <option value="Consumo">Consumo</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchRecentReports(5)}
+            style={{ ...buttonStyle, background: '#1976d2', color: '#fff', height: 36 }}
+          >
+            Aplicar
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFilters({ estado: '', tipo: '' });
+              fetchRecentReports(5, { estado: '', tipo: '' });
+            }}
+            style={{ ...buttonStyle, background: '#9e9e9e', color: '#fff', height: 36 }}
+          >
+            Limpiar
+          </button>
+        </div>
+        {recentReports?.length ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+            {recentReports.slice(0, 5).map((r, idx) => (
+              <div key={`${r.Id_Reporte || idx}`} style={{ border: '1px solid #eee', borderRadius: 6, padding: 10 }}>
+                <div style={{ fontWeight: 600 }}>{r.Numero_Incidente || 'N/A'}</div>
+                <div style={{ fontSize: 13, color: '#555' }}>Estado: {r.Estado_Alerta}</div>
+                <div style={{ fontSize: 13, color: '#555' }}>Tipo: {r.Tipo_Alerta}</div>
+                <div style={{ fontSize: 12, color: '#777' }}>Fecha: {String(r.Fecha_Ingreso).split('T')[0]}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ color: '#777' }}>No hay reportes recientes.</div>
+        )}
+      </fieldset>
+
+      {/* Botón enviar con estado */}
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button type="submit" style={{ ...buttonStyle, background: '#2e7d32', color: '#fff' }} disabled={loading}>
+          {loading ? 'Guardando...' : 'Registrar y Guardar Reporte'}
         </button>
       </div>
     </form>

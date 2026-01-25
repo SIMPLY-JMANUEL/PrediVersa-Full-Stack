@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'prediversa_secret_2024',
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
       { expiresIn: '24h' }
     );
 

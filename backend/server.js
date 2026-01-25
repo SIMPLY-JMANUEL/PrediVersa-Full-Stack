@@ -62,6 +62,7 @@ app.use((req, res, next) => {
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/seguimiento', require('./routes/seguimiento'));
 
 // Ruta de perfil
 app.get('/api/profile', (req, res) => {
@@ -70,6 +71,11 @@ app.get('/api/profile', (req, res) => {
     message: 'Profile endpoint',
     data: null
   });
+});
+
+// Healthcheck simple
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, time: new Date().toISOString() });
 });
 
 // Middleware de manejo de errores JSON

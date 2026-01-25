@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -23,16 +24,16 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     border: '1px solid #e9ecef'
   };
 
-  const [formData, setFormData] = useState({
-    // Datos vinculados de la alerta (cargados automáticamente)
-    numeroAlertaVinculada: '#ALR-000123',
-    tipoAlerta: 'Violencia psicológica',
-    nombreEstudiante: 'María Elena Rodríguez García',
-    edad: '14',
-    gradoCargo: '9° Grado',
-    institucionSede: 'Colegio San José',
-    descripcionBreveFecho: 'Situación de acoso escolar reportada por compañeros de clase...',
-    estadoActualAlerta: 'Activa',
+  const initialFormData = {
+    // Datos vinculados de la alerta (ingreso manual u origen externo)
+    numeroAlertaVinculada: '',
+    tipoAlerta: '',
+    nombreEstudiante: '',
+    edad: '',
+    gradoCargo: '',
+    institucionSede: '',
+    descripcionBreveFecho: '',
+    estadoActualAlerta: '',
     
     // Datos de la remisión
     fechaRemision: new Date().toISOString().split('T')[0],
@@ -48,7 +49,13 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     notificoAcudiente: '',
     fechaHoraCita: '',
     observacionesSeguimiento: ''
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+
+  const [loading, setLoading] = useState(false);
+  const [statusType, setStatusType] = useState(''); // success | error
+  const [statusMsg, setStatusMsg] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -58,10 +65,65 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Remisión registrada exitosamente');
-    console.log('Datos de la remisión:', formData);
+    setStatusType('');
+    setStatusMsg('');
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setStatusType('error');
+        setStatusMsg('No hay sesión activa. Por favor inicia sesión nuevamente.');
+        setLoading(false);
+        return;
+      }
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      const payload = {
+        numeroAlertaVinculada: formData.numeroAlertaVinculada,
+        tipoAlerta: formData.tipoAlerta,
+        nombreEstudiante: formData.nombreEstudiante,
+        edad: formData.edad,
+        gradoCargo: formData.gradoCargo,
+        institucionSede: formData.institucionSede,
+        descripcionBreve: formData.descripcionBreveFecho,
+        estadoActualAlerta: formData.estadoActualAlerta,
+        fechaRemision: formData.fechaRemision,
+        motivoRemision: formData.motivoRemision,
+        areaDestino: formData.areaDestino,
+        entidadReceptora: formData.entidadReceptora,
+        profesionalAsignado: formData.profesionalAsignado,
+        estadoRemision: formData.estadoRemision,
+        comentariosRemitente: formData.comentariosRemitente,
+        notificoAcudiente: formData.notificoAcudiente,
+        fechaHoraCita: formData.fechaHoraCita,
+        observacionesSeguimiento: formData.observacionesSeguimiento,
+        archivoAdjunto: null,
+      };
+
+      const resp = await axios.post('/api/admin/remisiones', payload, config);
+      if (resp.data?.success) {
+        setStatusType('success');
+        setStatusMsg('Remisión registrada exitosamente');
+        setFormData(initialFormData);
+      } else {
+        setStatusType('error');
+        setStatusMsg(resp.data?.msg || 'No se pudo registrar la remisión');
+      }
+    } catch (err) {
+      setStatusType('error');
+      const errorMsg = err?.response?.data?.msg || err.message || 'Error al registrar la remisión';
+      if (err?.response?.status === 401) {
+        setStatusMsg('Sesión expirada o token inválido. Por favor inicia sesión nuevamente.');
+      } else {
+        setStatusMsg(errorMsg);
+      }
+      console.error('Error al enviar remisión:', err?.response || err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -74,11 +136,25 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
 
   return (
     <form className="tab-content-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, gap: 18 }} onSubmit={handleSubmit}>
+      {statusMsg ? (
+        <div
+          style={{
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: `1px solid ${statusType === 'success' ? '#4caf50' : '#f44336'}`,
+            background: statusType === 'success' ? '#e8f5e9' : '#ffebee',
+            color: statusType === 'success' ? '#1b5e20' : '#b71c1c',
+            fontWeight: 600,
+          }}
+        >
+          {statusMsg}
+        </div>
+      ) : null}
       
       {/* 1. Datos vinculados de la alerta */}
       <fieldset style={fieldsetStyle}>
         <legend style={legendStyle}>
-          Datos vinculados de la alerta (se cargan automáticamente)
+          Datos vinculados de la alerta (ingreso manual o desde alerta seleccionada)
         </legend>
         <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -87,8 +163,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="numeroAlertaVinculada" 
               value={formData.numeroAlertaVinculada}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Ej: ALR-000123"
+              style={inputStyle}
             />
           </label>
 
@@ -98,8 +175,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="tipoAlerta" 
               value={formData.tipoAlerta}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Ej: Violencia psicológica"
+              style={inputStyle}
             />
           </label>
 
@@ -109,8 +187,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="nombreEstudiante" 
               value={formData.nombreEstudiante}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Nombre del afectado"
+              style={inputStyle}
             />
           </label>
 
@@ -120,8 +199,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="edad" 
               value={formData.edad}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Edad"
+              style={inputStyle}
             />
           </label>
 
@@ -131,8 +211,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="gradoCargo" 
               value={formData.gradoCargo}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Grado / cargo"
+              style={inputStyle}
             />
           </label>
 
@@ -142,8 +223,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="institucionSede" 
               value={formData.institucionSede}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Institución / sede"
+              style={inputStyle}
             />
           </label>
 
@@ -152,12 +234,13 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
             <textarea 
               name="descripcionBreveFecho" 
               value={formData.descripcionBreveFecho}
-              readOnly
+              onChange={handleInputChange}
               rows={3}
+              placeholder="Descripción breve del hecho"
               style={{ 
-                ...readOnlyStyle,
+                ...inputStyle,
                 height: 'auto',
-                resize: 'none',
+                resize: 'vertical',
                 fontFamily: 'inherit'
               }}
             />
@@ -169,8 +252,9 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               type="text" 
               name="estadoActualAlerta" 
               value={formData.estadoActualAlerta}
-              readOnly
-              style={readOnlyStyle}
+              onChange={handleInputChange}
+              placeholder="Estado actual"
+              style={inputStyle}
             />
           </label>
         </div>
@@ -376,6 +460,7 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
             gap: 8,
             transition: 'transform 0.2s, box-shadow 0.2s'
           }}
+          disabled={loading}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-1px)';
             e.target.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
@@ -386,7 +471,7 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
           }}
         >
           <i className="fas fa-save"></i>
-          Registrar remisión
+          {loading ? 'Enviando...' : 'Registrar remisión'}
         </button>
 
         <button 

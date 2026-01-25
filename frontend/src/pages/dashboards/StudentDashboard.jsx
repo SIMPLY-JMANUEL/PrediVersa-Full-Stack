@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import logo from '../../assets/img/logo-prediversa.png';
 import Footer from '../../components/Footer';
 import './_dashboard-variables.css'; // Variables y estilos centralizados
@@ -687,25 +688,99 @@ const StudentDashboard = () => {
     }, 300);
   };
 
-  const handleReportSubmit = () => {
-    // Generar número de reporte
-    const reportNumber = `RPT-${Date.now().toString().substr(-6)}`;
-    console.log('Reporte enviado:', { ...reportForm, reportNumber });
+  const handleReportSubmit = async () => {
+    const descripcion = reportForm.incidentData?.description?.trim();
+    const correoContacto = reportForm.incidentData?.contactEmail?.trim();
 
-    // Actualizar estadísticas
-    setUserStats(prev => ({
-      ...prev,
-      conversations: prev.conversations + 1, // Nueva conversación con equipo de apoyo
-      newMessages: prev.newMessages + 1, // Mensaje de confirmación
-      resourcesViewed: prev.resourcesViewed + 1, // Recurso utilizado (sistema de reporte)
-    }));
+    if (!descripcion) {
+      showNotification('error', 'Falta información', 'La descripción del incidente es obligatoria.');
+      return;
+    }
 
-    showNotification(
-      'success',
-      'Reporte Enviado',
-      `Tu reporte ha sido registrado con el número: ${reportNumber}. Recibirás seguimiento pronto.`
-    );
-    handleSupportTabClose();
+    if (reportForm.isAnonymous === false) {
+      const nombre = reportForm.personalData?.fullName?.trim();
+      if (!nombre) {
+        showNotification('error', 'Falta información', 'El nombre completo es obligatorio si el reporte no es anónimo.');
+        return;
+      }
+    }
+
+    try {
+      const payload = {
+        isAnonymous: reportForm.isAnonymous ?? false,
+        personalData: reportForm.personalData,
+        institutionData: reportForm.institutionData,
+        incidentData: reportForm.incidentData,
+      };
+
+      const token = localStorage.getItem('token');
+      const response = await axios.post('/api/student/reportes', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+
+      if (response.data?.success) {
+        const numero = response.data.data?.numeroReporte || 'RPT-??????';
+
+        // Actualizar estadísticas
+        setUserStats(prev => ({
+          ...prev,
+          conversations: prev.conversations + 1,
+          newMessages: prev.newMessages + 1,
+          resourcesViewed: prev.resourcesViewed + 1,
+        }));
+
+        showNotification(
+          'success',
+          'Reporte Enviado',
+          `Tu reporte ha sido registrado con el número: ${numero}. Recibirás seguimiento pronto.`
+        );
+
+        // Reset del formulario
+        setReportForm({
+          isAnonymous: null,
+          personalData: {
+            fullName: '',
+            documentType: '',
+            documentNumber: '',
+            birthDate: '',
+            age: '',
+            gender: '',
+            civilStatus: '',
+            email: '',
+            phone: '',
+            address: '',
+            occupation: '',
+          },
+          institutionData: {
+            eps: '',
+            medicalHistory: '',
+            specialCondition: '',
+            gradeOrPosition: '',
+            institution: '',
+            emergencyContactName: '',
+            emergencyContactPhone: '',
+          },
+          incidentData: {
+            description: '',
+            evidence: '',
+            context: '',
+            contactEmail: '',
+          },
+        });
+
+        handleSupportTabClose();
+      } else {
+        const msg = response.data?.msg || 'No se pudo registrar el reporte';
+        showNotification('error', 'Error al enviar', msg);
+      }
+    } catch (error) {
+      console.error('❌ Error al enviar reporte:', error);
+      const msg = error.response?.data?.msg || error.message || 'Error de red al enviar el reporte';
+      showNotification('error', 'Error de red', msg);
+    }
   };
 
   const handleSuggestionSubmit = () => {

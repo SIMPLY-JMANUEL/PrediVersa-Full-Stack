@@ -5,6 +5,7 @@ const router = express.Router();
 const { jwtRequired, roleRequired } = require('../utils/jwt');
 // Se usa la base de datos en lugar de arrays en memoria
 const validateQuestionnaire = require('../middlewares/validateQuestionnaire');
+const Reporte = require('../models/ReporteMySQL');
 
 // Helper para respuestas uniformes
 function sendResponse(
@@ -13,6 +14,69 @@ function sendResponse(
 ) {
   res.status(status).json({ success, msg, data });
 }
+
+// POST /student/reportes - Registrar reporte estudiantil
+router.post('/reportes', jwtRequired, roleRequired('estudiante'), async (req, res) => {
+  try {
+    const { isAnonymous = false, personalData = {}, institutionData = {}, incidentData = {} } = req.body || {};
+
+    if (!incidentData.description || !incidentData.description.trim()) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'La descripción del incidente es obligatoria',
+        status: 400,
+      });
+    }
+
+    if (isAnonymous === false && !personalData.fullName) {
+      return sendResponse(res, {
+        success: false,
+        msg: 'El nombre completo es obligatorio si el reporte no es anónimo',
+        status: 400,
+      });
+    }
+
+    const resultado = await Reporte.createReporte({ isAnonymous, personalData, institutionData, incidentData }, req.user?.id);
+
+    sendResponse(res, {
+      success: true,
+      msg: 'Reporte registrado exitosamente',
+      data: {
+        id: resultado.Id_Reporte,
+        numeroReporte: resultado.numeroReporte,
+      },
+      status: 201,
+    });
+  } catch (error) {
+    console.error('❌ Error creando reporte:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al registrar el reporte: ' + (error.message || 'Error interno'),
+      status: 500,
+    });
+  }
+});
+
+// GET /student/reportes - Listado de reportes del estudiante
+router.get('/reportes', jwtRequired, roleRequired('estudiante'), async (req, res) => {
+  try {
+    const { limit = 50, offset = 0 } = req.query;
+    const reportes = await Reporte.getReportesByUser(req.user?.id, parseInt(limit), parseInt(offset));
+
+    sendResponse(res, {
+      success: true,
+      data: reportes,
+      msg: `Se encontraron ${reportes.length} reportes`,
+    });
+  } catch (error) {
+    console.error('❌ Error listando reportes:', error);
+    sendResponse(res, {
+      success: false,
+      msg: 'Error al obtener reportes: ' + (error.message || 'Error interno'),
+      status: 500,
+    });
+  }
+});
 
 // GET /student/perfil
 // Devuelve el perfil del estudiante autenticado
