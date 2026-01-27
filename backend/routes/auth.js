@@ -118,10 +118,10 @@ router.get('/users', async (req, res) => {
 });
 
 // @route   POST /api/auth/verify
-// @desc    Verificar token
+// @desc    Verificar token y renovarlo si es válido
 // @access  Public
 router.post('/verify', (req, res) => {
-  const token = req.header('x-auth-token') || req.body.token;
+  const token = req.header('Authorization')?.replace('Bearer ', '') || req.header('x-auth-token') || req.body.token;
 
   if (!token) {
     return res.status(401).json({ msg: 'No token, autorización denegada' });
@@ -130,14 +130,60 @@ router.post('/verify', (req, res) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'prediversa_secret_2024'
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES'
     );
+    
+    // Generar nuevo token renovado
+    const newToken = jwt.sign(
+      decoded,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { expiresIn: '24h' }
+    );
+    
     res.json({
       success: true,
       user: decoded.user,
+      token: newToken, // Renovado
     });
   } catch (error) {
-    res.status(401).json({ msg: 'Token no válido' });
+    console.error('Token verification error:', error.message);
+    res.status(401).json({ msg: 'Token no válido', error: error.message });
+  }
+});
+
+// @route   POST /api/auth/refresh
+// @desc    Renovar token expirado
+// @access  Private
+router.post('/refresh', (req, res) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ msg: 'No token, autorización denegada' });
+  }
+
+  try {
+    // Verificar incluso si expiró (ignoreExpiration)
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { ignoreExpiration: true }
+    );
+    
+    // Generar nuevo token
+    const newToken = jwt.sign(
+      decoded,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { expiresIn: '24h' }
+    );
+    
+    res.json({
+      success: true,
+      token: newToken,
+      user: decoded.user,
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error.message);
+    res.status(401).json({ msg: 'No se pudo renovar el token', error: error.message });
   }
 });
 

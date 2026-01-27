@@ -46,6 +46,7 @@
   "author": "SIMPLY-JMANUEL",
   "license": "MIT",
   "dependencies": {
-    "builtin-modules": "^5.0.0"
+    "builtin-modules": "^5.0.0",
+    "debug": "^2.6.9"
   }
 }

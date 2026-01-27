@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, createUser, getUserById, searchUsers } = require('../models/UserMySQL');
+const User = require('../models/UserMySQL');
 const Alerta = require('../models/AlertaMySQL');
 const verify = require('../middlewares/auth');
 const RemisionMySQL = require('../models/RemisionMySQL');
@@ -88,7 +88,7 @@ router.get('/system-alerts', (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     console.log('📥 Crear reporte - body:', { body: req.body });
-    const users = await getAllUsers();
+    const users = await User.getAllUsers();
     sendResponse(res, { data: users });
   } catch (error) {
     console.error('Error getting users:', error);
@@ -176,7 +176,7 @@ router.post('/users', async (req, res) => {
 
     console.log('🔄 Datos mapeados para UserMySQL.createUser:', userData);
 
-    const newUserId = await createUser(userData);
+    const newUserId = await User.createUser(userData);
 
     console.log('✅ Usuario creado exitosamente con ID:', newUserId.id);
 
@@ -209,7 +209,7 @@ router.get('/search-users', async (req, res) => {
     }
 
     // Usar el modelo UserMySQL para buscar
-    const users = await searchUsers(documento, nombre);
+    const users = await User.searchUsers(documento, nombre);
     
     sendResponse(res, {
       success: true,
@@ -230,7 +230,7 @@ router.get('/search-users', async (req, res) => {
 router.get('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await getUserById(id);
+    const user = await User.getUserById(id);
     
     if (!user) {
       return sendResponse(res, {

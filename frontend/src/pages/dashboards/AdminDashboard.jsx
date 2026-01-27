@@ -19,6 +19,7 @@ import UserManagement from './components/UserManagement';
 import { useAdminDashboard } from '../../hooks/useDashboardData';
 import useProfile from '../../hooks/useProfile';
 import axios from 'axios';
+import api from '../../utils/axiosConfig';
 
 // NUEVO ORDEN DE TABS: Crear usuario, Consultar/Modificar Usuario, Alerta, Reportes, Remisión de Atención, Seguimiento, Administrador de PQR, Seguimiento PQR, Comunicación y Soporte
 const mainTabs = [
@@ -230,6 +231,14 @@ function AdminDashboard() {
     try {
       setLoadingSearch(true);
 
+      // Validar token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('⚠️ No hay token de autenticación. Por favor inicia sesión nuevamente.');
+        setLoadingSearch(false);
+        return;
+      }
+
       // Construir parámetros de búsqueda
       const params = new URLSearchParams();
       if (docToSearch.trim()) {
@@ -240,11 +249,7 @@ function AdminDashboard() {
       }
 
       // Realizar búsqueda en la base de datos
-      const response = await axios.get(`/api/admin/search-users?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await api.get(`/api/admin/search-users?${params.toString()}`);
 
       if (response.data.success && response.data.data) {
         setSearchResults(response.data.data);
@@ -346,16 +351,17 @@ function AdminDashboard() {
       console.log('📝 Actualizando usuario con ID:', selectedUser.Id_Usuario);
       console.log('📦 Payload:', payload);
 
+      // Validar token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('⚠️ No hay token de autenticación. Por favor inicia sesión nuevamente.');
+        return;
+      }
+
       // Realizar actualización en la base de datos
-      const response = await axios.put(
+      const response = await api.put(
         `/api/admin/users/${selectedUser.Id_Usuario}`,
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
+        payload
       );
 
       if (response.data.success) {
@@ -485,13 +491,15 @@ function AdminDashboard() {
 
       console.log('📝 Enviando usuario a SQL Server...', payload);
 
+      // Validar token antes de enviar
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('⚠️ No hay token de autenticación. Por favor inicia sesión nuevamente.');
+        return;
+      }
+
       // Llamada real a la API de SQL Server
-      const response = await axios.post('/api/admin/users', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await api.post('/api/admin/users', payload);
 
       if (response.data.success) {
         alert(

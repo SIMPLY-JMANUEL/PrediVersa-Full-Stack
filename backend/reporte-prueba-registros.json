@@ -1,0 +1,75 @@
+{
+  "fecha": "2026-01-27T01:31:45.283Z",
+  "estadisticas": {
+    "total": 6,
+    "exitosos": 6,
+    "errores": 0,
+    "porcentaje": "100.00"
+  },
+  "resultados": [
+    {
+      "status": "SUCCESS",
+      "formulario": "🔐 Login",
+      "mensaje": "Autenticado como: testuser6",
+      "data": {
+        "usuario": "testuser6",
+        "perfil": "Administrador"
+      },
+      "timestamp": "2026-01-27T01:31:44.644Z"
+    },
+    {
+      "status": "SUCCESS",
+      "formulario": "👤 Usuario",
+      "mensaje": "Usuario creado exitosamente",
+      "data": {
+        "id": 22,
+        "usuario": "jperez176947750",
+        "correo": "juan.perez.1769477504646@prediversa.edu.co"
+      },
+      "timestamp": "2026-01-27T01:31:44.772Z"
+    },
+    {
+      "status": "SUCCESS",
+      "formulario": "📋 Seguimiento",
+      "mensaje": "Seguimiento creado exitosamente",
+      "data": {
+        "id": 3,
+        "numeroCaso": "#SEG-1769477504"
+      },
+      "timestamp": "2026-01-27T01:31:44.891Z"
+    },
+    {
+      "status": "SUCCESS",
+      "formulario": "🚨 Alerta",
+      "mensaje": "Alerta creada exitosamente",
+      "data": {
+        "id": 14,
+        "numeroAlerta": "ALR-000014",
+        "tipo": "bullying"
+      },
+      "timestamp": "2026-01-27T01:31:45.016Z"
+    },
+    {
+      "status": "SUCCESS",
+      "formulario": "📝 Reporte",
+      "mensaje": "Reporte creado exitosamente",
+      "data": {
+        "id": 17,
+        "tipo": "Bienestar Emocional",
+        "estudiante": "Sofía Ramírez Castro"
+      },
+      "timestamp": "2026-01-27T01:31:45.137Z"
+    },
+    {
+      "status": "SUCCESS",
+      "formulario": "🏥 Remisión",
+      "mensaje": "Remisión creada exitosamente",
+      "data": {
+        "id": 7,
+        "areaDestino": "Psiquiatría",
+        "estudiante": "Andrés Felipe Rojas"
+      },
+      "timestamp": "2026-01-27T01:31:45.270Z"
+    }
+  ]
+}

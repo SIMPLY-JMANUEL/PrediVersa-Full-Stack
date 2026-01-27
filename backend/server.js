@@ -10,6 +10,10 @@ const PORT = 5003; // Forzar puerto 5003
 
 console.log('Iniciando backend PrediVersa...');
 console.log(`🚀 Puerto configurado: ${PORT}`);
+console.log(`🔐 JWT_SECRET cargado: ${process.env.JWT_SECRET ? '✅ SÍ' : '❌ NO (usando default)'}`);
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ ADVERTENCIA: Usando JWT_SECRET por defecto. Configura la variable de entorno.');
+}
 
 // Middlewares de seguridad
 app.use(helmet());

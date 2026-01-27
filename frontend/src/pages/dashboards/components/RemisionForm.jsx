@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -103,7 +104,7 @@ const RemisionForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
         archivoAdjunto: null,
       };
 
-      const resp = await axios.post('/api/admin/remisiones', payload, config);
+      const resp = await api.post('/api/admin/remisiones', payload);
       if (resp.data?.success) {
         setStatusType('success');
         setStatusMsg('Remisión registrada exitosamente');

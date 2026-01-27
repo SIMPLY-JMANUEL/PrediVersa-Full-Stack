@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -87,15 +88,13 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
 
   const fetchRecentReports = async (limit = 5, opts = {}) => {
     try {
-      const token = localStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
       const estado = opts.estado ?? filters.estado;
       const tipo = opts.tipo ?? filters.tipo;
       const qs = new URLSearchParams();
       qs.set('limit', String(limit));
       if (estado) qs.set('estado', estado);
       if (tipo) qs.set('tipo', tipo);
-      const resp = await axios.get(`/api/admin/reportes?${qs.toString()}`, config);
+      const resp = await api.get(`/api/admin/reportes?${qs.toString()}`);
       if (resp.data?.success) setRecentReports(resp.data.data || []);
     } catch (err) {
       // Silencioso para no interrumpir el flujo
@@ -134,6 +133,14 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validación de token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setStatusType('error');
+      setStatusMsg('No hay token de autenticación. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
     // Validaciones básicas
     if (!formData.fechaIngreso || !formData.estadoAlerta || !formData.tipoAlerta) {
       alert('Por favor completa los campos requeridos del incidente');
@@ -149,17 +156,10 @@ const ReportesForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
       setLoading(true);
       setStatusType('');
       setStatusMsg('');
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      };
 
       // Enviamos sin numeroIncidente para que el backend lo genere
       const payload = { ...formData, numeroIncidente: '' };
-      const response = await axios.post('/api/admin/reportes', payload, config);
+      const response = await api.post('/api/admin/reportes', payload);
 
       if (response.data.success) {
         setStatusType('success');

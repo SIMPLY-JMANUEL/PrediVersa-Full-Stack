@@ -1,0 +1,53 @@
+{
+  "fecha": "2026-01-27T01:20:02.277Z",
+  "resumen": {
+    "total": 6,
+    "exitosos": 0,
+    "errores": 6,
+    "porcentajeExito": "0.00"
+  },
+  "resultados": [
+    {
+      "formulario": "Login",
+      "status": "ERROR",
+      "mensaje": "No se pudo autenticar con ninguna credencial. Usando token simulado.",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.236Z"
+    },
+    {
+      "formulario": "Crear Usuario",
+      "status": "ERROR",
+      "mensaje": "Error al crear usuario: ",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.247Z"
+    },
+    {
+      "formulario": "Crear Seguimiento",
+      "status": "ERROR",
+      "mensaje": "Token no válido",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.254Z"
+    },
+    {
+      "formulario": "Crear Alerta",
+      "status": "ERROR",
+      "mensaje": "Faltan campos obligatorios: tipo_alerta, ubicacion, nombre_reportante",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.262Z"
+    },
+    {
+      "formulario": "Crear Reporte",
+      "status": "ERROR",
+      "mensaje": "Token no válido",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.266Z"
+    },
+    {
+      "formulario": "Crear Remisión",
+      "status": "ERROR",
+      "mensaje": "Token no válido",
+      "data": null,
+      "timestamp": "2026-01-27T01:20:02.273Z"
+    }
+  ]
+}

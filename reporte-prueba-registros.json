@@ -1,0 +1,53 @@
+{
+  "fecha": "2026-01-27T01:27:24.325Z",
+  "estadisticas": {
+    "total": 6,
+    "exitosos": 0,
+    "errores": 6,
+    "porcentaje": "0.00"
+  },
+  "resultados": [
+    {
+      "status": "ERROR",
+      "formulario": "🔐 Login",
+      "mensaje": "No se pudo autenticar con ninguna credencial",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.302Z"
+    },
+    {
+      "status": "ERROR",
+      "formulario": "👤 Usuario",
+      "mensaje": "Error",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.308Z"
+    },
+    {
+      "status": "ERROR",
+      "formulario": "📋 Seguimiento",
+      "mensaje": "Error",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.311Z"
+    },
+    {
+      "status": "ERROR",
+      "formulario": "🚨 Alerta",
+      "mensaje": "Error",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.315Z"
+    },
+    {
+      "status": "ERROR",
+      "formulario": "📝 Reporte",
+      "mensaje": "Error",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.318Z"
+    },
+    {
+      "status": "ERROR",
+      "formulario": "🏥 Remisión",
+      "mensaje": "Error",
+      "data": null,
+      "timestamp": "2026-01-27T01:27:24.323Z"
+    }
+  ]
+}

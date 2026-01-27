@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const AlertarForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   const [formData, setFormData] = useState({
@@ -55,6 +56,13 @@ const AlertarForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validación de token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('⚠️ No hay token de autenticación. Por favor inicia sesión nuevamente.');
+      return;
+    }
+    
     try {
       console.log('📝 Enviando alerta al backend...', formData);
 
@@ -65,12 +73,7 @@ const AlertarForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
       }
 
       // Enviar alerta al backend
-      const response = await axios.post('/api/admin/alerts', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await api.post('/api/admin/alerts', formData);
 
       if (response.data.success) {
         console.log('✅ Alerta registrada exitosamente:', response.data.data);

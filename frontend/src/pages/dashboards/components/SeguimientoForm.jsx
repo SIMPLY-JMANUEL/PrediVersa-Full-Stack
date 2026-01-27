@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -148,6 +149,14 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
 
     setLoading(true);
     try {
+      // Obtener token de autenticación
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setErrors({ submit: 'No hay sesión activa. Por favor inicia sesión nuevamente.' });
+        setLoading(false);
+        return;
+      }
+
       const payload = {
         numeroCaso: formData.codigoCaso,
         descripcionRequerimiento: `${formData.tipoSeguimiento === 'otro' ? formData.tipoSeguimientoOtro : formData.tipoSeguimiento}: ${formData.observacionesResultados}`,
@@ -163,14 +172,9 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
         observaciones: formData.estadoCasoOtro || formData.observacionesResultados
       };
 
-      const response = await axios.post(
-        'http://localhost:5003/api/seguimiento/crear',
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+      const response = await api.post(
+        '/api/seguimiento/crear',
+        payload
       );
 
       if (response.data.success || response.status === 200) {
