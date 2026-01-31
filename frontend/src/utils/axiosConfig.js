@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // Crear instancia de axios con configuración
+const baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5003';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5003',
+  baseURL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -56,7 +58,7 @@ api.interceptors.response.use(
       }
 
       return axios
-        .post('http://localhost:5003/api/auth/refresh', {}, {
+        .post(`${baseURL}/api/auth/refresh`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

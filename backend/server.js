@@ -66,7 +66,9 @@ app.use((req, res, next) => {
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/student', require('./routes/student'));
 app.use('/api/seguimiento', require('./routes/seguimiento'));
+app.use('/api/chatbot', require('./routes/chatbot')); // 🤖 Rutas para Llama 3 via AWS Bedrock
 
 // Ruta de perfil
 app.get('/api/profile', (req, res) => {

@@ -6,13 +6,14 @@ export default function useProfile() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
     const token = localStorage.getItem('token');
     if (!token) {
       setError(true);
       setLoading(false);
       return;
     }
-    fetch('http://localhost:5003/api/profile', {
+    fetch(`${apiBaseUrl}/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -20,17 +21,21 @@ export default function useProfile() {
       credentials: 'include',
     })
       .then(res => {
-        if (!res.ok) {
+        if (res.status === 401) {
           throw new Error('Credenciales inválidas');
+        }
+        if (!res.ok) {
+          throw new Error('Error obteniendo perfil');
         }
         return res.json();
       })
       .then(data => {
         setProfile(data.profile || data);
+        setError(false);
         setLoading(false);
       })
       .catch(() => {
-        setError(true);
+        setError(false);
         setLoading(false);
       });
   }, []);

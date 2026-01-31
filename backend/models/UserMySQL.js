@@ -17,15 +17,17 @@ class User {
   }
 
   // Obtener usuario por credenciales (login)
-  static async getUserByCredentials(usuario, contrasena) {
+  // Permite login por usuario o correo
+  static async getUserByCredentials(identifier, contrasena) {
     try {
       const sql = `
         SELECT * FROM Usuarios 
-        WHERE TRIM(Usuario) = ? 
-        AND TRIM(Contrasena) = ? 
-        AND TRIM(Activo) = 'SI'
+        WHERE (TRIM(Usuario) = ? OR TRIM(Correo) = ?)
+        AND TRIM(Contrasena) = ?
       `;
-      return await querySingle(sql, [usuario.trim(), contrasena.trim()]);
+      const id = (identifier || '').trim();
+      const pwd = (contrasena || '').trim();
+      return await querySingle(sql, [id, id, pwd]);
     } catch (error) {
       console.error('Error en getUserByCredentials:', error);
       throw error;

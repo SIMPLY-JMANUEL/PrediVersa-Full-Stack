@@ -14,11 +14,17 @@ router.post('/login', async (req, res) => {
     console.log('🔍 Login route hit - AWS RDS MySQL');
     console.log('📦 Request body:', req.body);
 
-    const { usuario, correoElectronico, correo, contraseña, password } =
-      req.body || {};
+    const {
+      usuario,
+      correoElectronico,
+      correo,
+      username,
+      contraseña,
+      password,
+    } = req.body || {};
 
     // Permitir múltiples formas de identificación
-    const identifier = usuario || correoElectronico || correo;
+    const identifier = usuario || correoElectronico || correo || username;
     const pwd = contraseña || password;
 
     console.log('🔍 Processed:', { identifier, pwd: pwd ? '***' : 'MISSING' });
@@ -101,7 +107,7 @@ router.post('/login', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     console.log('🔍 Getting users from AWS RDS MySQL...');
-    const users = await getAllUsersDirect();
+    const users = await db.User.getAllUsers();
 
     res.json({
       success: true,

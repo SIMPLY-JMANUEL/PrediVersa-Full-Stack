@@ -11,6 +11,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.980.0",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
@@ -24,7 +25,8 @@
     "mongoose": "^7.5.0",
     "mysql2": "^3.16.1",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^7.0.5",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "eslint": "^9.30.1",
