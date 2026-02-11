@@ -1,53 +1,65 @@
 {
-  "fecha": "2026-01-27T01:20:02.277Z",
+  "fecha": "2026-02-11T00:28:07.864Z",
   "resumen": {
     "total": 6,
-    "exitosos": 0,
-    "errores": 6,
-    "porcentajeExito": "0.00"
+    "exitosos": 6,
+    "errores": 0,
+    "porcentajeExito": "100.00"
   },
   "resultados": [
     {
       "formulario": "Login",
-      "status": "ERROR",
-      "mensaje": "No se pudo autenticar con ninguna credencial. Usando token simulado.",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.236Z"
+      "status": "ÉXITO",
+      "mensaje": "Autenticación exitosa con usuario: testuser",
+      "data": {
+        "usuario": "testuser"
+      },
+      "timestamp": "2026-02-11T00:28:06.765Z"
     },
     {
       "formulario": "Crear Usuario",
-      "status": "ERROR",
-      "mensaje": "Error al crear usuario: ",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.247Z"
+      "status": "ÉXITO",
+      "mensaje": "Usuario creado exitosamente",
+      "data": {
+        "id": 27
+      },
+      "timestamp": "2026-02-11T00:28:07.014Z"
     },
     {
       "formulario": "Crear Seguimiento",
-      "status": "ERROR",
-      "mensaje": "Token no válido",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.254Z"
+      "status": "ÉXITO",
+      "mensaje": "Requerimiento de seguimiento creado exitosamente",
+      "data": {
+        "id": 6
+      },
+      "timestamp": "2026-02-11T00:28:07.177Z"
     },
     {
       "formulario": "Crear Alerta",
-      "status": "ERROR",
-      "mensaje": "Faltan campos obligatorios: tipo_alerta, ubicacion, nombre_reportante",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.262Z"
+      "status": "ÉXITO",
+      "mensaje": "Alerta registrada exitosamente",
+      "data": {
+        "id": 18
+      },
+      "timestamp": "2026-02-11T00:28:07.395Z"
     },
     {
       "formulario": "Crear Reporte",
-      "status": "ERROR",
-      "mensaje": "Token no válido",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.266Z"
+      "status": "ÉXITO",
+      "mensaje": "Reporte creado exitosamente",
+      "data": {
+        "id": 19
+      },
+      "timestamp": "2026-02-11T00:28:07.609Z"
     },
     {
       "formulario": "Crear Remisión",
-      "status": "ERROR",
-      "mensaje": "Token no válido",
-      "data": null,
-      "timestamp": "2026-01-27T01:20:02.273Z"
+      "status": "ÉXITO",
+      "mensaje": "Remisión creada exitosamente",
+      "data": {
+        "id": 9
+      },
+      "timestamp": "2026-02-11T00:28:07.792Z"
     }
   ]
 }

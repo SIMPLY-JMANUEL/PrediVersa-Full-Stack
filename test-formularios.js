@@ -48,6 +48,7 @@ async function login() {
   try {
     // Intentar con varios usuarios posibles
     const credenciales = [
+      { usuario: 'testuser', password: 'test123456' },
       { usuario: 'admin', password: 'admin123' },
       { usuario: 'admin', password: 'Admin@123' },
       { usuario: 'administrador', password: 'admin123' }
@@ -160,12 +161,12 @@ async function testCrearAlerta() {
       `${BASE_URL}/admin/alerts`,
       {
         tipo_alerta: 'Riesgo Académico',
-        nivel_riesgo: 'Medio',
-        descripcion: `Alerta de prueba automatizada ${timestamp}`,
-        estudiante_afectado: 'Estudiante Test',
-        fecha_deteccion: new Date().toISOString().split('T')[0],
-        estado: 'Activa',
-        acciones_recomendadas: 'Realizar seguimiento académico'
+        ubicacion: 'Sede Principal',
+        nombre_reportante: 'Docente Test',
+        descripcion_detallada: `Alerta de prueba automatizada ${timestamp}`,
+        categoria_incidente: 'Academico',
+        prioridad: 'media',
+        estado_alerta: 'nuevo'
       },
       {
         headers: { Authorization: `Bearer ${authToken}` }
@@ -189,13 +190,14 @@ async function testCrearReporte() {
     const response = await axios.post(
       `${BASE_URL}/admin/reportes`,
       {
-        tipo_reporte: 'Bienestar',
-        descripcion_situacion: `Reporte de prueba automatizado ${timestamp}`,
-        nivel_urgencia: 'Media',
-        estudiante_reportado: 'Estudiante Test',
-        fecha_incidente: new Date().toISOString().split('T')[0],
-        estado_reporte: 'Pendiente',
-        observaciones: 'Reporte generado por prueba automatizada'
+        fechaIngreso: new Date().toISOString().split('T')[0],
+        estadoAlerta: 'Abierto',
+        tipoAlerta: 'Bienestar',
+        nombreCompleto: 'Estudiante Test',
+        descripcionDetallada: `Reporte de prueba automatizado ${timestamp}`,
+        nivelGravedad: 'Media',
+        responsableAsignado: 'Profesional Test',
+        observacionesAdicionales: 'Reporte generado por prueba automatizada'
       },
       {
         headers: { Authorization: `Bearer ${authToken}` }
@@ -219,16 +221,13 @@ async function testCrearRemision() {
     const response = await axios.post(
       `${BASE_URL}/admin/remisiones`,
       {
-        numeroRemision: `REM-${timestamp}`.substring(0, 15),
-        estudianteRemitido: 'Estudiante Test',
-        documentoEstudiante: '1234567890',
+        numeroAlertaVinculada: `ALR-${timestamp}`.substring(0, 15),
+        nombreEstudiante: 'Estudiante Test',
         motivoRemision: `Remisión de prueba automatizada ${timestamp}`,
-        profesionalRemite: 'Docente Test',
-        institucionDestino: 'Centro de Apoyo Test',
         fechaRemision: new Date().toISOString().split('T')[0],
-        prioridad: 'media',
+        areaDestino: 'Psicologia',
         estadoRemision: 'pendiente',
-        observaciones: 'Remisión generada por prueba automatizada'
+        observacionesSeguimiento: 'Remisión generada por prueba automatizada'
       },
       {
         headers: { Authorization: `Bearer ${authToken}` }

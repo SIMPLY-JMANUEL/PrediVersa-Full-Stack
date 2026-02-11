@@ -187,6 +187,22 @@ router.post('/users', async (req, res) => {
   } catch (error) {
     console.error('❌ Error creating user - Stack:', error.stack);
     console.error('❌ Error creating user - Message:', error.message);
+    if (error.code === 'ER_DUP_ENTRY') {
+      const message = String(error.message || '').toLowerCase();
+      let field = 'dato';
+      if (message.includes('usuario')) {
+        field = 'usuario';
+      } else if (message.includes('correo')) {
+        field = 'correo';
+      } else if (message.includes('identificacion')) {
+        field = 'numero de documento';
+      }
+      return sendResponse(res, {
+        success: false,
+        msg: `Ya existe un ${field} con ese valor. Usa uno diferente.`,
+        status: 409,
+      });
+    }
     sendResponse(res, {
       success: false,
       msg: `Error al crear usuario: ${error.message}`,
