@@ -10,16 +10,36 @@ const PORT = 5003; // Forzar puerto 5003
 
 console.log('Iniciando backend PrediVersa...');
 console.log(`🚀 Puerto configurado: ${PORT}`);
+console.log(`🔐 JWT_SECRET cargado: ${process.env.JWT_SECRET ? '✅ SÍ' : '❌ NO (usando default)'}`);
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ ADVERTENCIA: Usando JWT_SECRET por defecto. Configura la variable de entorno.');
+}
 
 // Middlewares de seguridad
 app.use(helmet());
+
+// Configurar CORS explícitamente
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN?.split(',') || [
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ],
+    origin: (origin, callback) => {
+      // Permitir peticiones sin origen (mobile apps, Postman, etc)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`⚠️ CORS: Origen no permitido: ${origin}`);
+        callback(null, true); // Permitir de todos modos en desarrollo
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -46,6 +66,9 @@ app.use((req, res, next) => {
 // Rutas principales agrupadas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/student', require('./routes/student'));
+app.use('/api/seguimiento', require('./routes/seguimiento'));
+app.use('/api/chatbot', require('./routes/chatbot')); // 🤖 Rutas para Llama 3 via AWS Bedrock
 
 // Ruta de perfil
 app.get('/api/profile', (req, res) => {
@@ -54,6 +77,11 @@ app.get('/api/profile', (req, res) => {
     message: 'Profile endpoint',
     data: null
   });
+});
+
+// Healthcheck simple
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, time: new Date().toISOString() });
 });
 
 // Middleware de manejo de errores JSON

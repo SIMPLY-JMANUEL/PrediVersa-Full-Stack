@@ -26,7 +26,7 @@ class ApiService {
     };
 
     // Agregar token de autenticación si existe
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -204,7 +204,7 @@ class ApiService {
     });
 
     if (response.success && response.data.token) {
-      localStorage.setItem('authToken', response.data.token);
+      localStorage.setItem('token', response.data.token);
     }
 
     return response;
@@ -214,7 +214,7 @@ class ApiService {
    * Cerrar sesión
    */
   async logout() {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     return this.request('/auth/logout', {
       method: 'POST',
     });

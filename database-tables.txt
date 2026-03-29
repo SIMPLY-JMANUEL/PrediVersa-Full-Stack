@@ -1,0 +1,18 @@
+TABLE_NAME                                                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------
+Evaluaciones                                                                                                                    
+Alertas                                                                                                                         
+TiposDocumento                                                                                                                  
+Generos                                                                                                                         
+EstadoCivil                                                                                                                     
+EPS                                                                                                                             
+Instituciones                                                                                                                   
+Formulario                                                                                                                      
+Grados                                                                                                                          
+TiposPQR                                                                                                                        
+NivelesUrgencia                                                                                                                 
+ReportesEstudiantes                                                                                                             
+PQR                                                                                                                             
+Usuarios                                                                                                                        
+
+(14 rows affected)

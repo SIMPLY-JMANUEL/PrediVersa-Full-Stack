@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const AlertarForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   const [formData, setFormData] = useState({
@@ -51,11 +53,71 @@ const AlertarForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos de la alerta:', formData);
-    // Aquí se implementaría la lógica para enviar los datos al backend
-    alert('Alerta registrada exitosamente');
+    
+    // Validación de token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('⚠️ No hay token de autenticación. Por favor inicia sesión nuevamente.');
+      return;
+    }
+    
+    try {
+      console.log('📝 Enviando alerta al backend...', formData);
+
+      // Validar campos obligatorios
+      if (!formData.nombre_reportante || !formData.tipo_alerta || !formData.ubicacion) {
+        alert('Por favor complete los campos obligatorios marcados con *');
+        return;
+      }
+
+      // Enviar alerta al backend
+      const response = await api.post('/api/admin/alerts', formData);
+
+      if (response.data.success) {
+        console.log('✅ Alerta registrada exitosamente:', response.data.data);
+        alert(`✅ Alerta registrada exitosamente\nNúmero: ${response.data.data.numeroAlerta}`);
+        
+        // Limpiar formulario
+        setFormData({
+          tipo_alerta: '',
+          fecha_hora: '',
+          ubicacion: '',
+          requiere_atencion_inmediata: '',
+          es_reiterativo: '',
+          canal_reporte: '',
+          nombre_estudiante: '',
+          identificacion_estudiante: '',
+          curso_grado: '',
+          edad: '',
+          tipo_reportado: '',
+          nombre_reportante: '',
+          identificacion_reportante: '',
+          relacion_reportado: '',
+          telefono_reportante: '',
+          email_reportante: '',
+          categoria_incidente: '',
+          descripcion_detallada: '',
+          evidencias: '',
+          testigos: '',
+          contexto_previo: '',
+          estado_alerta: '',
+          prioridad: '',
+          coordinador_asignado: '',
+          observaciones_preliminares: '',
+          consentimiento_informado: false,
+          proteccion_datos: false,
+          cumplimiento_normativo: false
+        });
+      } else {
+        alert('❌ Error: ' + (response.data.msg || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('❌ Error registrando alerta:', error);
+      const errorMsg = error.response?.data?.msg || error.message || 'Error al registrar la alerta';
+      alert('❌ ' + errorMsg);
+    }
   };
 
   // Estilos unificados para todos los campos del formulario

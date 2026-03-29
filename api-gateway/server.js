@@ -2,18 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const authMiddleware = require('./middlewares/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+const BACKEND_URL = process.env.BACKEND_SERVICE_URL || 'http://localhost:5003';
+
 console.log('🚀 Iniciando API Gateway PrediVersa...');
 console.log(`📡 Puerto: ${PORT}`);
-console.log(
-  `🔗 Backend URL: ${
-    process.env.BACKEND_SERVICE_URL || 'http://localhost:5002'
-  }`
-);
+console.log(`🔗 Backend URL: ${BACKEND_URL}`);
 
 // Configuración de CORS
 app.use(
@@ -25,30 +22,19 @@ app.use(
 
 app.use(express.json());
 
-// Rutas excluidas de autenticación
-const excludedPaths = (
-  process.env.AUTH_EXCLUDED_PATHS ||
-  '/health,/status,/api/auth/login,/api/auth/register'
-).split(',');
-
 // Middleware de autenticación condicional
+// NOTA: Por ahora el API Gateway solo actúa como proxy sin autenticación
+// La autenticación se maneja en el backend
 app.use((req, res, next) => {
-  console.log(`🔍 Ruta solicitada: ${req.path}`);
-  const isExcluded = excludedPaths.some(path => req.path.startsWith(path));
-  console.log(`🔒 ¿Ruta excluida de auth?: ${isExcluded}`);
-  if (isExcluded) {
-    console.log(`✅ Permitiendo acceso sin auth a: ${req.path}`);
-    return next();
-  }
-  console.log(`🔐 Aplicando middleware de auth a: ${req.path}`);
-  return authMiddleware(req, res, next);
+  console.log(`🔍 ${req.method} ${req.path}`);
+  next();
 });
 
 // Proxy al backend Node.js
 app.use(
   '/api',
   createProxyMiddleware({
-    target: process.env.BACKEND_SERVICE_URL || 'http://localhost:5002',
+    target: BACKEND_URL,
     changeOrigin: true,
     timeout: parseInt(process.env.PROXY_TIMEOUT) || 30000,
     onError: (err, req, res) => {

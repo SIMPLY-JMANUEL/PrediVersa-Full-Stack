@@ -2,25 +2,29 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const { getUserByCredentials, getAllUsers } = require('../models/UserSQL');
-const {
-  getUserByCredentialsDirect,
-  getAllUsersDirect,
-} = require('../models/UserDirectSQL');
+
+// Usar adaptador de base de datos (AWS RDS MySQL)
+const db = require('../db-adapter');
 
 // @route   POST /api/auth/login
-// @desc    Autenticar usuario y obtener token con SQL Server
+// @desc    Autenticar usuario y obtener token
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
-    console.log('🔍 Login route hit - SQL Server Integration');
+    console.log('🔍 Login route hit - AWS RDS MySQL');
     console.log('📦 Request body:', req.body);
 
-    const { usuario, correoElectronico, correo, contraseña, password } =
-      req.body || {};
+    const {
+      usuario,
+      correoElectronico,
+      correo,
+      username,
+      contraseña,
+      password,
+    } = req.body || {};
 
     // Permitir múltiples formas de identificación
-    const identifier = usuario || correoElectronico || correo;
+    const identifier = usuario || correoElectronico || correo || username;
     const pwd = contraseña || password;
 
     console.log('🔍 Processed:', { identifier, pwd: pwd ? '***' : 'MISSING' });
@@ -32,9 +36,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Buscar usuario en SQL Server usando método directo
-    console.log('🔍 Searching user in SQL Server with direct method...');
-    const user = await getUserByCredentialsDirect(identifier, pwd);
+    // Buscar usuario en la base de datos
+    console.log(`🔍 Searching user in ${db.dialect}...`);
+    const user = await db.User.getUserByCredentials(identifier, pwd);
 
     if (!user) {
       console.log('❌ Invalid credentials');
@@ -44,17 +48,19 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    console.log('🔍 User found in SQL Server:', {
-      id: user.id,
-      usuario: user.usuario,
-      correo: user.correo,
+    console.log('🔍 User found:', {
+      id: user.Id_Usuario || user.id,
+      usuario: user.Usuario || user.usuario,
+      correo: user.Correo || user.correo,
       rol: user.rol,
-      activo: user.activo,
+      perfil: user.Perfil || user.rol || user.perfil,
+      activo: user.Activo || user.activo,
     });
 
     // Verificar que el usuario esté activo
-    if (user.activo !== 1 && user.activo !== true && user.activo !== '1') {
-      console.log('❌ User inactive');
+    const activoValue = String(user.Activo || user.activo).trim().toUpperCase();
+    if (![1, '1', 'TRUE', 'SI'].includes(activoValue) && user.activo !== true) {
+      console.log('❌ User inactive, activo value:', activoValue);
       return res.status(403).json({
         success: false,
         msg: 'Usuario inactivo. Contacta al administrador.',
@@ -64,22 +70,22 @@ router.post('/login', async (req, res) => {
     // Crear token JWT
     const payload = {
       user: {
-        id: user.id,
-        nombre: (user.nombre || '').trim(),
-        correo: (user.correo || '').trim(),
-        usuario: (user.usuario || '').trim(),
-        rol: (user.rol || '').trim(),
-        activo: user.activo,
+        id: user.Id_Usuario || user.id,
+        nombre: (user.Nombre_Completo || user.nombre || '').trim(),
+        correo: (user.Correo || user.correo || '').trim(),
+        usuario: (user.Usuario || user.usuario || '').trim(),
+        rol: (user.Perfil || user.rol || '').trim(),
+        activo: user.Activo || user.activo,
       },
     };
 
     const token = jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'prediversa_secret_2024',
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
       { expiresIn: '24h' }
     );
 
-    console.log('✅ Login successful with SQL Server, token generated');
+    console.log(`✅ Login successful with ${db.dialect}, token generated`);
 
     res.json({
       success: true,
@@ -87,7 +93,7 @@ router.post('/login', async (req, res) => {
       user: payload.user,
     });
   } catch (error) {
-    console.error('❌ Error en login SQL Server:', error);
+    console.error(`❌ Error en login (${db.dialect}):`, error);
     res.status(500).json({
       success: false,
       msg: 'Error del servidor',
@@ -100,8 +106,8 @@ router.post('/login', async (req, res) => {
 // @access  Private
 router.get('/users', async (req, res) => {
   try {
-    console.log('🔍 Getting users from SQL Server with direct method...');
-    const users = await getAllUsersDirect();
+    console.log('🔍 Getting users from AWS RDS MySQL...');
+    const users = await db.User.getAllUsers();
 
     res.json({
       success: true,
@@ -118,10 +124,10 @@ router.get('/users', async (req, res) => {
 });
 
 // @route   POST /api/auth/verify
-// @desc    Verificar token
+// @desc    Verificar token y renovarlo si es válido
 // @access  Public
 router.post('/verify', (req, res) => {
-  const token = req.header('x-auth-token') || req.body.token;
+  const token = req.header('Authorization')?.replace('Bearer ', '') || req.header('x-auth-token') || req.body.token;
 
   if (!token) {
     return res.status(401).json({ msg: 'No token, autorización denegada' });
@@ -130,14 +136,60 @@ router.post('/verify', (req, res) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'prediversa_secret_2024'
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES'
     );
+    
+    // Generar nuevo token renovado
+    const newToken = jwt.sign(
+      decoded,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { expiresIn: '24h' }
+    );
+    
     res.json({
       success: true,
       user: decoded.user,
+      token: newToken, // Renovado
     });
   } catch (error) {
-    res.status(401).json({ msg: 'Token no válido' });
+    console.error('Token verification error:', error.message);
+    res.status(401).json({ msg: 'Token no válido', error: error.message });
+  }
+});
+
+// @route   POST /api/auth/refresh
+// @desc    Renovar token expirado
+// @access  Private
+router.post('/refresh', (req, res) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ msg: 'No token, autorización denegada' });
+  }
+
+  try {
+    // Verificar incluso si expiró (ignoreExpiration)
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { ignoreExpiration: true }
+    );
+    
+    // Generar nuevo token
+    const newToken = jwt.sign(
+      decoded,
+      process.env.JWT_SECRET || 'CAMBIAR_CLAVE_JWT_SEGURA_MINIMO_32_CARACTERES',
+      { expiresIn: '24h' }
+    );
+    
+    res.json({
+      success: true,
+      token: newToken,
+      user: decoded.user,
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error.message);
+    res.status(401).json({ msg: 'No se pudo renovar el token', error: error.message });
   }
 });
 

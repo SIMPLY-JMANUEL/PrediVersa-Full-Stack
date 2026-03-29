@@ -27,6 +27,8 @@
     "clean:gateway": "cd api-gateway && rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
+    "@aws-sdk/client-lightsail": "^3.971.0",
+    "aws-sdk": "^2.1693.0",
     "concurrently": "^7.6.0"
   },
   "repository": {
@@ -44,6 +46,7 @@
   "author": "SIMPLY-JMANUEL",
   "license": "MIT",
   "dependencies": {
-    "builtin-modules": "^5.0.0"
+    "builtin-modules": "^5.0.0",
+    "debug": "^2.6.9"
   }
 }

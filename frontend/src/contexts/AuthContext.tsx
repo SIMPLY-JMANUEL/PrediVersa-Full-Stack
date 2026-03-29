@@ -105,8 +105,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Load user from localStorage on mount
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user_data');
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
 
     if (token && userData) {
       try {
@@ -114,8 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
       } catch (error) {
         console.error('Error parsing user data:', error);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_data');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     }
   }, []);
@@ -127,7 +127,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      const response = await fetch('http://localhost:5003/api/auth/login', {
+      const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
+      const response = await fetch(`${apiBaseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,8 +143,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data: AuthResponse = await response.json();
 
       // Store in localStorage
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user_data', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -161,8 +162,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -175,7 +176,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Refresh token function
   const refreshToken = async (): Promise<void> => {
     try {
-      const response = await fetch('http://localhost:5003/api/auth/refresh', {
+      const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
+      const response = await fetch(`${apiBaseUrl}/auth/refresh`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${state.token}`,

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import api from '../../../utils/axiosConfig';
 
 const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   // Estilos unificados para todos los campos del formulario
@@ -48,12 +50,70 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     { id: 1, nombre: '', rol: '', entidad: '', relacion: '' }
   ]);
 
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Validaciones
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.fechaSeguimiento.trim()) {
+      newErrors.fechaSeguimiento = 'La fecha de seguimiento es requerida';
+    }
+
+    if (!formData.profesionalSeguimiento.trim()) {
+      newErrors.profesionalSeguimiento = 'El profesional que realiza el seguimiento es requerido';
+    }
+
+    if (!formData.tipoSeguimiento) {
+      newErrors.tipoSeguimiento = 'El tipo de seguimiento es requerido';
+    }
+
+    if (formData.tipoSeguimiento === 'otro' && !formData.tipoSeguimientoOtro.trim()) {
+      newErrors.tipoSeguimientoOtro = 'Especifique el tipo de seguimiento';
+    }
+
+    if (!formData.observacionesResultados.trim()) {
+      newErrors.observacionesResultados = 'Las observaciones/resultados del seguimiento son requeridas';
+    }
+
+    if (!formData.estadoCaso) {
+      newErrors.estadoCaso = 'El estado del caso es requerido';
+    }
+
+    if (formData.estadoCaso === 'otro' && !formData.estadoCasoOtro.trim()) {
+      newErrors.estadoCasoOtro = 'Especifique el estado del caso';
+    }
+
+    if (formData.requiereSeguimientoAdicional === 'si' && !formData.fechaProximoSeguimiento) {
+      newErrors.fechaProximoSeguimiento = 'Debe especificar la fecha del próximo seguimiento';
+    }
+
+    // Validar al menos un interviniente con datos
+    const tieneIntervinientes = intervinientesList.some(i => i.nombre.trim() && i.rol.trim());
+    if (!tieneIntervinientes) {
+      newErrors.intervinientes = 'Agregue al menos un interviniente';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'file' ? files : value
     }));
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleIntervinienteChange = (id, field, value) => {
@@ -65,7 +125,7 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
   };
 
   const addInterviniente = () => {
-    const newId = Math.max(...intervinientesList.map(i => i.id)) + 1;
+    const newId = Math.max(...intervinientesList.map(i => i.id), 0) + 1;
     setIntervinientesList(prev => [
       ...prev,
       { id: newId, nombre: '', rol: '', entidad: '', relacion: '' }
@@ -78,10 +138,78 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Seguimiento guardado exitosamente');
-    console.log('Datos del seguimiento:', { ...formData, intervinientes: intervinientesList });
+    setSuccessMessage('');
+
+    if (!validateForm()) {
+      console.error('Errores de validación:', errors);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Obtener token de autenticación
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setErrors({ submit: 'No hay sesión activa. Por favor inicia sesión nuevamente.' });
+        setLoading(false);
+        return;
+      }
+
+      const payload = {
+        numeroCaso: formData.codigoCaso,
+        descripcionRequerimiento: `${formData.tipoSeguimiento === 'otro' ? formData.tipoSeguimientoOtro : formData.tipoSeguimiento}: ${formData.observacionesResultados}`,
+        estadoRequerimiento: formData.estadoCaso === 'otro' ? 'otro' : formData.estadoCaso,
+        profesionalAsignado: formData.profesionalSeguimiento,
+        fechaSeguimiento: formData.fechaSeguimiento,
+        resultadoSeguimiento: formData.observacionesResultados,
+        accionesTomadas: formData.observacionesResultados,
+        proximasAcciones: formData.proximasAcciones,
+        requiereSeguimientoAdicional: formData.requiereSeguimientoAdicional,
+        fechaProximoSeguimiento: formData.fechaProximoSeguimiento,
+        intervinientes: intervinientesList.filter(i => i.nombre.trim()),
+        observaciones: formData.estadoCasoOtro || formData.observacionesResultados
+      };
+
+      const response = await api.post(
+        '/api/seguimiento/crear',
+        payload
+      );
+
+      if (response.data.success || response.status === 200) {
+        setSuccessMessage('✅ Seguimiento guardado exitosamente como requerimiento');
+        console.log('Requerimiento creado:', response.data);
+        
+        // Resetear formulario
+        setTimeout(() => {
+          setFormData({
+            codigoCaso: '#ALR-000123',
+            fechaSeguimiento: new Date().toISOString().split('T')[0],
+            profesionalSeguimiento: '',
+            tipoSeguimiento: '',
+            tipoSeguimientoOtro: '',
+            observacionesResultados: '',
+            intervinientes: '',
+            evidenciaDocumental: null,
+            proximasAcciones: '',
+            requiereSeguimientoAdicional: '',
+            fechaProximoSeguimiento: '',
+            estadoCaso: '',
+            estadoCasoOtro: ''
+          });
+          setIntervinientesList([{ id: 1, nombre: '', rol: '', entidad: '', relacion: '' }]);
+          setSuccessMessage('');
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error al guardar seguimiento:', error);
+      setErrors({ 
+        submit: error.response?.data?.msg || error.message || 'Error al guardar el seguimiento'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -94,6 +222,41 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
 
   return (
     <form className="tab-content-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, gap: 18 }} onSubmit={handleSubmit}>
+      
+      {/* Mensajes de estado */}
+      {successMessage && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: '#d4edda',
+          border: '1px solid #c3e6cb',
+          borderRadius: 6,
+          color: '#155724',
+          fontSize: '0.95em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <i className="fas fa-check-circle"></i>
+          {successMessage}
+        </div>
+      )}
+
+      {errors.submit && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: '#f8d7da',
+          border: '1px solid #f5c6cb',
+          borderRadius: 6,
+          color: '#721c24',
+          fontSize: '0.95em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <i className="fas fa-exclamation-circle"></i>
+          {errors.submit}
+        </div>
+      )}
       
       {/* 1. Datos del seguimiento general */}
       <fieldset style={fieldsetStyle}>
@@ -120,8 +283,17 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               value={formData.fechaSeguimiento}
               onChange={handleInputChange}
               required 
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: errors.fechaSeguimiento ? '#dc3545' : '#ddd',
+                backgroundColor: errors.fechaSeguimiento ? '#fff5f5' : 'white'
+              }}
             />
+            {errors.fechaSeguimiento && (
+              <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                <i className="fas fa-exclamation-triangle"></i> {errors.fechaSeguimiento}
+              </small>
+            )}
           </label>
 
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4, gridColumn: '1 / -1' }}>
@@ -133,8 +305,17 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               onChange={handleInputChange}
               placeholder="Nombre completo + Rol"
               required
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: errors.profesionalSeguimiento ? '#dc3545' : '#ddd',
+                backgroundColor: errors.profesionalSeguimiento ? '#fff5f5' : 'white'
+              }}
             />
+            {errors.profesionalSeguimiento && (
+              <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                <i className="fas fa-exclamation-triangle"></i> {errors.profesionalSeguimiento}
+              </small>
+            )}
           </label>
 
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -144,7 +325,11 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               value={formData.tipoSeguimiento}
               onChange={handleInputChange}
               required
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: errors.tipoSeguimiento ? '#dc3545' : '#ddd',
+                backgroundColor: errors.tipoSeguimiento ? '#fff5f5' : 'white'
+              }}
             >
               <option value="">Seleccionar</option>
               <option value="llamada_telefonica">Llamada telefónica</option>
@@ -154,6 +339,11 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               <option value="intervencion_directa">Intervención directa</option>
               <option value="otro">Otro</option>
             </select>
+            {errors.tipoSeguimiento && (
+              <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                <i className="fas fa-exclamation-triangle"></i> {errors.tipoSeguimiento}
+              </small>
+            )}
           </label>
 
           {formData.tipoSeguimiento === 'otro' && (
@@ -190,14 +380,22 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
                 ...inputStyle, 
                 height: 'auto',
                 resize: 'vertical',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                borderColor: errors.observacionesResultados ? '#dc3545' : '#ddd',
+                backgroundColor: errors.observacionesResultados ? '#fff5f5' : 'white'
               }}
             />
+            {errors.observacionesResultados && (
+              <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                <i className="fas fa-exclamation-triangle"></i> {errors.observacionesResultados}
+              </small>
+            )}
           </label>
 
           <div>
-            <span style={{ fontWeight: 500, color: '#333', marginBottom: 8, display: 'block' }}>
+            <span style={{ fontWeight: 500, color: '#333', marginBottom: 8, display: 'block', display: 'flex', alignItems: 'center', gap: 4 }}>
               Intervinientes o actores involucrados:
+              {errors.intervinientes && <span style={{ color: '#dc3545', fontSize: '0.85em' }}>⚠️ {errors.intervinientes}</span>}
             </span>
             {intervinientesList.map((interviniente, index) => (
               <div key={interviniente.id} style={{ 
@@ -337,8 +535,17 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               name="fechaProximoSeguimiento" 
               value={formData.fechaProximoSeguimiento}
               onChange={handleInputChange}
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: errors.fechaProximoSeguimiento ? '#dc3545' : '#ddd',
+                backgroundColor: errors.fechaProximoSeguimiento ? '#fff5f5' : 'white'
+              }}
             />
+            {errors.fechaProximoSeguimiento && (
+              <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                <i className="fas fa-exclamation-triangle"></i> {errors.fechaProximoSeguimiento}
+              </small>
+            )}
           </label>
 
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -348,7 +555,11 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
               value={formData.estadoCaso}
               onChange={handleInputChange}
               required
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: errors.estadoCaso ? '#dc3545' : '#ddd',
+                backgroundColor: errors.estadoCaso ? '#fff5f5' : 'white'
+              }}
             >
               <option value="">Seleccionar</option>
               <option value="en_proceso">En proceso</option>
@@ -369,8 +580,17 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
                 value={formData.estadoCasoOtro}
                 onChange={handleInputChange}
                 placeholder="Especificar..."
-                style={inputStyle}
+                style={{
+                  ...inputStyle,
+                  borderColor: errors.estadoCasoOtro ? '#dc3545' : '#ddd',
+                  backgroundColor: errors.estadoCasoOtro ? '#fff5f5' : 'white'
+                }}
               />
+              {errors.estadoCasoOtro && (
+                <small style={{ color: '#dc3545', fontSize: '0.8em' }}>
+                  <i className="fas fa-exclamation-triangle"></i> {errors.estadoCasoOtro}
+                </small>
+              )}
             </label>
           )}
         </div>
@@ -387,31 +607,44 @@ const SeguimientoForm = ({ fieldsetStyle, legendStyle, unifiedStyles }) => {
       }}>
         <button 
           type="submit"
+          disabled={loading}
           style={{
-            background: 'linear-gradient(90deg, #4caf50 60%, #66bb6a 100%)',
+            background: loading ? '#ccc' : 'linear-gradient(90deg, #4caf50 60%, #66bb6a 100%)',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             padding: '12px 24px',
             fontSize: '1em',
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: loading ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            transition: 'transform 0.2s, box-shadow 0.2s'
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            opacity: loading ? 0.7 : 1
           }}
           onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-1px)';
-            e.target.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
+            if (!loading) {
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
+            }
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
             e.target.style.boxShadow = 'none';
           }}
         >
-          <i className="fas fa-save"></i>
-          Guardar seguimiento
+          {loading ? (
+            <>
+              <i className="fas fa-spinner fa-spin"></i>
+              Guardando...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-save"></i>
+              Guardar seguimiento
+            </>
+          )}
         </button>
 
         <button 

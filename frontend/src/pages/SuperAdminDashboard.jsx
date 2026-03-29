@@ -211,7 +211,6 @@ function SuperAdminDashboard() {
     };
 
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   if (loading) {
